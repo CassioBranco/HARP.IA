@@ -47,7 +47,8 @@ export default function SignupPage() {
       }
 
       if (data.session) {
-        await ensureProfileOnClient()
+        // Tenta criar tenant — falha silenciosa (retenta no próximo acesso)
+        try { await ensureProfileOnClient() } catch { /* ignora */ }
         router.push('/sites')
         router.refresh()
         return
