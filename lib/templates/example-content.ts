@@ -131,7 +131,7 @@ const EXAMPLES: Record<string, SiteContent> = {
 }
 
 // Fallback genérico para nichos sem conteúdo de exemplo específico
-const GENERIC: SiteContent = EXAMPLES['servicos']
+const GENERIC = EXAMPLES['servicos'] as SiteContent
 
 export function getExampleContent(preset: string): SiteContent {
   return EXAMPLES[preset] ?? GENERIC

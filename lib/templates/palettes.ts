@@ -85,8 +85,12 @@ const PALETTES: Record<string, PaletteColors[]> = {
 }
 
 export function getPalette(preset: string, index: number): PaletteColors {
-  const palettes = PALETTES[preset] ?? PALETTES['servicos']
-  return palettes[Math.min(index, palettes.length - 1)] ?? palettes[0]
+  const palettes = PALETTES[preset] ?? PALETTES['servicos'] ?? []
+  const safeIndex = Math.min(index, palettes.length - 1)
+  return palettes[safeIndex] ?? palettes[0] ?? {
+    primary: '#0d9488', secondary: '#0f766e', accent: '#5eead4',
+    bg: '#f0fdfa', surface: '#ffffff', text: '#134e4a', muted: '#6b7280',
+  }
 }
 
 export function paletteToCSS(p: PaletteColors): string {
