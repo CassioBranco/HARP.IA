@@ -1,0 +1,59 @@
+---
+description: Regras de Design Atômico, Storybook e sistema visual do Projeto HARPIA.
+globs: ["components/**/*", "**/*.stories.tsx", "tailwind.config.ts", "design/**/*"]
+alwaysApply: false
+---
+
+# Design Atômico — Projeto HARPIA
+
+## Hierarquia de componentes
+
+```
+Átomo      → botão, input, badge, avatar, ícone
+Molécula   → campo de formulário, card simples, tag group
+Organismo  → hero section, pricing table, testimonials grid
+Template   → layout de página (onboarding, dashboard, site publicado)
+Page       → instância de template com dados reais
+```
+
+## REGRA CRÍTICA — inegociável
+
+```
+NUNCA editar:  components/atoms/
+NUNCA editar:  components/molecules/
+NUNCA alterar: tailwind.config.ts (tokens centrais)
+
+Átomos e moléculas são "código-matriz" — só Cássio ou Anderson alteram manualmente.
+Cursor/Claude Code opera livremente em organisms/, templates/, pages/.
+Componente novo SEMPRE começa em components/draft/ antes de ser promovido.
+```
+
+## Paletas por nicho
+Cada preset tem 3 paletas. Usam CSS variables:
+```css
+var(--color-primary)
+var(--color-secondary)
+var(--color-accent)
+var(--color-background)
+var(--color-surface)
+var(--color-text)
+var(--color-text-muted)
+```
+
+Arquivos em `design/paletas/{niche}-{0|1|2}.css`. Leia antes de usar cores.
+
+## Storybook — obrigatório para todo organismo+
+
+Todo organismo, template e page tem `.stories.tsx` colocado no mesmo turno de criação:
+```tsx
+export const Default: StoryObj = { args: { ... } }
+export const Loading: StoryObj = { ... }
+export const Empty:   StoryObj = { ... }
+export const Error:   StoryObj = { ... }
+```
+
+## Acessibilidade mínima
+- Contraste WCAG AA: 4.5:1 texto normal, 3:1 texto grande
+- Focus rings visíveis (não só hover)
+- Componentes interativos: `role` + `aria-label` + navegação por teclado
+- `next/image` com `alt` descritivo sempre

@@ -1,0 +1,46 @@
+[A · Prompts · Alto] Refatorar Bloco 1 (remover duplicação com Bloco 0)
+[A · Prompts · Crítico] Prompts v1 — Bloco 2 (Agente Blog) — próximo da fila
+[A · Prompts · Alto] Prompts v1 — Bloco 3 (Agente GBP)
+[A · Prompts · Alto] Prompts v1 — Bloco 4 (Agente Auditoria) — modelo Haiku
+[A · Prompts · Médio] Prompts v1 — Bloco 5 (Agente Multilíngue) — Fase MVP B
+[A · Prompts · Alto] Prompts v1 — Bloco 6 (Nicho Clínica)
+[A · Prompts · Alto] Prompts v1 — Bloco 7 (Nicho Imobiliária)
+[A · Prompts · Alto] Prompts v1 — Bloco 8 (Nicho Serviços)
+[A · Prompts · Médio] Prompts v1 — Bloco 9 (Nicho Institucional)
+[A · Prompts · Médio] Prompts v1 — Bloco 10 (Nicho Restaurante) — cardápio pra exibição, não compra
+[A · Prompts · Médio] Prompts v1 — Bloco 11 (Nicho Salão)
+[A · Prompts · Médio] Prompts v1 — Bloco 12 (Nicho Escola)
+[A · Prompts · Médio] Prompts v1 — Bloco 13 (Nicho Landing)
+[A · Planejamento · Crítico] ARCHITECTURE.md — documento de arquitetura formal
+[A · Schema · Alto] Estrutura seo-rules/ — YAMLs mutáveis (global + 8 nichos)
+[A · Planejamento · Crítico] Setup agentes de dev (Claude Code + Cursor) — skills, templates, conventions
+[A · Design · Alto] Design system — paletas por nicho + tokens CSS
+[A · Planejamento · Alto] CLAUDE.md final compilado
+[B1 · Design · Alto] B1 — Protótipo onboarding wizard (6 steps interativos)
+[B2 · Design · Alto] B2 — Protótipo 8 templates HTML/CSS por nicho
+[B3 · Design · Alto] B3 — Protótipo painel admin (UX cocktail Shopify+Ghost+Beehiiv+Cal.com+Stripe)
+[B4 · Design · Alto] B4 — Protótipo landing page didática (marketing site)
+[B5 · Design · Alto] B5 — Protótipo editor blog 3 modos (manual/revisão/automático)
+[B6 · Design · Alto] B6 — Protótipo dashboard métricas SEO/GEO/AEO live
+[C · S1 · Backend · Crítico] S1 — Infra base: Next.js + Supabase + Vercel + Cloudflare Pages + R2 + Resend + Inngest + Sentry + PostHog
+[C · S2 · Backend · Crítico] S2 — Onboarding wizard funcional + GBP OAuth Google review (URGENTE — começar AGORA)
+[C · S3 · Frontend · Crítico] S3 — 8 templates em Tailwind + sistema de paleta + Storybook
+[C · S4 · Backend · Crítico] S4 — Motor de IA: Agente Onboarding + streaming SSE + Vercel AI SDK + LangGraph
+[C · S5 · Backend · Crítico] S5 — Pipeline de publicação: Sharp WebP + Schema JSON-LD + Sitemap + Cloudflare Pages deploy
+[C · S6 · Backend · Crítico] S6 — Agente de Blog + editor 3 modos + calendário (FILOSOFIA NUCLEAR)
+[C · S7 · Backend · Crítico] S7 — Integração GBP + Agente GBP (depende OAuth aprovado de S2)
+[C · S8 · Backend · Crítico] S8 — Score SEO/GEO/AEO live (FILOSOFIA NUCLEAR)
+[C · S9 · Pagamento · Crítico] S9 — Stripe + abstração PaymentProvider + trial + inadimplência 90d
+[C · S10 · Backend · Crítico] S10 — Painel admin completo (UX cocktail aplicado)
+[C · S11 · Frontend · Alto] S11 — Landing page didática + signup self-service
+[C · S12 · Backend · Alto] S12 — Sistema de quotas + tenant_usage tracking
+[C · S13 · Backend · Alto] S13 — Domain auto-purchase Cloudflare Registrar (Starter +R$8/mês)
+[C · Lançamento · Alto] Beta com 2-5 clientes novos (1-2 semanas)
+[D · D1 · Backend · Médio] D1 — Agente Multilíngue + estrutura hreflang
+[D · D2 · Backend · Médio] D2 — White-label Agency (logo, cores, domínio próprio do painel)
+[D · D3 · Backend · Médio] D3 — API access pra Agency (REST + webhooks)
+[D · D4 · Backend · Médio] D4 — Painel de clientes pra Agency (multi-cliente)
+[D · D5 · Backend · Baixo] D5 — Programa de afiliados/parceiros + comissão
+[D · D6 · Pagamento · Médio] D6 — Internacionalização: Stripe internacional + Paypal + multi-moeda
+[D · D7 · Backend · Médio] D7 — Features extras Pro (backlog aberto)
+[D · D8 · Backend · Médio] D8 — Features extras Agency (backlog aberto)

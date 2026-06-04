@@ -1,0 +1,51 @@
+---
+description: Arquitetura multi-tenant, estrutura de pastas e padrões de camada do Projeto HARPIA.
+globs: ["**/*.ts", "**/*.tsx", "app/**/*", "lib/**/*", "supabase/**/*"]
+alwaysApply: true
+---
+
+# Arquitetura — Projeto HARPIA
+
+## Estrutura de pastas (não alterar sem motivo)
+```
+app/(auth)/          ← login, signup, reset
+app/(dashboard)/     ← área logada (middleware protege)
+app/[domain]/        ← sites publicados dos clientes (dynamic route)
+components/atoms/    ← PROTEGIDO — não editar
+components/molecules/← PROTEGIDO — não editar
+components/organisms/← editável com cuidado
+components/draft/    ← todo componente novo começa aqui
+lib/supabase/        ← createServerClient / createBrowserClient
+lib/claude/          ← Claude API client + streaming SSE
+lib/agents/          ← LangGraph agents
+lib/prompts/         ← loader.ts (monta 3 camadas)
+lib/sharp/           ← pipeline de imagens server-side
+supabase/migrations/ ← DDL versionado com timestamp
+```
+
+## Padrão de cliente Supabase
+```typescript
+// Server (route handler, Server Component, Server Action):
+import { createServerClient } from '@/lib/supabase/server'
+
+// Client (componente interativo):
+import { createBrowserClient } from '@/lib/supabase/client'
+```
+
+## Multi-tenant — regra de ouro
+1. `tenant_id` sempre de `auth.uid()` → query em `users` → `tenant_id`
+2. Toda query em tabela com `tenant_id` passa por RLS (automático com client correto)
+3. Service Role Supabase: APENAS em workers Inngest com `tenant_id` explícito
+4. Testar cross-tenant em todo endpoint que lista recursos
+
+## Fluxo de geração IA
+```
+Route Handler → verifica quota → Inngest job → LangGraph agent →
+Claude API (streaming SSE) → persiste ia_generations → notifica frontend
+```
+
+## Prompt assembly (runtime)
+```typescript
+const prompt = buildSystemPrompt('agent', 'blog', 'clinica')
+// = bloco_global + bloco_agente_blog + bloco_nicho_clinica + client_profile
+```

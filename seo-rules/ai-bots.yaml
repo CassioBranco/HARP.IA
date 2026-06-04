@@ -1,0 +1,42 @@
+# ai-bots.yaml — Bots de IA liberados no robots.txt de TODO site gerado
+# Ver docs/AEO-ARCHITECTURE-RULES.md Regra 1
+# Config versionada: atualizar aqui quando surgir bot novo, sem deploy.
+# O gerador de robots.txt (Agente de Publicação, S5) lê este arquivo.
+
+version: 1
+updated_at: "2026-06-02"
+
+# Regra: todos estes user-agents recebem "Allow: /" no robots.txt de cada site publicado.
+# Site bloqueado para bot de IA não existe para ~51% das buscas atuais (as que passam por LLM).
+allow_bots:
+  # OpenAI
+  - name: GPTBot           # crawler de treino/indexação do ChatGPT
+    vendor: OpenAI
+  - name: OAI-SearchBot    # SearchGPT
+    vendor: OpenAI
+  - name: ChatGPT-User     # browsing em tempo real do ChatGPT
+    vendor: OpenAI
+
+  # Google
+  - name: Google-Extended  # Gemini / Vertex / Bard (controla uso em IA, separado do Googlebot)
+    vendor: Google
+
+  # Anthropic
+  - name: Anthropic-AI     # uso em treino
+    vendor: Anthropic
+  - name: ClaudeBot        # indexação
+    vendor: Anthropic
+  - name: Claude-Web       # browsing em tempo real do Claude
+    vendor: Anthropic
+
+  # Perplexity
+  - name: PerplexityBot
+    vendor: Perplexity
+
+  # Apple
+  - name: Applebot-Extended # Apple Intelligence (separado do Applebot de busca)
+    vendor: Apple
+
+# Nota: Googlebot, Bingbot e outros crawlers de busca tradicional já são liberados
+# por padrão (não fazem parte desta lista, que é específica de IA generativa).
+# NUNCA adicionar "Disallow" para nenhum destes sem decisão explícita registrada em ADR.

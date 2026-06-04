@@ -1,0 +1,34 @@
+---
+description: Stack técnico do Projeto HARPIA e ADRs principais. Aplicar em qualquer arquivo do projeto.
+globs: ["**/*.ts", "**/*.tsx", "**/*.sql", "**/*.json"]
+alwaysApply: true
+---
+
+# Stack técnico — Projeto HARPIA
+
+## Decisões fechadas (não reabrir sem ADR nova)
+
+| Camada | Tecnologia | Não substituir por |
+|--------|-----------|-------------------|
+| Framework | Next.js 14 App Router | Pages Router, Remix, Nuxt |
+| Banco | Supabase PostgreSQL + RLS | Prisma ORM direto, Firebase, MongoDB |
+| IA | Claude API via Vercel AI SDK | Chamada direta sem abstração |
+| Orquestração IA | LangGraph | CrewAI, AutoGen, LangChain simples |
+| Pagamentos | Stripe | Pagar.me, PagSeguro (fase A) |
+| Deploy app | Vercel | AWS, Railway (fase A) |
+| Sites clientes | Cloudflare Pages | Vercel (custo escala) |
+| Imagens | Cloudflare R2 + Sharp | S3, Cloudinary |
+| Email | Resend | SendGrid, SES (fase A) |
+| Fila | Inngest | BullMQ, Temporal (fase A) |
+| Observabilidade | Sentry + PostHog | Datadog, New Relic (fase A) |
+| Componentes | shadcn/ui + Tailwind | Material UI, Chakra, Ant Design |
+
+## Modelos IA por agente
+- **Sonnet** → geração criativa (onboarding, blog, gbp, multilíngue)
+- **Haiku** → análise e score (auditoria, alt text de imagem, embeddings)
+
+## Prompts NUNCA no código
+Prompts vivem em `prompt_templates` no banco. Use `lib/prompts/loader.ts`.
+
+## Multi-tenant SEMPRE via RLS
+`tenant_id` derivado de `auth.uid()` no servidor. Nunca do body/query string.

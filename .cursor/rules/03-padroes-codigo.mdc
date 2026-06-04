@@ -1,0 +1,68 @@
+---
+description: Convenções de código, naming, TypeScript e padrões de rota API do Projeto HARPIA.
+globs: ["**/*.ts", "**/*.tsx"]
+alwaysApply: true
+---
+
+# Padrões de código — Projeto HARPIA
+
+## TypeScript — obrigatório
+- `strict: true` + `noUncheckedIndexedAccess: true` no tsconfig
+- Zero `any` — usar `unknown` + type guard quando tipo não é conhecido
+- Branded types para IDs: `TenantId`, `SiteId`, `UserId`, `SiteId`
+- Enums → const objects: `const Plan = { Starter: 'starter' } as const`
+- Zod em toda fronteira externa (rotas API, webhooks, formulários)
+
+## Naming
+```
+Componentes:     PascalCase  → HeroSection.tsx
+Hooks:           camelCase   → useOnboarding.ts (prefixo use)
+Tipos:           PascalCase  → ClientProfileType, CreateSiteInput
+Constantes:      UPPER_SNAKE → MAX_BLOG_POSTS_STARTER
+Funções puras:   camelCase   → buildSystemPrompt, calculateScore
+Arquivos route:  kebab-case  → route.ts (padrão Next.js)
+Migrations:      timestamp   → 20260527120000_add_intent_to_pages.sql
+```
+
+## Rotas API — padrão
+```typescript
+// app/api/generate/blog/route.ts
+export async function POST(request: NextRequest) {
+  // 1. Validar input com Zod
+  const body = CreateBlogPostSchema.parse(await request.json())
+
+  // 2. Autenticar + derivar tenant_id
+  const supabase = createServerClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  // 3. Verificar quota ANTES de qualquer geração
+  await checkAndIncrementQuota(user.id, 'blog_post')
+
+  // 4. Disparar Inngest job (não gerar de forma síncrona)
+  await inngest.send({ name: 'harpia/blog.generate', data: { ... } })
+
+  return NextResponse.json({ jobId }, { status: 202 })
+}
+```
+
+## Erros — sempre JSON estruturado
+```typescript
+// Nunca: throw new Error('algo deu errado')
+// Sempre:
+return NextResponse.json(
+  { error: 'QUOTA_EXCEEDED', message: 'Limite mensal de posts atingido' },
+  { status: 429 }
+)
+```
+
+## Server Components por padrão
+- `'use client'` apenas quando precisar: useState, useEffect, event handlers, browser APIs
+- Formulários complexos: Server Actions com Zod, não client-side fetch
+- `next/image` em toda imagem — nunca `<img>` direto
+
+## Comentários — somente quando o WHY não é óbvio
+```typescript
+// Deriva tenant_id do JWT, nunca do body — previne cross-tenant
+const tenantId = await getTenantFromAuth(user.id)
+```

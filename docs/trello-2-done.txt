@@ -1,0 +1,11 @@
+[A · Planejamento · Alto] Definição de produto, features e roadmap
+[A · Planejamento · Alto] Stack técnico fechado + 35 ADRs base
+[A · Planejamento · Alto] Onboarding wizard — 25 variáveis em 6 steps
+[A · Schema · Alto] Schema do banco — 17 tabelas + DDL + RLS (inclui plan_quotas + tenant_usage + internal_links anti-órfã)
+[A · Planejamento · Alto] Arquitetura dos 5 agentes + guardrails Asimov
+[A · Planejamento · Crítico] Alicerce arquitetural fechado — 35 ADRs (codinome HARPIA, não-ecommerce com e-commerce futuro possível, stack completo, MVP A escopo, modelo agentes de dev)
+[A · Planejamento · Crítico] North Star definido — foco SEO/GEO/AEO imutável (NORTH-STAR.md)
+[A · Planejamento · Crítico] 8 regras de arquitetura AEO (docs/AEO-ARCHITECTURE-RULES.md) + seo-rules/ai-bots.yaml
+[A · Planejamento · Crítico] Time de agentes de dev montado — 3 agentes + 8 skills + 3 commands + 6 cursor rules
+[A · Prompts · Crítico] Prompts v1 — Bloco 0 (Global) — §2 corrigido (CPF universal), §6 endurecido (H2 autossuficiente + FAQ>=6)
+[A · Prompts · Crítico] Prompts v1 — Bloco 1 (Agente Onboarding) — precisa refatorar (tarefa separada)

@@ -1,0 +1,54 @@
+---
+description: Como aplicar os 4 search intents em páginas de site e artigos de blog do Produto HARPIA.
+globs: ["lib/agents/**/*", "lib/prompts/**/*", "prompts/**/*", "app/**/page.tsx"]
+alwaysApply: false
+---
+
+# Search Intent — Projeto HARPIA
+
+Cada página de site e artigo de blog declara 1 intent dominante.
+O intent dirige: estrutura HTML, CTA, schema JSON-LD, keywords e tom.
+
+## Os 4 intents
+
+| Intent | Usuário quer | Estrutura | CTA | Schema |
+|--------|-------------|-----------|-----|--------|
+| **informacional** | Aprender, entender | How-to, FAQ longa, listicle, definição. CTA suave no final | "Saiba mais", "Leia também" | Article + FAQPage |
+| **comercial** | Pesquisar antes de decidir | Comparativo, benefícios, prova social. CTA médio | "Ver planos", "Comparar" | Article + Review |
+| **transacional** | Agir, contratar, agendar | CTA dominante no fold. Urgência, prova social, formulário | "Quero Agendar", "Solicitar Orçamento" | LocalBusiness + Service |
+| **navegacional** | Chegar num negócio específico | Info institucional, branded keywords, autoridade | "Fale Conosco", "Como Chegar" | Organization + ContactPoint |
+
+## Defaults por tipo de conteúdo
+
+```
+Páginas do site:
+  home       → transacional
+  sobre      → navegacional
+  servicos   → comercial
+  contato    → transacional
+  faq        → informacional
+
+Artigos de blog:
+  default    → informacional
+  comparativos → comercial
+  páginas de serviço com CTA forte → transacional
+```
+
+## Como o intent é registrado
+
+```sql
+-- pages.intent e blog_posts.intent no banco
+CHECK (intent IN ('informacional','comercial','transacional','navegacional'))
+```
+
+```typescript
+// onboarding_profiles.intent_pages (JSON)
+{ "home": "transacional", "sobre": "navegacional", "servicos": "comercial" }
+```
+
+## Regra no prompt assembly
+
+O intent do conteúdo é injetado como variável `{intent}` no prompt do agente.
+O agente adapta automaticamente: estrutura de headings, densidade de CTA, schema.
+
+**Sem intent declarado = conteúdo genérico = não ranqueia.**

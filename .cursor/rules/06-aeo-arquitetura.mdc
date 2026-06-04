@@ -1,0 +1,21 @@
+---
+description: As 8 regras de arquitetura SEO/GEO/AEO do HARPIA — mandato técnico que serve ao North Star. Sempre aplicar.
+globs: ["**/*"]
+alwaysApply: true
+---
+
+# Regras de arquitetura AEO/GEO/SEO — HARPIA
+
+> Foco imutável (North Star): o site do assinante aparece quando o cliente busca no Google e nas LLMs.
+> Detalhe completo: `docs/AEO-ARCHITECTURE-RULES.md`. Filtro de toda feature: "isso ajuda o site a aparecer na busca?"
+
+1. **robots.txt libera bots de IA** — todo site nasce permitindo GPTBot, Google-Extended, ClaudeBot, PerplexityBot, etc. Lista em `seo-rules/ai-bots.yaml`. Etapa obrigatória do pipeline de publicação.
+2. **JSON-LD é o protocolo principal com IAs, não llms.txt** — priorizar schema correto por página + HTML semântico + canonical + sitemap.
+3. **Cada bloco H2 autossuficiente** — IA lê em chunks. Primeira frase após H2 = resposta direta, citável isolada.
+4. **FAQ ≥6 perguntas + FAQPage automático** em blog e home — canal mais direto de citação por IA.
+5. **Site legível por agente, não só humano** — Server Components, conteúdo crítico no HTML inicial, Core Web Vitals > 90. Não é boa prática, é sobrevivência.
+6. **Marca desconhecida = string genérica** — software resolve metade técnica (site indexável, schema, GBP); presença externa é upsell humano.
+7. **Anti-página-órfã: ≥2 links internos por página** — tabela `internal_links` (grafo). Validado na publicação pelo seo-validator. Está no MVP.
+8. **KPI = citabilidade pela IA**, não posição no Google (CTR em AI Overview ~1%). Score reporta citabilidade + autoridade de marca. ⚠️ Confirmar com Dove antes de virar promessa de pitch.
+
+**Quem aplica cada regra:** pipeline de publicação (1,2,7), prompt-engineer + agentes de geração (3,4), frontend-dev + sre-observability (5), seo-validator (valida 1-8 antes de publicar), Agente Auditoria (8).

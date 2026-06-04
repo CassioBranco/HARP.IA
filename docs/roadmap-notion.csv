@@ -1,0 +1,57 @@
+Tarefa,Fase,Sprint,Status,Categoria,Prioridade,Notas
+"Definição de produto, features e roadmap",A,-,Done,Planejamento,Alto,"CLAUDE.md §1-2"
+"Stack técnico fechado + ADRs base",A,-,Done,Planejamento,Alto,"CLAUDE.md §2, §13 — 35 ADRs registradas"
+"Onboarding wizard — 25 variáveis em 6 steps",A,-,Done,Planejamento,Alto,"CLAUDE.md §9"
+"Schema do banco — 17 tabelas + DDL + RLS",A,-,Done,Schema,Alto,"CLAUDE.md §4 (inclui plan_quotas + tenant_usage + internal_links anti-órfã)"
+"Arquitetura dos 5 agentes + guardrails Asimov",A,-,Done,Planejamento,Alto,"CLAUDE.md §5"
+"Alicerce arquitetural fechado — 35 ADRs",A,-,Done,Planejamento,Crítico,"Codinome HARPIA + tipo de site não-ecommerce (e-commerce futuro possível) + hospedagem CF Pages+Vercel + storage R2 + Resend + Inngest + Sentry/PostHog + UX cocktail + Stripe BR + inadimplência 90d + MVP A scope + modelo agentes de dev + North Star SEO/GEO/AEO + 8 regras AEO"
+"Prompts v1 — Bloco 0 (Global)",A,-,Done,Prompts,Crítico,"prompts/global/bloco-0.md, §2 corrigido (CPF universal). Refatorar §5/§6/§7/§12 quando criar seo-rules/"
+"Prompts v1 — Bloco 1 (Agente Onboarding)",A,-,Done,Prompts,Crítico,"prompts/agents/onboarding.md. Precisa refatorar pra remover duplicação com Bloco 0 — tarefa separada"
+"Refatorar Bloco 1 (remover duplicação com Bloco 0)",A,-,A fazer,Prompts,Alto,"Tirar regras universais que vazaram pro Bloco 1 (vocabulário proibido, CTA, cidade 2x, etc.)"
+"Prompts v1 — Bloco 2 (Agente Blog)",A,-,A fazer,Prompts,Crítico,"Próximo da fila. Inclui editor 3 modos (manual/revisão/auto) + tool de web search"
+"Prompts v1 — Bloco 3 (Agente GBP)",A,-,A fazer,Prompts,Alto,
+"Prompts v1 — Bloco 4 (Agente Auditoria)",A,-,A fazer,Prompts,Alto,"Modelo Haiku (análise)"
+"Prompts v1 — Bloco 5 (Agente Multilíngue)",A,-,A fazer,Prompts,Médio,"Fase B (MVP B) — só preciso pra internacionalização"
+"Prompts v1 — Bloco 6 (Nicho Clínica)",A,-,A fazer,Prompts,Alto,
+"Prompts v1 — Bloco 7 (Nicho Imobiliária)",A,-,A fazer,Prompts,Alto,
+"Prompts v1 — Bloco 8 (Nicho Serviços)",A,-,A fazer,Prompts,Alto,
+"Prompts v1 — Bloco 9 (Nicho Institucional)",A,-,A fazer,Prompts,Médio,
+"Prompts v1 — Bloco 10 (Nicho Restaurante)",A,-,A fazer,Prompts,Médio,"Cardápio pra exibição (não compra online)"
+"Prompts v1 — Bloco 11 (Nicho Salão)",A,-,A fazer,Prompts,Médio,
+"Prompts v1 — Bloco 12 (Nicho Escola)",A,-,A fazer,Prompts,Médio,
+"Prompts v1 — Bloco 13 (Nicho Landing)",A,-,A fazer,Prompts,Médio,
+"ARCHITECTURE.md — documento de arquitetura formal",A,-,Done,Planejamento,Crítico,"docs/ARCHITECTURE.md — 12 seções (camadas, serviços, dados, fluxos, agentes, pipeline AEO, ciclo de vida, sprints)"
+"North Star definido (foco SEO/GEO/AEO imutável)",A,-,Done,Planejamento,Crítico,"NORTH-STAR.md — filtro de toda feature; ancorado no topo do CLAUDE.md e na memória"
+"8 regras de arquitetura AEO (mandato técnico)",A,-,Done,Planejamento,Crítico,"docs/AEO-ARCHITECTURE-RULES.md — robots.txt IA, JSON-LD>llms.txt, H2 autossuficiente, FAQ>=6, legível-por-agente, marca-ruído, anti-órfã, KPI citabilidade"
+"Estrutura seo-rules/ — YAMLs mutáveis",A,-,Em andamento,Schema,Alto,"ai-bots.yaml criado (bots de IA do robots.txt). Faltam YAMLs de regras por nicho extraídas do Bloco 0"
+"Setup agentes de dev (Claude Code + Cursor) — skills, templates, conventions",A,-,Done,Planejamento,Crítico,"3 agentes + 8 skills (inclui seo-validator) + 3 commands + 6 cursor rules + cursorignore. Skills absorveram github.com/Jeffallan/claude-skills"
+"Design system — paletas por nicho + tokens CSS",A,-,A fazer,Design,Alto,"3 paletas por preset, CSS variables, Storybook"
+"CLAUDE.md final compilado",A,-,A fazer,Planejamento,Alto,"Versão consolidada após Blocos 0-13 e ARCHITECTURE.md"
+"B1 — Protótipo onboarding wizard (6 steps interativos)",B,B1,A fazer,Design,Alto,"Claude Artifacts + Lovable"
+"B2 — Protótipo 8 templates HTML/CSS por nicho",B,B2,A fazer,Design,Alto,
+"B3 — Protótipo painel admin (UX cocktail Shopify+Ghost+Beehiiv+Cal.com+Stripe)",B,B3,A fazer,Design,Alto,"Filosofia nuclear — métricas live, editor blog, 3 modos"
+"B4 — Protótipo landing page didática (marketing site)",B,B4,A fazer,Design,Alto,"Apresenta produto de forma interativa, captura signup self-service"
+"B5 — Protótipo editor de blog 3 modos (manual/revisão/automático)",B,B5,A fazer,Design,Alto,"Inspiração Ghost editor"
+"B6 — Protótipo dashboard métricas SEO/GEO/AEO live",B,B6,A fazer,Design,Alto,"Inspiração Beehiiv growth dashboard"
+"S1 — Infra base: Next.js 14 + Supabase + Auth + Vercel + Cloudflare Pages + R2 + Resend + Inngest + Sentry + PostHog",C,S1,A fazer,Backend,Crítico,"Setup completo do stack — base pra todas as sprints"
+"S2 — Onboarding wizard funcional + autossalvo + GBP OAuth Google review (urgente, 2-6 semanas)",C,S2,A fazer,Backend,Crítico,"OAuth review do Google é o gargalo — começar AGORA mesmo em paralelo a outras sprints"
+"S3 — 8 templates em Tailwind + sistema de paleta + Storybook",C,S3,A fazer,Frontend,Crítico,
+"S4 — Motor de IA: Agente Onboarding + streaming SSE + Vercel AI SDK + LangGraph",C,S4,A fazer,Backend,Crítico,"Depende dos Blocos 0-13 escritos"
+"S5 — Pipeline de publicação: Sharp WebP + Schema JSON-LD + Sitemap + robots.txt c/ bots de IA + grafo internal_links (anti-órfã) + gate seo-validator + deploy Cloudflare Pages",C,S5,A fazer,Backend,Crítico,"Aplica regras AEO 1/2/7 — ver docs/AEO-ARCHITECTURE-RULES.md"
+"S6 — Agente de Blog + editor 3 modos + calendário de agendamento",C,S6,A fazer,Backend,Crítico,"Filosofia nuclear — blog é o produto"
+"S7 — Integração GBP: Agente GBP + posts + resposta a avaliações",C,S7,A fazer,Backend,Crítico,"Depende de S2 (OAuth aprovado pelo Google)"
+"S8 — Score SEO/GEO/AEO live (auditoria + cálculo + dashboard)",C,S8,A fazer,Backend,Crítico,"Filosofia nuclear — feedback visual em tempo real ao cliente"
+"S9 — Stripe + abstração PaymentProvider + trial 7d + cartão Day 6 + política inadimplência 90d",C,S9,A fazer,Pagamento,Crítico,"Abstração permite Paypal/internacional no MVP B"
+"S10 — Painel admin completo (gestão prompts/clientes/faturamento/quotas)",C,S10,A fazer,Backend,Crítico,"UX cocktail aplicado"
+"S11 — Landing page didática + signup self-service",C,S11,A fazer,Frontend,Alto,"Marketing site separado do app"
+"S12 — Sistema de quotas + tenant_usage tracking + soft caps + hard caps",C,S12,A fazer,Backend,Alto,"Implementa plan_quotas + tenant_usage do schema"
+"S13 — Domain auto-purchase Cloudflare Registrar (modelo híbrido Starter)",C,S13,A fazer,Backend,Alto,"Compra automática de domínio pra Starter (+R$8/mês opção)"
+"Beta com 2-5 clientes novos (1-2 semanas)",C,-,A fazer,Lançamento,Alto,"Após MVP A pronto, antes do lançamento público"
+"D1 — Agente Multilíngue + estrutura hreflang",D,D1,A fazer,Backend,Médio,"MVP B — internacionalização"
+"D2 — White-label Agency (logo cliente, cores, domínio próprio do painel)",D,D2,A fazer,Backend,Médio,"MVP B"
+"D3 — API access pra Agency (REST + webhooks)",D,D3,A fazer,Backend,Médio,"MVP B"
+"D4 — Painel de clientes pra Agency (multi-cliente)",D,D4,A fazer,Backend,Médio,"MVP B"
+"D5 — Programa de afiliados/parceiros + comissão",D,D5,A fazer,Backend,Baixo,"MVP B"
+"D6 — Internacionalização: Stripe internacional + Paypal + multi-moeda",D,D6,A fazer,Pagamento,Médio,"MVP B — usa abstração PaymentProvider do S9"
+"D7 — Features extras Pro (a definir conforme feedback do beta)",D,D7,A fazer,Backend,Médio,"Backlog aberto"
+"D8 — Features extras Agency (a definir conforme feedback do beta)",D,D8,A fazer,Backend,Médio,"Backlog aberto"

@@ -1,0 +1,53 @@
+{
+  "model": "claude-sonnet-4-5",
+  "permissions": {
+    "allow": [
+      "Read",
+      "Edit",
+      "Write",
+      "Glob",
+      "Grep",
+      "Bash(npm:*)",
+      "Bash(pnpm:*)",
+      "Bash(npx:*)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git add*)",
+      "Bash(git checkout -b *)",
+      "Bash(git branch*)",
+      "Bash(ls*)",
+      "Bash(mkdir*)",
+      "Bash(supabase*)",
+      "Bash(vercel*)",
+      "Bash(node*)",
+      "Bash(tsc*)",
+      "Bash(vitest*)"
+    ],
+    "ask": [
+      "Bash(git commit*)",
+      "Bash(git push*)",
+      "Bash(git merge*)",
+      "Bash(git rebase*)",
+      "Bash(git reset --hard*)",
+      "Bash(npm publish*)",
+      "Bash(vercel --prod*)",
+      "Bash(supabase db push*)",
+      "Bash(supabase db reset*)",
+      "Bash(rm -rf*)",
+      "Bash(npm install --global*)"
+    ],
+    "deny": [
+      "Bash(rm -rf /*)",
+      "Bash(curl * | sh)",
+      "Bash(curl * | bash)",
+      "Bash(eval*)"
+    ]
+  },
+  "env": {
+    "PROJECT_CODENAME": "HARPIA",
+    "PROJECT_PHASE": "Fase A — Orquestramento",
+    "AUTONOMY_LEVEL": "semi-autonomous",
+    "REQUIRE_HUMAN_APPROVAL": "commit,push,deploy,migration_apply"
+  }
+}
