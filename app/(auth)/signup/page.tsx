@@ -41,7 +41,7 @@ export default function SignupPage() {
         if (authError.message.toLowerCase().includes('already registered')) {
           setError('Este email já tem uma conta. Faça login.')
         } else {
-          setError('Erro ao criar conta. Tente novamente.')
+          setError(`Erro: ${authError.message}`)
         }
         return
       }
