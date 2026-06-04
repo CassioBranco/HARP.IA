@@ -31,7 +31,8 @@ export default function LoginPage() {
         return
       }
 
-      await ensureProfileOnClient()
+      // Tenta criar tenant — falha silenciosa (retenta no próximo acesso)
+      try { await ensureProfileOnClient() } catch { /* ignora */ }
 
       const next =
         typeof window !== 'undefined'
