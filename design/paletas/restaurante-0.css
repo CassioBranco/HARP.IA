@@ -1,0 +1,13 @@
+/* Nicho: RESTAURANTE — paleta 0 (apetitoso, acolhedor, sensorial)
+   Vibe: terracota + dourado — calor, comida, aconchego.
+   Para os SITES gerados (não o painel). Formato --color-*. */
+:root[data-niche="restaurante"][data-palette="0"],
+.niche-restaurante-0 {
+  --color-primary:     #B23A1E;  /* terracota */
+  --color-secondary:   #D9622B;  /* laranja queimado */
+  --color-accent:      #E8A33D;  /* dourado (CTA, destaques) */
+  --color-background:  #FFFDF8;  /* branco quente */
+  --color-surface:     #FBF1E6;  /* creme */
+  --color-text:        #2A1A12;
+  --color-text-muted:  #7A5C4A;
+}

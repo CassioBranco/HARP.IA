@@ -1,0 +1,63 @@
+/* ============================================================
+   PALETA DA PLATAFORMA HARPIA (painel admin) — v1
+   Variáveis no formato shadcn/ui (HSL sem vírgula).
+   O frontend-dev cola estes blocos em app/globals.css
+   (dentro de @layer base { :root {...} .dark {...} }).
+   Identidade: esmeralda + dourado sobre floresta profunda.
+   ============================================================ */
+
+:root {
+  /* superfícies */
+  --background: 150 30% 99%;
+  --foreground: 165 30% 12%;
+  --card: 0 0% 100%;
+  --card-foreground: 165 30% 12%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 165 30% 12%;
+
+  /* marca */
+  --primary: 160 84% 30%;            /* esmeralda */
+  --primary-foreground: 150 40% 98%;
+  --secondary: 160 20% 94%;
+  --secondary-foreground: 165 30% 18%;
+  --accent: 38 92% 50%;              /* dourado/âmbar */
+  --accent-foreground: 30 50% 12%;
+
+  /* neutros / estados */
+  --muted: 160 16% 95%;
+  --muted-foreground: 165 12% 40%;
+  --destructive: 0 72% 48%;
+  --destructive-foreground: 0 0% 100%;
+
+  /* bordas / foco */
+  --border: 160 14% 88%;
+  --input: 160 14% 88%;
+  --ring: 160 84% 30%;
+
+  --radius: 0.625rem;
+}
+
+.dark {
+  --background: 168 32% 7%;
+  --foreground: 150 18% 92%;
+  --card: 168 28% 10%;
+  --card-foreground: 150 18% 92%;
+  --popover: 168 28% 10%;
+  --popover-foreground: 150 18% 92%;
+
+  --primary: 158 64% 44%;            /* esmeralda mais clara no escuro */
+  --primary-foreground: 165 40% 8%;
+  --secondary: 165 18% 16%;
+  --secondary-foreground: 150 18% 92%;
+  --accent: 38 90% 55%;
+  --accent-foreground: 30 50% 10%;
+
+  --muted: 165 16% 15%;
+  --muted-foreground: 150 10% 62%;
+  --destructive: 0 62% 45%;
+  --destructive-foreground: 0 0% 100%;
+
+  --border: 165 14% 18%;
+  --input: 165 14% 18%;
+  --ring: 158 64% 44%;
+}

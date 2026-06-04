@@ -444,18 +444,39 @@ Cada preset tem regras próprias. Exemplos:
 
 ---
 
-## 7. OS 8 PRESETS (TEMPLATES)
+## 7. OS 14 PRESETS (TEMPLATES)
+
+> **Fonte de verdade completa:** `docs/NICHOS.md` — schemas, CTAs, seções, restrições de conteúdo e keywords padrão de cada nicho.
+> ⚠️ Antes de gerar texto para qualquer nicho regulado, consultar OBRIGATORIAMENTE as restrições em `docs/NICHOS.md`.
+
+### Grupo 1 — Profissões Reguladas (dependem fortemente de SEO — tráfego pago restrito)
+
+| Preset | Schema | CTA Principal | Conselho | Restrição |
+|--------|--------|--------------|----------|-----------|
+| `advocacia` | LegalService | Agendar consulta | OAB | 🔴 Forte — não prometer resultado, não citar valores |
+| `contabilidade` | AccountingService | Solicitar proposta | CFC | 🟡 Moderada — conteúdo técnico/informativo |
+| `psicologia` | MentalHealthBusiness | Agendar sessão | CFP | 🔴 Forte — sem preço como apelo, sem prometer resultado |
+
+### Grupo 2 — Saúde
+
+| Preset | Schema | CTA Principal | Conselho | Restrição |
+|--------|--------|--------------|----------|-----------|
+| `clinica` | HealthcareBusiness | Agendar consulta | CFM | 🔴 Forte — sem garantir resultado, CRM+RQE obrigatório |
+| `odontologia` | Dentist | Agendar avaliação | CFO | 🔴 Forte — CRO obrigatório |
+| `fisioterapia` | HealthcareBusiness | Agendar avaliação | COFFITO | 🟡 Moderada |
+| `veterinaria` | VeterinaryCare | Agendar consulta | CFMV | 🟡 Moderada — preço de consulta permitido desde 2025 |
+
+### Grupo 3 — Outros Nichos
 
 | Preset | Schema | CTA Principal | Seções Obrigatórias |
 |--------|--------|--------------|-------------------|
-| Clínica | HealthcareBusiness | Agendar consulta | Hero, Serviços, Equipe, Avaliações, FAQ, CTA |
-| Imobiliária | RealEstateAgent | Ver imóveis | Hero, Sobre, Busca de imóveis, FAQ, CTA |
-| Serviços | LocalBusiness | Solicitar orçamento | Hero, Serviços, Diferenciais, Avaliações, CTA |
-| Institucional | Organization | Falar com especialista | Hero, Sobre, Missão/Valores, Equipe, Contato |
-| Restaurante | Restaurant | Ver cardápio | Hero, Cardápio, Ambiente, Horários, Reserva |
-| Salão | BeautySalon | Agendar horário | Hero, Serviços, Profissionais, Portfólio, CTA |
-| Escola | EducationalOrganization | Conhecer cursos | Hero, Cursos, Metodologia, Depoimentos, CTA |
-| Landing | WebPage | Personalizado | Hero, Problema, Solução, Prova social, CTA |
+| `imobiliaria` | RealEstateAgent | Ver imóveis / Agendar visita | Hero, Sobre, Imóveis, FAQ, CTA |
+| `restaurante` | Restaurant | Ver cardápio | Hero, Cardápio, Ambiente, Horários, Reserva |
+| `salao` | BeautySalon | Agendar horário | Hero, Serviços, Profissionais, Portfólio, CTA |
+| `escola` | EducationalOrganization | Conhecer cursos | Hero, Cursos, Metodologia, Depoimentos, CTA |
+| `servicos` | LocalBusiness | Solicitar orçamento | Hero, Serviços, Diferenciais, Avaliações, CTA |
+| `institucional` | Organization | Falar com especialista | Hero, Sobre, Missão/Valores, Equipe, Contato |
+| `landing` | WebPage | Personalizado | Hero, Problema, Solução, Prova social, CTA |
 
 Cada preset tem 3 paletas de cores via CSS variables:
 ```css

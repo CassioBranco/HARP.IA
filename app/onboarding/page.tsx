@@ -1,0 +1,936 @@
+'use client'
+
+import { useState, useEffect, useCallback, useRef } from 'react'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { createBrowserClient } from '@/lib/supabase/client'
+
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+
+type ServiceItem = {
+  name: string
+  description: string
+  price_range: string
+}
+
+type OnboardingData = {
+  // Step 1 — Identidade
+  business_name: string
+  niche: string
+  city: string
+  state: string
+  service_radius_km: string
+  coverage_areas: string
+  // Step 2 — Serviços
+  services: ServiceItem[]
+  differentials: string
+  // Step 3 — Público
+  target_audience: string
+  pain_points: string
+  // Step 4 — Autoridade
+  credentials: string
+  years_experience: string
+  cases: string
+  // Step 5 — SEO
+  keywords_primary: string
+  keywords_secondary: string
+  tone: string
+  intent_default_blog: string
+  // Step 6 — GBP
+  gbp_connected: boolean
+}
+
+const EMPTY: OnboardingData = {
+  business_name: '',
+  niche: '',
+  city: '',
+  state: '',
+  service_radius_km: '',
+  coverage_areas: '',
+  services: [{ name: '', description: '', price_range: '' }],
+  differentials: '',
+  target_audience: '',
+  pain_points: '',
+  credentials: '',
+  years_experience: '',
+  cases: '',
+  keywords_primary: '',
+  keywords_secondary: '',
+  tone: 'profissional',
+  intent_default_blog: 'informacional',
+  gbp_connected: false,
+}
+
+// ---------------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------------
+
+const NICHES = [
+  // Profissões reguladas — dependem de SEO (não podem ou mal conseguem fazer tráfego pago)
+  { value: 'advocacia',      label: 'Advocacia',                icon: '⚖️',  group: 'Profissões reguladas' },
+  { value: 'contabilidade',  label: 'Contabilidade',            icon: '📊',  group: 'Profissões reguladas' },
+  { value: 'psicologia',     label: 'Psicologia / Terapia',     icon: '🧠',  group: 'Profissões reguladas' },
+  // Saúde
+  { value: 'clinica',        label: 'Clínica / Consultório',    icon: '🏥',  group: 'Saúde' },
+  { value: 'odontologia',    label: 'Odontologia',              icon: '🦷',  group: 'Saúde' },
+  { value: 'fisioterapia',   label: 'Fisioterapia',             icon: '🏃',  group: 'Saúde' },
+  { value: 'veterinaria',    label: 'Veterinária / Pet',        icon: '🐾',  group: 'Saúde' },
+  // Outros nichos
+  { value: 'imobiliaria',    label: 'Imobiliária',              icon: '🏠',  group: 'Outros' },
+  { value: 'restaurante',    label: 'Restaurante / Alimentação',icon: '🍽️', group: 'Outros' },
+  { value: 'salao',          label: 'Salão / Estética',         icon: '✂️',  group: 'Outros' },
+  { value: 'escola',         label: 'Escola / Curso',           icon: '🎓',  group: 'Outros' },
+  { value: 'servicos',       label: 'Serviços / Prestador',     icon: '🔧',  group: 'Outros' },
+  { value: 'institucional',  label: 'Empresa / Institucional',  icon: '🏢',  group: 'Outros' },
+  { value: 'landing',        label: 'Landing Page',             icon: '🚀',  group: 'Outros' },
+]
+
+const ESTADOS = [
+  'AC','AL','AP','AM','BA','CE','DF','ES','GO','MA',
+  'MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN',
+  'RS','RO','RR','SC','SP','SE','TO',
+]
+
+const TONES = [
+  { value: 'profissional',   label: 'Profissional',  desc: 'Sério, técnico, confiável'       },
+  { value: 'proximo',        label: 'Próximo',       desc: 'Caloroso, acessível, humano'     },
+  { value: 'autoridade',     label: 'Autoridade',    desc: 'Especialista, direto, assertivo'  },
+  { value: 'descontraido',   label: 'Descontraído',  desc: 'Informal, leve, direto ao ponto' },
+]
+
+const INTENTS = [
+  { value: 'informacional',  label: 'Informacional', desc: 'Ensina e explica — "como escolher..."'     },
+  { value: 'comercial',      label: 'Comercial',     desc: 'Compara e convence — "melhor X em..."'     },
+  { value: 'transacional',   label: 'Transacional',  desc: 'Gera ação — "agendar / contratar..."'      },
+]
+
+const STEP_LABELS = [
+  'Identidade',
+  'Serviços',
+  'Público',
+  'Autoridade',
+  'SEO',
+  'Google',
+]
+
+// ---------------------------------------------------------------------------
+// Score
+// ---------------------------------------------------------------------------
+
+function calcScore(d: OnboardingData): number {
+  const checks: Array<[boolean, number]> = [
+    [d.business_name.trim().length > 2,              10],
+    [d.niche.length > 0,                             10],
+    [d.city.trim().length > 2,                        8],
+    [d.services.some(s => s.name.trim().length > 2), 15],
+    [d.differentials.trim().length > 10,             10],
+    [d.target_audience.trim().length > 10,           10],
+    [d.pain_points.trim().length > 10,                8],
+    [Number(d.years_experience) > 0,                  5],
+    [d.credentials.trim().length > 0,                 4],
+    [d.keywords_primary.trim().length > 3,           10],
+    [d.tone.length > 0,                               5],
+    [d.gbp_connected,                                 5],
+  ]
+  return checks.reduce((sum, [ok, pts]) => sum + (ok ? pts : 0), 0)
+}
+
+// ---------------------------------------------------------------------------
+// Shared input classes
+// ---------------------------------------------------------------------------
+
+const inputCls =
+  'w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground ' +
+  'placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring ' +
+  'focus:ring-offset-1 disabled:opacity-50'
+
+const labelCls = 'block text-sm font-medium text-foreground mb-1.5'
+
+const hintCls = 'mt-1 text-xs text-muted-foreground'
+
+// ---------------------------------------------------------------------------
+// Page component
+// ---------------------------------------------------------------------------
+
+export default function OnboardingPage() {
+  const router = useRouter()
+  const [step, setStep] = useState(1)
+  const [data, setData] = useState<OnboardingData>(EMPTY)
+  const [profileId, setProfileId] = useState<string | null>(null)
+  const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState('')
+  const [userId, setUserId] = useState<string | null>(null)
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const score = calcScore(data)
+  const canGenerate = score >= 70
+
+  // Load session + existing profile
+  useEffect(() => {
+    async function init() {
+      const supabase = createBrowserClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) { router.push('/login'); return }
+      setUserId(user.id)
+
+      const { data: profiles } = await supabase
+        .from('onboarding_profiles')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(1)
+
+      if (profiles && profiles.length > 0) {
+        const p = profiles[0]
+        setProfileId(p.id)
+        setData({
+          business_name:       p.business_name     ?? '',
+          niche:               p.niche             ?? '',
+          city:                p.city              ?? '',
+          state:               p.state             ?? '',
+          service_radius_km:   p.service_radius_km?.toString() ?? '',
+          coverage_areas:      (p.coverage_areas ?? []).join(', '),
+          services:            p.services?.length ? p.services : [{ name: '', description: '', price_range: '' }],
+          differentials:       p.differentials     ?? '',
+          target_audience:     p.target_audience   ?? '',
+          pain_points:         p.pain_points       ?? '',
+          credentials:         (p.credentials ?? []).join(', '),
+          years_experience:    p.years_experience?.toString() ?? '',
+          cases:               p.cases             ?? '',
+          keywords_primary:    (p.keywords_primary ?? []).join(', '),
+          keywords_secondary:  (p.keywords_secondary ?? []).join(', '),
+          tone:                p.tone              ?? 'profissional',
+          intent_default_blog: p.intent_default_blog ?? 'informacional',
+          gbp_connected:       p.gbp_connected     ?? false,
+        })
+      }
+    }
+    init()
+  }, [router])
+
+  // Autosave (debounced 1.5s)
+  const save = useCallback(async (d: OnboardingData) => {
+    if (!userId) return
+    setSaving(true)
+    setSaveError('')
+    try {
+      const supabase = createBrowserClient()
+      const payload = {
+        business_name:       d.business_name     || null,
+        niche:               d.niche             || null,
+        city:                d.city              || null,
+        state:               d.state             || null,
+        service_radius_km:   d.service_radius_km ? Number(d.service_radius_km) : null,
+        coverage_areas:      d.coverage_areas ? d.coverage_areas.split(',').map(s => s.trim()).filter(Boolean) : [],
+        services:            d.services.filter(s => s.name.trim()),
+        differentials:       d.differentials     || null,
+        target_audience:     d.target_audience   || null,
+        pain_points:         d.pain_points       || null,
+        credentials:         d.credentials ? d.credentials.split(',').map(s => s.trim()).filter(Boolean) : [],
+        years_experience:    d.years_experience ? Number(d.years_experience) : null,
+        cases:               d.cases             || null,
+        keywords_primary:    d.keywords_primary ? d.keywords_primary.split(',').map(s => s.trim()).filter(Boolean) : [],
+        keywords_secondary:  d.keywords_secondary ? d.keywords_secondary.split(',').map(s => s.trim()).filter(Boolean) : [],
+        tone:                d.tone              || null,
+        intent_default_blog: d.intent_default_blog || null,
+        gbp_connected:       d.gbp_connected,
+        completeness_score:  calcScore(d),
+        updated_at:          new Date().toISOString(),
+      }
+
+      if (profileId) {
+        await supabase.from('onboarding_profiles').update(payload).eq('id', profileId)
+      } else {
+        const { data: inserted } = await supabase
+          .from('onboarding_profiles')
+          .insert(payload)
+          .select('id')
+          .single()
+        if (inserted?.id) setProfileId(inserted.id)
+      }
+    } catch {
+      setSaveError('Erro ao salvar. Verifique a conexão.')
+    } finally {
+      setSaving(false)
+    }
+  }, [userId, profileId])
+
+  function scheduleSave(d: OnboardingData) {
+    if (saveTimer.current) clearTimeout(saveTimer.current)
+    saveTimer.current = setTimeout(() => save(d), 1500)
+  }
+
+  function update(patch: Partial<OnboardingData>) {
+    setData(prev => {
+      const next = { ...prev, ...patch }
+      scheduleSave(next)
+      return next
+    })
+  }
+
+  function updateService(idx: number, field: keyof ServiceItem, value: string) {
+    setData(prev => {
+      const services = prev.services.map((s, i) => i === idx ? { ...s, [field]: value } : s)
+      const next = { ...prev, services }
+      scheduleSave(next)
+      return next
+    })
+  }
+
+  function addService() {
+    setData(prev => ({
+      ...prev,
+      services: [...prev.services, { name: '', description: '', price_range: '' }],
+    }))
+  }
+
+  function removeService(idx: number) {
+    setData(prev => {
+      if (prev.services.length <= 1) return prev
+      const services = prev.services.filter((_, i) => i !== idx)
+      const next = { ...prev, services }
+      scheduleSave(next)
+      return next
+    })
+  }
+
+  async function finish() {
+    if (saveTimer.current) clearTimeout(saveTimer.current)
+    await save(data)
+    router.push('/templates')
+  }
+
+  // ---------------------------------------------------------------------------
+  // Render
+  // ---------------------------------------------------------------------------
+
+  return (
+    <div className="flex min-h-screen flex-col bg-background">
+      {/* Header */}
+      <header className="sticky top-0 z-50 border-b border-border/60 bg-background/95 backdrop-blur">
+        <div className="mx-auto flex max-w-3xl items-center justify-between px-6 py-4">
+          <Link href="/" className="font-heading text-lg font-bold text-primary">
+            HARPIA
+          </Link>
+
+          {/* Score badge */}
+          <div className="flex items-center gap-3">
+            {saving && (
+              <span className="text-xs text-muted-foreground">Salvando...</span>
+            )}
+            {saveError && (
+              <span className="text-xs text-destructive">{saveError}</span>
+            )}
+            <div className={`rounded-full px-3 py-1 text-xs font-semibold ${
+              canGenerate
+                ? 'bg-primary/10 text-primary'
+                : 'bg-muted text-muted-foreground'
+            }`}>
+              {score}% completo
+            </div>
+          </div>
+        </div>
+
+        {/* Progress bar */}
+        <div className="h-1 w-full bg-muted">
+          <div
+            className="h-1 bg-primary transition-all duration-500"
+            style={{ width: `${(step / 6) * 100}%` }}
+          />
+        </div>
+      </header>
+
+      {/* Step indicator */}
+      <div className="border-b border-border/40 bg-muted/30">
+        <div className="mx-auto flex max-w-3xl items-center gap-0 overflow-x-auto px-6 py-3">
+          {STEP_LABELS.map((label, i) => {
+            const n = i + 1
+            const active = n === step
+            const done = n < step
+            return (
+              <div key={n} className="flex items-center">
+                <button
+                  onClick={() => n < step && setStep(n)}
+                  disabled={n > step}
+                  className={`flex items-center gap-2 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+                    active
+                      ? 'bg-primary text-primary-foreground'
+                      : done
+                      ? 'cursor-pointer text-primary hover:bg-primary/10'
+                      : 'text-muted-foreground'
+                  }`}
+                >
+                  <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold ${
+                    active ? 'bg-primary-foreground/20' : done ? 'bg-primary/15' : 'bg-muted'
+                  }`}>
+                    {done ? '✓' : n}
+                  </span>
+                  <span className="hidden sm:block">{label}</span>
+                </button>
+                {i < 5 && <span className="mx-1 text-muted-foreground/30">›</span>}
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Main content */}
+      <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-10">
+        {step === 1 && <Step1 data={data} update={update} />}
+        {step === 2 && (
+          <Step2
+            data={data}
+            update={update}
+            updateService={updateService}
+            addService={addService}
+            removeService={removeService}
+          />
+        )}
+        {step === 3 && <Step3 data={data} update={update} />}
+        {step === 4 && <Step4 data={data} update={update} />}
+        {step === 5 && <Step5 data={data} update={update} />}
+        {step === 6 && <Step6 data={data} update={update} score={score} canGenerate={canGenerate} />}
+      </main>
+
+      {/* Bottom nav */}
+      <footer className="sticky bottom-0 border-t border-border/60 bg-background/95 backdrop-blur">
+        <div className="mx-auto flex max-w-3xl items-center justify-between px-6 py-4">
+          <button
+            onClick={() => setStep(s => Math.max(1, s - 1))}
+            disabled={step === 1}
+            className="rounded-md border border-border px-5 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted disabled:pointer-events-none disabled:opacity-40"
+          >
+            ← Voltar
+          </button>
+
+          <span className="text-sm text-muted-foreground">
+            {step} de 6
+          </span>
+
+          {step < 6 ? (
+            <button
+              onClick={() => setStep(s => Math.min(6, s + 1))}
+              className="rounded-md bg-primary px-6 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+            >
+              Continuar →
+            </button>
+          ) : (
+            <button
+              onClick={finish}
+              disabled={!canGenerate}
+              className={`rounded-md px-6 py-2 text-sm font-semibold transition-colors ${
+                canGenerate
+                  ? 'bg-accent text-accent-foreground hover:bg-accent/90'
+                  : 'cursor-not-allowed bg-muted text-muted-foreground'
+              }`}
+              title={!canGenerate ? `Preencha mais campos para atingir 70% (atual: ${score}%)` : ''}
+            >
+              {canGenerate ? '✨ Gerar meu site' : `Faltam ${70 - score}% para gerar`}
+            </button>
+          )}
+        </div>
+      </footer>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// NicheButton — reutilizado nos grupos de nicho
+// ---------------------------------------------------------------------------
+
+function NicheButton({
+  n, selected, onClick,
+}: {
+  n: { value: string; label: string; icon: string }
+  selected: boolean
+  onClick: () => void
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex flex-col items-center gap-2 rounded-xl border p-4 text-center text-xs font-medium transition-all ${
+        selected
+          ? 'border-primary bg-primary/8 text-primary shadow-sm'
+          : 'border-border bg-card text-foreground hover:border-primary/50 hover:bg-muted/50'
+      }`}
+    >
+      <span className="text-2xl">{n.icon}</span>
+      {n.label}
+    </button>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Step 1 — Identidade
+// ---------------------------------------------------------------------------
+
+function Step1({ data, update }: { data: OnboardingData; update: (p: Partial<OnboardingData>) => void }) {
+  return (
+    <div className="flex flex-col gap-8">
+      <div>
+        <h1 className="font-heading text-2xl font-bold text-foreground">Sobre o negócio</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Essas informações vão para o SEO local — nome, cidade e raio de atuação aparecem em toda geração.
+        </p>
+      </div>
+
+      <div className="flex flex-col gap-5">
+        <div>
+          <label className={labelCls}>Nome do negócio *</label>
+          <input
+            className={inputCls}
+            placeholder="Ex: Clínica Dr. Carlos, Marmoraria Silva, Escola Futuro..."
+            value={data.business_name}
+            onChange={e => update({ business_name: e.target.value })}
+          />
+        </div>
+
+        <div>
+          <label className={labelCls}>Nicho / Tipo de negócio *</label>
+
+          {/* Profissões reguladas */}
+          <div className="mb-2">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Profissões reguladas
+              <span className="ml-2 rounded-full bg-accent/15 px-2 py-0.5 text-[10px] font-medium text-accent-foreground">
+                dependem mais de SEO
+              </span>
+            </p>
+            <div className="grid grid-cols-3 gap-3">
+              {NICHES.filter(n => n.group === 'Profissões reguladas').map(n => (
+                <NicheButton key={n.value} n={n} selected={data.niche === n.value} onClick={() => update({ niche: n.value })} />
+              ))}
+            </div>
+          </div>
+
+          {/* Saúde */}
+          <div className="mb-2 mt-4">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Saúde</p>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {NICHES.filter(n => n.group === 'Saúde').map(n => (
+                <NicheButton key={n.value} n={n} selected={data.niche === n.value} onClick={() => update({ niche: n.value })} />
+              ))}
+            </div>
+          </div>
+
+          {/* Outros */}
+          <div className="mt-4">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Outros</p>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {NICHES.filter(n => n.group === 'Outros').map(n => (
+                <NicheButton key={n.value} n={n} selected={data.niche === n.value} onClick={() => update({ niche: n.value })} />
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-3">
+          <div className="sm:col-span-2">
+            <label className={labelCls}>Cidade-base *</label>
+            <input
+              className={inputCls}
+              placeholder="Sorocaba"
+              value={data.city}
+              onChange={e => update({ city: e.target.value })}
+            />
+            <p className={hintCls}>Centro do raio de atuação</p>
+          </div>
+
+          <div>
+            <label className={labelCls}>Estado *</label>
+            <select
+              className={inputCls}
+              value={data.state}
+              onChange={e => update({ state: e.target.value })}
+            >
+              <option value="">UF</option>
+              {ESTADOS.map(uf => (
+                <option key={uf} value={uf}>{uf}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label className={labelCls}>Raio de atuação (km)</label>
+            <input
+              className={inputCls}
+              type="number"
+              min="1"
+              max="500"
+              placeholder="30"
+              value={data.service_radius_km}
+              onChange={e => update({ service_radius_km: e.target.value })}
+            />
+            <p className={hintCls}>Área que você atende a partir da cidade-base</p>
+          </div>
+
+          <div>
+            <label className={labelCls}>Cidades / bairros atendidos</label>
+            <input
+              className={inputCls}
+              placeholder="Votorantim, Itu, Jundiaí..."
+              value={data.coverage_areas}
+              onChange={e => update({ coverage_areas: e.target.value })}
+            />
+            <p className={hintCls}>Separe por vírgula — entram no SEO local</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Step 2 — Serviços
+// ---------------------------------------------------------------------------
+
+function Step2({
+  data, update, updateService, addService, removeService,
+}: {
+  data: OnboardingData
+  update: (p: Partial<OnboardingData>) => void
+  updateService: (i: number, f: keyof ServiceItem, v: string) => void
+  addService: () => void
+  removeService: (i: number) => void
+}) {
+  return (
+    <div className="flex flex-col gap-8">
+      <div>
+        <h1 className="font-heading text-2xl font-bold text-foreground">O que você oferece</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Cada serviço vira uma seção do site com SEO próprio. Quanto mais detalhado, melhor o texto gerado.
+        </p>
+      </div>
+
+      <div className="flex flex-col gap-4">
+        <label className={labelCls}>Serviços *</label>
+
+        {data.services.map((svc, i) => (
+          <div key={i} className="rounded-xl border border-border bg-card p-4">
+            <div className="mb-3 flex items-center justify-between">
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                Serviço {i + 1}
+              </span>
+              {data.services.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => removeService(i)}
+                  className="text-xs text-muted-foreground hover:text-destructive"
+                >
+                  Remover
+                </button>
+              )}
+            </div>
+            <div className="flex flex-col gap-3">
+              <input
+                className={inputCls}
+                placeholder="Nome do serviço (ex: Consulta ortopédica, Limpeza de terreno...)"
+                value={svc.name}
+                onChange={e => updateService(i, 'name', e.target.value)}
+              />
+              <textarea
+                className={`${inputCls} min-h-[80px] resize-none`}
+                placeholder="Descrição breve — o que inclui, como funciona, resultado esperado..."
+                value={svc.description}
+                onChange={e => updateService(i, 'description', e.target.value)}
+              />
+              <input
+                className={inputCls}
+                placeholder="Faixa de preço (ex: A partir de R$ 150, Sob consulta...)"
+                value={svc.price_range}
+                onChange={e => updateService(i, 'price_range', e.target.value)}
+              />
+            </div>
+          </div>
+        ))}
+
+        <button
+          type="button"
+          onClick={addService}
+          className="rounded-xl border-2 border-dashed border-border py-3 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/50 hover:text-primary"
+        >
+          + Adicionar serviço
+        </button>
+      </div>
+
+      <div>
+        <label className={labelCls}>Diferenciais do negócio *</label>
+        <textarea
+          className={`${inputCls} min-h-[120px] resize-none`}
+          placeholder="O que te diferencia da concorrência? Ex: 15 anos de experiência, atendimento no mesmo dia, única clínica da região com equipamento X..."
+          value={data.differentials}
+          onChange={e => update({ differentials: e.target.value })}
+        />
+        <p className={hintCls}>Escreva como você falaria pra um cliente. Sem firula.</p>
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Step 3 — Público
+// ---------------------------------------------------------------------------
+
+function Step3({ data, update }: { data: OnboardingData; update: (p: Partial<OnboardingData>) => void }) {
+  return (
+    <div className="flex flex-col gap-8">
+      <div>
+        <h1 className="font-heading text-2xl font-bold text-foreground">Quem você atende</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          A IA usa isso para calibrar o tom dos textos e as perguntas do FAQ — que são a base do AEO.
+        </p>
+      </div>
+
+      <div className="flex flex-col gap-5">
+        <div>
+          <label className={labelCls}>Público-alvo *</label>
+          <textarea
+            className={`${inputCls} min-h-[100px] resize-none`}
+            placeholder="Quem são seus clientes? Ex: Adultos 30-60 anos com dor crônica em Sorocaba, donos de terrenos em condomínios fechados..."
+            value={data.target_audience}
+            onChange={e => update({ target_audience: e.target.value })}
+          />
+        </div>
+
+        <div>
+          <label className={labelCls}>Principais dores / problemas que você resolve *</label>
+          <textarea
+            className={`${inputCls} min-h-[120px] resize-none`}
+            placeholder="Quais problemas concretos seu cliente tem antes de te contratar? Ex: Não consegue dormir por causa da dor, não sabe se o terreno tem infraestrutura para construção..."
+            value={data.pain_points}
+            onChange={e => update({ pain_points: e.target.value })}
+          />
+          <p className={hintCls}>Essas dores viram perguntas do FAQ e títulos de blog — direto no coração do AEO.</p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Step 4 — Autoridade
+// ---------------------------------------------------------------------------
+
+function Step4({ data, update }: { data: OnboardingData; update: (p: Partial<OnboardingData>) => void }) {
+  return (
+    <div className="flex flex-col gap-8">
+      <div>
+        <h1 className="font-heading text-2xl font-bold text-foreground">Sua autoridade</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Credenciais e histórico viram o bloco "Sobre" e o perfil de autoridade que o Google usa para ranquear.
+        </p>
+      </div>
+
+      <div className="flex flex-col gap-5">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label className={labelCls}>Anos de experiência</label>
+            <input
+              className={inputCls}
+              type="number"
+              min="0"
+              max="60"
+              placeholder="15"
+              value={data.years_experience}
+              onChange={e => update({ years_experience: e.target.value })}
+            />
+          </div>
+
+          <div>
+            <label className={labelCls}>Registro / Credencial</label>
+            <input
+              className={inputCls}
+              placeholder="CRM 12345-SP, CRECI 54321-SP, CRC..."
+              value={data.credentials}
+              onChange={e => update({ credentials: e.target.value })}
+            />
+            <p className={hintCls}>Separe por vírgula se tiver mais de um</p>
+          </div>
+        </div>
+
+        <div>
+          <label className={labelCls}>Cases / Resultados concretos</label>
+          <textarea
+            className={`${inputCls} min-h-[120px] resize-none`}
+            placeholder="Números reais que impressionam: Ex: +500 pacientes atendidos, 3 projetos aprovados na prefeitura em 2024, cliente recuperou mobilidade em 3 sessões..."
+            value={data.cases}
+            onChange={e => update({ cases: e.target.value })}
+          />
+          <p className={hintCls}>Fatos e números batem prova social genérica.</p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Step 5 — SEO
+// ---------------------------------------------------------------------------
+
+function Step5({ data, update }: { data: OnboardingData; update: (p: Partial<OnboardingData>) => void }) {
+  return (
+    <div className="flex flex-col gap-8">
+      <div>
+        <h1 className="font-heading text-2xl font-bold text-foreground">SEO e tom de voz</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Keywords e tom entram em todo texto gerado — título, meta description, headings e corpo.
+        </p>
+      </div>
+
+      <div className="flex flex-col gap-5">
+        <div>
+          <label className={labelCls}>Keywords principais *</label>
+          <input
+            className={inputCls}
+            placeholder="ortopedista sorocaba, especialista em joelho sorocaba, cirurgião ortopédico..."
+            value={data.keywords_primary}
+            onChange={e => update({ keywords_primary: e.target.value })}
+          />
+          <p className={hintCls}>Separe por vírgula · inclua a cidade · pense como o cliente busca</p>
+        </div>
+
+        <div>
+          <label className={labelCls}>Keywords secundárias</label>
+          <input
+            className={inputCls}
+            placeholder="tratamento de coluna sorocaba, fisioterapia pós-operatória..."
+            value={data.keywords_secondary}
+            onChange={e => update({ keywords_secondary: e.target.value })}
+          />
+          <p className={hintCls}>Termos de suporte — entram em páginas internas e blog</p>
+        </div>
+
+        <div>
+          <label className={labelCls}>Tom de voz *</label>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {TONES.map(t => (
+              <button
+                key={t.value}
+                type="button"
+                onClick={() => update({ tone: t.value })}
+                className={`rounded-xl border p-3 text-left transition-all ${
+                  data.tone === t.value
+                    ? 'border-primary bg-primary/8 shadow-sm'
+                    : 'border-border bg-card hover:border-primary/50'
+                }`}
+              >
+                <div className="text-sm font-semibold text-foreground">{t.label}</div>
+                <div className="mt-0.5 text-xs text-muted-foreground">{t.desc}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <label className={labelCls}>Intent padrão dos artigos de blog</label>
+          <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
+            {INTENTS.map(it => (
+              <button
+                key={it.value}
+                type="button"
+                onClick={() => update({ intent_default_blog: it.value })}
+                className={`flex-1 rounded-xl border p-3 text-left transition-all ${
+                  data.intent_default_blog === it.value
+                    ? 'border-primary bg-primary/8 shadow-sm'
+                    : 'border-border bg-card hover:border-primary/50'
+                }`}
+              >
+                <div className="text-sm font-semibold text-foreground">{it.label}</div>
+                <div className="mt-0.5 text-xs text-muted-foreground">{it.desc}</div>
+              </button>
+            ))}
+          </div>
+          <p className={hintCls}>Você pode alterar por artigo depois — esse é só o padrão</p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Step 6 — GBP
+// ---------------------------------------------------------------------------
+
+function Step6({
+  data, update, score, canGenerate,
+}: {
+  data: OnboardingData
+  update: (p: Partial<OnboardingData>) => void
+  score: number
+  canGenerate: boolean
+}) {
+  return (
+    <div className="flex flex-col gap-8">
+      <div>
+        <h1 className="font-heading text-2xl font-bold text-foreground">Google Perfil de Empresas</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Conectar o GBP permite que a plataforma otimize seu perfil e gere posts automaticamente. Pode pular por agora.
+        </p>
+      </div>
+
+      <div className="rounded-xl border border-border bg-card p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="text-sm font-semibold text-foreground">Google Perfil de Empresas</div>
+            <div className="mt-0.5 text-xs text-muted-foreground">
+              Integração OAuth — disponível em breve
+            </div>
+          </div>
+          <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
+            Em breve
+          </span>
+        </div>
+
+        <div className="mt-4 flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => update({ gbp_connected: !data.gbp_connected })}
+            className={`relative h-6 w-11 rounded-full transition-colors ${
+              data.gbp_connected ? 'bg-primary' : 'bg-muted'
+            }`}
+          >
+            <span className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
+              data.gbp_connected ? 'translate-x-5' : 'translate-x-0'
+            }`} />
+          </button>
+          <span className="text-sm text-foreground">
+            {data.gbp_connected ? 'Marcado como conectado (+5% no score)' : 'Pular por agora'}
+          </span>
+        </div>
+      </div>
+
+      {/* Score summary */}
+      <div className={`rounded-xl border p-6 ${canGenerate ? 'border-primary/40 bg-primary/5' : 'border-border bg-muted/30'}`}>
+        <div className="mb-3 flex items-center justify-between">
+          <span className="font-heading text-base font-bold text-foreground">
+            Score de completude
+          </span>
+          <span className={`font-heading text-2xl font-bold ${canGenerate ? 'text-primary' : 'text-muted-foreground'}`}>
+            {score}%
+          </span>
+        </div>
+
+        <div className="mb-4 h-2 overflow-hidden rounded-full bg-muted">
+          <div
+            className={`h-2 rounded-full transition-all duration-700 ${canGenerate ? 'bg-primary' : 'bg-muted-foreground/40'}`}
+            style={{ width: `${score}%` }}
+          />
+        </div>
+
+        {canGenerate ? (
+          <p className="text-sm text-primary font-medium">
+            ✓ Score suficiente. O botão "Gerar meu site" está liberado.
+          </p>
+        ) : (
+          <p className="text-sm text-muted-foreground">
+            Precisa de 70% para gerar. Faltam <strong>{70 - score}%</strong> — volte e preencha mais campos nos steps anteriores.
+          </p>
+        )}
+      </div>
+    </div>
+  )
+}

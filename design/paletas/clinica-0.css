@@ -1,0 +1,13 @@
+/* Nicho: CLÍNICA — paleta 0 (calmo, confiável, limpo)
+   Vibe: azul-esverdeado (teal) — sensação clínica, higiene, confiança.
+   Para os SITES gerados (não o painel). Formato --color-*. */
+:root[data-niche="clinica"][data-palette="0"],
+.niche-clinica-0 {
+  --color-primary:     #0E7C86;  /* teal profundo */
+  --color-secondary:   #1B9AAA;
+  --color-accent:      #16B3A6;  /* verde-água (CTA) */
+  --color-background:  #FFFFFF;
+  --color-surface:     #F2F8F9;  /* cartões, seções alternadas */
+  --color-text:        #0F2A2E;
+  --color-text-muted:  #5A7378;
+}

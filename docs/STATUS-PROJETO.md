@@ -54,7 +54,7 @@
 | #3 | Setup agentes de dev (Claude Code + Cursor) | ✅ completed — 22 arquivos (3 agentes + 8 skills + 3 commands + 6 cursor rules + cursorignore) |
 | #4 | Refatorar Bloco 1 + escrever Blocos 2-13 + seo-rules YAMLs | 🟡 parcial — `seo-rules/ai-bots.yaml` criado; Blocos 1-13 aguardam aprovação final do Bloco 0 |
 | #5 | Setup Google OAuth via dicasdodove.com.br | ⬜ pending — bloqueada por #6 (preencher placeholders jurídicos) |
-| #S1 | Infra base (beta free tier) | 🟡 QUASE — ✅ Supabase (HARP.IA, SP) + 17 tabelas + RLS + Auth email + ✅ **Next.js 14 rodando local (localhost:3000) conectado ao Supabase** (App Router, TS estrito, Tailwind, shadcn New York+Slate, SSR; páginas esboçadas: Login/Cadastro/Onboarding/API health). **FALTA: subir no GitHub + deploy na Vercel** |
+| #S1 | Infra base (beta free tier) | ✅ **COMPLETO (2026-06-04)** — Supabase (HARP.IA, SP) + 17 tabelas + RLS + Auth email + Next.js 14 + GitHub (CassioBranco/HARP.IA) + **deploy Vercel NO AR: harp-ia.vercel.app** (auto-deploy a cada push no master). Fundação técnica de pé. |
 | #6 | 4 documentos jurídicos | ✅ completed (faltam placeholders: CNPJ, endereço, DPO, data, nome comercial) |
 | #7 | North Star + 8 regras AEO absorvidas em todos os documentos | ✅ completed (2026-06-02) |
 | #8 | Diagrama visual + documento explicativo da arquitetura (Mermaid + Canva/Excalidraw) | ⬜ pending — entregar ANTES da Fase C começar, depois de aprovar Bloco 0 e fechar Blocos de prompt. Alinhado ao ARCHITECTURE.md (AEO, multi-tenant, 5 agentes, RAG, pipeline correto). Inclui contraste com o diagrama-rascunho do Cássio |
@@ -138,6 +138,59 @@ Estrutura final: 22 arquivos criados (skills ampliadas com absorção do reposit
 - Skills (8): supabase-dba | typescript-guardian | security-guardian | rag-architect | test-engineer | sre-observability | prompt-engineer | seo-validator
 - Commands (3): /new-component | /new-migration | /new-prompt
 - Cursor rules (6 + ignore): stack | arquitetura | padrões | design-atômico | search-intent | aeo-arquitetura
+
+---
+
+## 6.5. ONDE PARAMOS (handoff 2026-06-04 — sessão 2)
+
+**S1 COMPLETO e no ar:** Supabase (HARP.IA, SP) + 17 tabelas + RLS + Auth email + Next.js 14 + GitHub (CassioBranco/HARP.IA) + Vercel (**harp-ia.vercel.app**, auto-deploy no push do master).
+
+**Telas construídas — Jornada 1 e 2 completas (casca visual):**
+
+| Tela | Arquivo | Status |
+|------|---------|--------|
+| Landing page (Apresentação) | `app/page.tsx` | ✅ Hero + Como funciona + SEO/GEO/AEO + Planos + CTA |
+| Login | `app/(auth)/login/page.tsx` | ✅ Formulário real, Supabase Auth, tratamento de erro |
+| Cadastro | `app/(auth)/signup/page.tsx` | ✅ Formulário real, Supabase Auth, tela pós-confirmação |
+| Onboarding wizard | `app/onboarding/page.tsx` | ✅ 6 steps completos, autossalvo Supabase, score ao vivo, layout focado |
+| Dashboard home | `app/(dashboard)/sites/page.tsx` | ✅ Empty state + grid de sites + banner onboarding incompleto + próximos passos |
+| Dashboard layout | `app/(dashboard)/layout.tsx` | ✅ Sidebar com nav, email do usuário, badge de plano |
+
+**Design system aplicado:**
+- `app/globals.css` — tokens HARPIA (esmeralda + dourado + floresta)
+- `app/layout.tsx` — Plus Jakarta Sans (títulos) + Inter (corpo) via `next/font`
+- `tailwind.config.ts` — `fontFamily.heading` e `fontFamily.body` adicionados
+
+**Expansão de nichos (2026-06-04):** plataforma passou de 8 para **14 presets**. Adicionados: `advocacia`, `contabilidade`, `psicologia`, `odontologia`, `fisioterapia`, `veterinaria`. Motivação: profissões reguladas que dependem de SEO por não poderem fazer tráfego pago (OAB, CFM, CFP, CFO). Documentação completa em `docs/NICHOS.md`. Migration em `supabase/migrations/20260604120000_expand_nichos.sql` — **rodar no Supabase antes de usar esses nichos em produção**.
+
+| Galeria de templates | `app/templates/page.tsx` | ✅ 14 nichos × 3 paletas, preview de cores ao vivo, cria registro em `sites`, redireciona pro dashboard |
+| Dashboard home | `app/(dashboard)/sites/page.tsx` | ✅ Empty state + grid de sites + banner onboarding incompleto + próximos passos |
+| Dashboard layout | `app/(dashboard)/layout.tsx` | ✅ Sidebar com nav, email do usuário, badge de plano |
+
+**Fluxo completo agora funcional:**
+```
+/ → /signup → /onboarding → /templates → /sites (dashboard)
+```
+
+| Template do site | `components/templates/SiteTemplate.tsx` | ✅ Server Component completo — nav, hero, serviços, sobre, depoimentos, FAQ (AEO ≥6), CTA, footer, schema JSON-LD + FAQPage |
+| Sistema de paletas | `lib/templates/palettes.ts` | ✅ 14 nichos × 3 paletas, CSS variables injetadas inline |
+| Conteúdo de exemplo | `lib/templates/example-content.ts` | ✅ 3 nichos com exemplo real (advocacia, servicos, clinica) + fallback genérico |
+| Preview do site | `app/preview/[siteId]/page.tsx` | ✅ Barra de preview + renderiza template com paleta do site |
+| Site publicado | `app/[domain]/page.tsx` | ✅ Busca site por domínio, renderiza template, gera metadata SEO |
+
+**Fluxo completo do protótipo:**
+```
+/ → /signup → /onboarding → /templates → /sites → /preview/[id]
+```
+
+**Para subir no Vercel:** fazer push no master. Auto-deploy já está configurado.
+**Antes do deploy:** rodar migration `20260604120000_expand_nichos.sql` no Supabase.
+
+**PRÓXIMO PASSO:** ligar o onboarding_profiles ao template (substituir conteúdo de exemplo pelo real do banco) + Agente Onboarding (motor de IA — Blocos 1-13).
+
+**⚠️ Pendências travadas:** rotacionar service_role antes de cliente real · confirmar repo GitHub é Private · decisões do Dove (KPI citabilidade, upsell PR, nome comercial) · OAuth Google (timer 2-6 sem, começar cedo) · aprovar Bloco 0 → escrever Blocos 1-13.
+
+**Como trabalhamos:** Cássio é iniciante em código — explicar simples (conceito+decisão+impacto), guiar clique a clique. Construção real acontece no Cursor (agente nativo); Claude no chat = estratégia, design, desbloqueio. Não usar Lovable (retrabalho). Linguagem/vocabulário = calibragem futura.
 
 ---
 
