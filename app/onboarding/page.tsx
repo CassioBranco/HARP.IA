@@ -114,25 +114,161 @@ const STEP_LABELS = [
 ]
 
 // ---------------------------------------------------------------------------
-// Score
+// Score CPF — 3 pilares do Método CPF + score global
 // ---------------------------------------------------------------------------
 
-function calcScore(d: OnboardingData): number {
-  const checks: Array<[boolean, number]> = [
-    [d.business_name.trim().length > 2,              10],
-    [d.niche.length > 0,                             10],
-    [d.city.trim().length > 2,                        8],
-    [d.services.some(s => s.name.trim().length > 2), 15],
-    [d.differentials.trim().length > 10,             10],
-    [d.target_audience.trim().length > 10,           10],
-    [d.pain_points.trim().length > 10,                8],
-    [Number(d.years_experience) > 0,                  5],
-    [d.credentials.trim().length > 0,                 4],
-    [d.keywords_primary.trim().length > 3,           10],
-    [d.tone.length > 0,                               5],
-    [d.gbp_connected,                                 5],
+type CPFScore = { c: number; p: number; f: number; total: number }
+
+function calcCPF(d: OnboardingData): CPFScore {
+  // C — Conhecimento: Google sabe quem você é
+  const cChecks: Array<[boolean, number]> = [
+    [d.business_name.trim().length > 2, 30],
+    [d.niche.length > 0,                25],
+    [d.city.trim().length > 2,          25],
+    [Number(d.years_experience) > 0,    10],
+    [d.credentials.trim().length > 0,   10],
   ]
-  return checks.reduce((sum, [ok, pts]) => sum + (ok ? pts : 0), 0)
+  // P — Posicionamento: Google entende por que te escolher
+  const pChecks: Array<[boolean, number]> = [
+    [d.differentials.trim().length > 10, 35],
+    [d.target_audience.trim().length > 10, 30],
+    [d.pain_points.trim().length > 10,   25],
+    [d.cases.trim().length > 5,          10],
+  ]
+  // F — Faturamento: Google sabe o que você vende e como te encontrar
+  const fChecks: Array<[boolean, number]> = [
+    [d.services.some(s => s.name.trim().length > 2), 35],
+    [d.keywords_primary.trim().length > 3,           35],
+    [d.tone.length > 0,                              15],
+    [d.gbp_connected,                                15],
+  ]
+  const c = cChecks.reduce((s, [ok, pts]) => s + (ok ? pts : 0), 0)
+  const p = pChecks.reduce((s, [ok, pts]) => s + (ok ? pts : 0), 0)
+  const f = fChecks.reduce((s, [ok, pts]) => s + (ok ? pts : 0), 0)
+  return { c, p, f, total: Math.round((c + p + f) / 3) }
+}
+
+// Mantido para compatibilidade com o bloqueio de geração (≥70%)
+function calcScore(d: OnboardingData): number {
+  return calcCPF(d).total
+}
+
+// ---------------------------------------------------------------------------
+// CPFBars — mini barras de sinal no header
+// ---------------------------------------------------------------------------
+
+function SignalBars({ value, color }: { value: number; color: string }) {
+  const bars = Math.round(value / 25) // 0-4 barras
+  return (
+    <div className="flex items-end gap-0.5 h-4">
+      {[1, 2, 3, 4].map(i => (
+        <div
+          key={i}
+          className={`w-1 rounded-sm transition-all duration-500 ${i <= bars ? color : 'bg-muted'}`}
+          style={{ height: `${i * 25}%` }}
+        />
+      ))}
+    </div>
+  )
+}
+
+function CPFBars({ score }: { score: CPFScore }) {
+  return (
+    <div className="flex items-center gap-3">
+      {[
+        { label: 'Marca',    value: score.c, color: 'bg-blue-500',   tip: 'C — Conhecimento' },
+        { label: 'Posição',  value: score.p, color: 'bg-purple-500', tip: 'P — Posicionamento' },
+        { label: 'Vendas',   value: score.f, color: 'bg-green-500',  tip: 'F — Faturamento' },
+      ].map(({ label, value, color, tip }) => (
+        <div key={label} className="flex flex-col items-center gap-1" title={`${tip}: ${value}%`}>
+          <SignalBars value={value} color={color} />
+          <span className="text-[9px] font-medium text-muted-foreground">{label}</span>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// StepImpact — card de impacto por step (linguagem leiga)
+// ---------------------------------------------------------------------------
+
+type ImpactItem = { icon: string; text: string; badge?: string }
+
+const STEP_IMPACT: Record<number, { title: string; items: ImpactItem[] }> = {
+  1: {
+    title: 'O que este passo faz pelo seu posicionamento',
+    items: [
+      { icon: '🔍', text: 'Seu nome e cidade entram em cada texto gerado — Google e IAs aprendem quem você é e onde atende', badge: 'Marca' },
+      { icon: '📍', text: 'O nicho define quais buscas vão te mostrar — "dentista em Sorocaba" só aparece se o nicho estiver certo', badge: 'Busca local' },
+      { icon: '🗺️', text: 'O raio de atuação faz seu site aparecer para quem busca "perto de mim" dentro da sua área', badge: 'Google Maps' },
+    ],
+  },
+  2: {
+    title: 'O que este passo faz pelo seu posicionamento',
+    items: [
+      { icon: '💰', text: 'Cada serviço vira uma seção otimizada — quem busca por aquele serviço específico vai te encontrar', badge: 'Visibilidade' },
+      { icon: '⭐', text: 'Seus diferenciais viram respostas no Google — quando alguém perguntar "por que escolher você", o Google responde com os seus dados', badge: 'Destaque' },
+      { icon: '🤖', text: 'O ChatGPT e o Gemini usam seus diferenciais quando alguém pede recomendações na sua área', badge: 'IA generativa' },
+    ],
+  },
+  3: {
+    title: 'O que este passo faz pelo seu posicionamento',
+    items: [
+      { icon: '❓', text: 'As dores do seu cliente viram perguntas do FAQ — essas perguntas são exatamente o que as pessoas digitam no Google', badge: 'FAQ / AEO' },
+      { icon: '🗣️', text: 'Busca por voz ("Ok Google, qual o melhor dentista perto de mim?") usa as dores e o público para te recomendar', badge: 'Voz' },
+      { icon: '🧠', text: 'O ChatGPT cita negócios que aparecem como solução para dores específicas — seus dados alimentam isso', badge: 'GEO' },
+    ],
+  },
+  4: {
+    title: 'O que este passo faz pelo seu posicionamento',
+    items: [
+      { icon: '🏆', text: 'Anos de experiência e credenciais (CRM, OAB, CRO...) aumentam a autoridade do seu site — o Google valoriza especialistas comprovados', badge: 'Autoridade' },
+      { icon: '📊', text: 'Resultados concretos (casos e números) entram no conteúdo como prova — o Google prefere sites com dados reais', badge: 'Confiança' },
+    ],
+  },
+  5: {
+    title: 'O que este passo faz pelo seu posicionamento',
+    items: [
+      { icon: '🎯', text: 'As keywords entram em TODOS os textos gerados — título, descrição, headings e parágrafos. Sem keywords, o Google não sabe quando te mostrar', badge: 'Palavras-chave' },
+      { icon: '✍️', text: 'O tom de voz define como a IA escreve — profissional, próximo ou descontraído. O texto precisa soar como você', badge: 'Tom' },
+      { icon: '📝', text: 'O intent do blog define se o artigo vai educar, convencer ou gerar contato direto — cada formato ranqueia de forma diferente', badge: 'Blog' },
+    ],
+  },
+  6: {
+    title: 'O que este passo faz pelo seu posicionamento',
+    items: [
+      { icon: '📍', text: 'O Google Perfil de Empresas conectado faz você aparecer no Maps e no painel lateral do Google — visibilidade local máxima', badge: 'Google Maps' },
+      { icon: '🤖', text: 'Posts automáticos no seu perfil alimentam o ChatGPT e o Gemini com dados atualizados sobre o seu negócio', badge: 'GEO' },
+    ],
+  },
+}
+
+function StepImpact({ step }: { step: number }) {
+  const impact = STEP_IMPACT[step]
+  if (!impact) return null
+  return (
+    <div className="rounded-xl border border-border bg-muted/40 p-4">
+      <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+        {impact.title}
+      </p>
+      <ul className="space-y-2.5">
+        {impact.items.map((item, i) => (
+          <li key={i} className="flex items-start gap-3">
+            <span className="mt-0.5 text-base shrink-0">{item.icon}</span>
+            <div className="flex-1 min-w-0">
+              <span className="text-xs text-foreground leading-relaxed">{item.text}</span>
+              {item.badge && (
+                <span className="ml-2 inline-block rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
+                  {item.badge}
+                </span>
+              )}
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
 }
 
 // ---------------------------------------------------------------------------
@@ -162,7 +298,8 @@ export default function OnboardingPage() {
   const [userId, setUserId] = useState<string | null>(null)
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const score = calcScore(data)
+  const cpf = calcCPF(data)
+  const score = cpf.total
   const canGenerate = score >= 70
 
   // Load session + existing profile
@@ -310,20 +447,15 @@ export default function OnboardingPage() {
             HARPIA
           </Link>
 
-          {/* Score badge */}
-          <div className="flex items-center gap-3">
-            {saving && (
-              <span className="text-xs text-muted-foreground">Salvando...</span>
-            )}
-            {saveError && (
-              <span className="text-xs text-destructive">{saveError}</span>
-            )}
+          {/* CPF Score */}
+          <div className="flex items-center gap-4">
+            {saving && <span className="text-xs text-muted-foreground">Salvando…</span>}
+            {saveError && <span className="text-xs text-destructive">{saveError}</span>}
+            <CPFBars score={cpf} />
             <div className={`rounded-full px-3 py-1 text-xs font-semibold ${
-              canGenerate
-                ? 'bg-primary/10 text-primary'
-                : 'bg-muted text-muted-foreground'
+              canGenerate ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'
             }`}>
-              {score}% completo
+              {score}%
             </div>
           </div>
         </div>
@@ -373,20 +505,23 @@ export default function OnboardingPage() {
 
       {/* Main content */}
       <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-10">
-        {step === 1 && <Step1 data={data} update={update} />}
+        {step === 1 && <><Step1 data={data} update={update} /><StepImpact step={1} /></>}
         {step === 2 && (
-          <Step2
-            data={data}
-            update={update}
-            updateService={updateService}
-            addService={addService}
-            removeService={removeService}
-          />
+          <>
+            <Step2
+              data={data}
+              update={update}
+              updateService={updateService}
+              addService={addService}
+              removeService={removeService}
+            />
+            <StepImpact step={2} />
+          </>
         )}
-        {step === 3 && <Step3 data={data} update={update} />}
-        {step === 4 && <Step4 data={data} update={update} />}
-        {step === 5 && <Step5 data={data} update={update} />}
-        {step === 6 && <Step6 data={data} update={update} score={score} canGenerate={canGenerate} />}
+        {step === 3 && <><Step3 data={data} update={update} /><StepImpact step={3} /></>}
+        {step === 4 && <><Step4 data={data} update={update} /><StepImpact step={4} /></>}
+        {step === 5 && <><Step5 data={data} update={update} /><StepImpact step={5} /></>}
+        {step === 6 && <Step6 data={data} update={update} score={score} canGenerate={canGenerate} cpf={cpf} />}
       </main>
 
       {/* Bottom nav */}
@@ -1109,12 +1244,13 @@ function Step5({ data, update }: { data: OnboardingData; update: (p: Partial<Onb
 // ---------------------------------------------------------------------------
 
 function Step6({
-  data, update, score, canGenerate,
+  data, update, score, canGenerate, cpf,
 }: {
   data: OnboardingData
   update: (p: Partial<OnboardingData>) => void
   score: number
   canGenerate: boolean
+  cpf: CPFScore
 }) {
   return (
     <div className="flex flex-col gap-8">
@@ -1156,34 +1292,54 @@ function Step6({
         </div>
       </div>
 
-      {/* Score summary */}
-      <div className={`rounded-xl border p-6 ${canGenerate ? 'border-primary/40 bg-primary/5' : 'border-border bg-muted/30'}`}>
-        <div className="mb-3 flex items-center justify-between">
+      {/* Score CPF completo */}
+      <div className={`rounded-xl border p-5 ${canGenerate ? 'border-primary/40 bg-primary/5' : 'border-border bg-muted/30'}`}>
+        <div className="mb-4 flex items-center justify-between">
           <span className="font-heading text-base font-bold text-foreground">
-            Score de completude
+            Sinais que seu site vai enviar
           </span>
-          <span className={`font-heading text-2xl font-bold ${canGenerate ? 'text-primary' : 'text-muted-foreground'}`}>
+          <span className={`font-heading text-xl font-bold ${canGenerate ? 'text-primary' : 'text-muted-foreground'}`}>
             {score}%
           </span>
         </div>
 
-        <div className="mb-4 h-2 overflow-hidden rounded-full bg-muted">
-          <div
-            className={`h-2 rounded-full transition-all duration-700 ${canGenerate ? 'bg-primary' : 'bg-muted-foreground/40'}`}
-            style={{ width: `${score}%` }}
-          />
+        {/* 3 pilares */}
+        <div className="space-y-3 mb-5">
+          {[
+            { label: 'C — Conhecimento', sub: 'Google sabe quem você é e onde atende', value: cpf.c, color: 'bg-blue-500' },
+            { label: 'P — Posicionamento', sub: 'Google entende por que te escolher', value: cpf.p, color: 'bg-purple-500' },
+            { label: 'F — Faturamento', sub: 'Google sabe o que você vende e como te encontrar', value: cpf.f, color: 'bg-green-500' },
+          ].map(({ label, sub, value, color }) => (
+            <div key={label}>
+              <div className="mb-1 flex items-center justify-between">
+                <div>
+                  <span className="text-xs font-semibold text-foreground">{label}</span>
+                  <span className="ml-2 text-[10px] text-muted-foreground">{sub}</span>
+                </div>
+                <span className="text-xs font-bold text-muted-foreground">{value}%</span>
+              </div>
+              <div className="h-2 overflow-hidden rounded-full bg-muted">
+                <div
+                  className={`h-2 rounded-full transition-all duration-700 ${color}`}
+                  style={{ width: `${value}%` }}
+                />
+              </div>
+            </div>
+          ))}
         </div>
 
         {canGenerate ? (
-          <p className="text-sm text-primary font-medium">
-            ✓ Score suficiente. O botão "Gerar meu site" está liberado.
+          <p className="text-sm font-medium text-primary">
+            ✓ Sinais suficientes. A IA tem o que precisa para gerar seu site.
           </p>
         ) : (
           <p className="text-sm text-muted-foreground">
-            Precisa de 70% para gerar. Faltam <strong>{70 - score}%</strong> — volte e preencha mais campos nos steps anteriores.
+            Precisa de <strong>70%</strong> no score geral. Faltam <strong>{70 - score}%</strong> — volte e preencha mais campos nos steps anteriores.
           </p>
         )}
       </div>
+
+      <StepImpact step={6} />
     </div>
   )
 }
