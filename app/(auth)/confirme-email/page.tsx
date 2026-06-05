@@ -1,11 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { createBrowserClient } from '@/lib/supabase/client'
 
-export default function ConfirmeEmailPage() {
+// useSearchParams precisa de Suspense boundary no Next.js 14
+function ConfirmeEmailContent() {
   const searchParams = useSearchParams()
   const email = searchParams.get('email') ?? ''
   const [resent, setResent] = useState(false)
@@ -146,5 +147,18 @@ export default function ConfirmeEmailPage() {
         </p>
       </div>
     </div>
+  )
+}
+
+// Suspense boundary obrigatório para useSearchParams no Next.js 14
+export default function ConfirmeEmailPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-sm text-muted-foreground">Carregando…</div>
+      </div>
+    }>
+      <ConfirmeEmailContent />
+    </Suspense>
   )
 }
