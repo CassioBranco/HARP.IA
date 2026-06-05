@@ -6,27 +6,96 @@ import { useRouter } from 'next/navigation'
 import { ensureProfileOnClient } from '@/lib/auth/client'
 import { createBrowserClient } from '@/lib/supabase/client'
 
+// ---------------------------------------------------------------------------
+// Ícone de olho
+// ---------------------------------------------------------------------------
+
+function EyeIcon({ open }: { open: boolean }) {
+  return open ? (
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+      <circle cx="12" cy="12" r="3"/>
+    </svg>
+  ) : (
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/>
+      <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/>
+      <line x1="1" y1="1" x2="23" y2="23"/>
+    </svg>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Força de senha
+// ---------------------------------------------------------------------------
+
+type StrengthLevel = 'vazia' | 'fraca' | 'média' | 'forte'
+
+function getStrength(pwd: string): StrengthLevel {
+  if (!pwd) return 'vazia'
+  let score = 0
+  if (pwd.length >= 8)  score++
+  if (pwd.length >= 12) score++
+  if (/[A-Z]/.test(pwd)) score++
+  if (/[0-9]/.test(pwd)) score++
+  if (/[^A-Za-z0-9]/.test(pwd)) score++
+  if (score <= 1) return 'fraca'
+  if (score <= 3) return 'média'
+  return 'forte'
+}
+
+const STRENGTH_CONFIG: Record<StrengthLevel, { label: string; bars: number; color: string; text: string }> = {
+  vazia: { label: '',      bars: 0, color: 'bg-muted',       text: 'text-muted-foreground' },
+  fraca: { label: 'Fraca', bars: 1, color: 'bg-destructive', text: 'text-destructive'      },
+  média: { label: 'Média', bars: 2, color: 'bg-accent',      text: 'text-accent-foreground' },
+  forte: { label: 'Forte', bars: 3, color: 'bg-primary',     text: 'text-primary'           },
+}
+
+function PasswordStrength({ password }: { password: string }) {
+  const level = getStrength(password)
+  const cfg = STRENGTH_CONFIG[level]
+  if (!password) return null
+
+  return (
+    <div className="mt-2 space-y-1.5">
+      <div className="flex gap-1.5">
+        {[1, 2, 3].map(i => (
+          <div
+            key={i}
+            className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
+              i <= cfg.bars ? cfg.color : 'bg-muted'
+            }`}
+          />
+        ))}
+      </div>
+      <p className={`text-xs font-medium ${cfg.text}`}>
+        Senha {cfg.label}
+        {level === 'fraca' && ' — use letras maiúsculas, números ou símbolos'}
+        {level === 'média' && ' — adicione símbolos para ficar mais segura'}
+        {level === 'forte' && ' ✓'}
+      </p>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Input class
+// ---------------------------------------------------------------------------
+
+const inputCls = "w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1 disabled:opacity-50"
+
+// ---------------------------------------------------------------------------
+// Page
+// ---------------------------------------------------------------------------
+
 export default function SignupPage() {
   const router = useRouter()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const [done, setDone] = useState(false)
-  const [resent, setResent] = useState(false)
-  const [resending, setResending] = useState(false)
-
-  async function handleResend() {
-    setResending(true)
-    try {
-      const supabase = createBrowserClient()
-      await supabase.auth.resend({ type: 'signup', email })
-      setResent(true)
-    } finally {
-      setResending(false)
-    }
-  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -60,95 +129,22 @@ export default function SignupPage() {
       }
 
       if (data.session) {
-        // Tenta criar tenant — falha silenciosa (retenta no próximo acesso)
+        // Confirmação desligada — cria perfil e entra direto
         try { await ensureProfileOnClient() } catch { /* ignora */ }
         router.push('/sites')
         router.refresh()
         return
       }
 
-      setDone(true)
+      // Confirmação ativa — vai para página dedicada
+      router.push(`/confirme-email?email=${encodeURIComponent(email)}`)
     } finally {
       setLoading(false)
     }
   }
 
-  if (done) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-background p-6">
-        <div className="w-full max-w-md">
-          {/* Card principal */}
-          <div className="rounded-2xl border border-border bg-card p-8 shadow-sm text-center">
-            {/* Ícone */}
-            <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-              <svg className="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
-            </div>
-
-            <h2 className="font-heading mb-2 text-2xl font-bold text-foreground">
-              Confirme seu email
-            </h2>
-            <p className="text-muted-foreground text-sm leading-relaxed">
-              Enviamos um link de confirmação para
-            </p>
-            <p className="mt-1 mb-6 font-semibold text-foreground">{email}</p>
-
-            {/* Passos */}
-            <div className="mb-6 rounded-xl bg-muted/50 p-4 text-left space-y-3">
-              {[
-                { n: '1', text: 'Abra o email na sua caixa de entrada' },
-                { n: '2', text: 'Clique em "Confirmar email" no link que enviamos' },
-                { n: '3', text: 'Volte aqui e faça login normalmente' },
-              ].map(step => (
-                <div key={step.n} className="flex items-start gap-3">
-                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
-                    {step.n}
-                  </span>
-                  <span className="text-sm text-foreground pt-0.5">{step.text}</span>
-                </div>
-              ))}
-            </div>
-
-            <Link
-              href="/login"
-              className="block w-full rounded-md bg-primary py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
-            >
-              Ir para o login
-            </Link>
-
-            {/* Reenviar */}
-            <div className="mt-5 border-t border-border pt-5">
-              <p className="text-xs text-muted-foreground mb-2">
-                Não recebeu o email? Verifique o spam ou reenvie.
-              </p>
-              {resent ? (
-                <p className="text-xs font-medium text-primary">✓ Email reenviado!</p>
-              ) : (
-                <button
-                  onClick={handleResend}
-                  disabled={resending}
-                  className="text-xs font-medium text-primary hover:underline disabled:opacity-50"
-                >
-                  {resending ? 'Reenviando...' : 'Reenviar email de confirmação'}
-                </button>
-              )}
-            </div>
-          </div>
-
-          <p className="mt-4 text-center text-xs text-muted-foreground">
-            Criou com o email errado?{' '}
-            <Link href="/signup" className="text-primary hover:underline">
-              Tente de novo
-            </Link>
-          </p>
-        </div>
-      </div>
-    )
-  }
-
   return (
-    <div className="flex min-h-screen items-center justify-center p-6">
+    <div className="flex min-h-screen items-center justify-center bg-background p-6">
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <Link href="/" className="font-heading text-2xl font-bold text-primary">
@@ -170,6 +166,7 @@ export default function SignupPage() {
 
         <div className="rounded-xl border border-border bg-card p-8 shadow-sm">
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+            {/* Nome */}
             <div className="flex flex-col gap-1.5">
               <label htmlFor="name" className="text-sm font-medium text-foreground">
                 Seu nome
@@ -180,13 +177,14 @@ export default function SignupPage() {
                 autoComplete="name"
                 required
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={e => setName(e.target.value)}
                 placeholder="João Silva"
-                className="rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1 disabled:opacity-50"
+                className={inputCls}
                 disabled={loading}
               />
             </div>
 
+            {/* Email */}
             <div className="flex flex-col gap-1.5">
               <label htmlFor="email" className="text-sm font-medium text-foreground">
                 Email
@@ -197,28 +195,41 @@ export default function SignupPage() {
                 autoComplete="email"
                 required
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={e => setEmail(e.target.value)}
                 placeholder="voce@email.com"
-                className="rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1 disabled:opacity-50"
+                className={inputCls}
                 disabled={loading}
               />
             </div>
 
+            {/* Senha com eye toggle + força */}
             <div className="flex flex-col gap-1.5">
               <label htmlFor="password" className="text-sm font-medium text-foreground">
-                Senha <span className="text-muted-foreground">(mín. 8 caracteres)</span>
+                Senha
               </label>
-              <input
-                id="password"
-                type="password"
-                autoComplete="new-password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1 disabled:opacity-50"
-                disabled={loading}
-              />
+              <div className="relative">
+                <input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  autoComplete="new-password"
+                  required
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  placeholder="Mín. 8 caracteres"
+                  className={`${inputCls} pr-10`}
+                  disabled={loading}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(v => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  tabIndex={-1}
+                  aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+                >
+                  <EyeIcon open={showPassword} />
+                </button>
+              </div>
+              <PasswordStrength password={password} />
             </div>
 
             {error && (
@@ -237,14 +248,9 @@ export default function SignupPage() {
 
             <p className="text-center text-xs text-muted-foreground">
               Ao criar conta você concorda com nossos{' '}
-              <Link href="/termos" className="underline hover:text-foreground">
-                Termos de Uso
-              </Link>{' '}
-              e{' '}
-              <Link href="/privacidade" className="underline hover:text-foreground">
-                Política de Privacidade
-              </Link>
-              .
+              <Link href="/termos" className="underline hover:text-foreground">Termos de Uso</Link>
+              {' '}e{' '}
+              <Link href="/privacidade" className="underline hover:text-foreground">Política de Privacidade</Link>.
             </p>
           </form>
         </div>
