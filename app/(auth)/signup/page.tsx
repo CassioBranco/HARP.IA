@@ -106,9 +106,16 @@ export default function SignupPage() {
         },
       })
       if (authError) {
-        setError(authError.message.toLowerCase().includes('already registered')
-          ? 'Este email já tem uma conta. Faça login.'
-          : `Erro: ${authError.message}`)
+        const m = authError.message.toLowerCase()
+        if (m.includes('already registered')) {
+          setError('Este email já tem uma conta. Faça login.')
+        } else if (m.includes('rate limit') || m.includes('too many')) {
+          setError('Muitas tentativas em pouco tempo. Aguarde alguns minutos e tente novamente.')
+        } else if (m.includes('invalid email')) {
+          setError('Email inválido. Verifique o endereço digitado.')
+        } else {
+          setError(`Erro ao criar conta: ${authError.message}`)
+        }
         return
       }
       if (data.session) {
