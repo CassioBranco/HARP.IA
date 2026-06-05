@@ -22,7 +22,6 @@ type OnboardingData = {
   city: string
   state: string
   service_radius_km: string
-  coverage_areas: string
   // Step 2 — Serviços
   services: ServiceItem[]
   differentials: string
@@ -47,8 +46,7 @@ const EMPTY: OnboardingData = {
   niche: '',
   city: '',
   state: '',
-  service_radius_km: '',
-  coverage_areas: '',
+  service_radius_km: '30',
   services: [{ name: '', description: '', price_range: '' }],
   differentials: '',
   target_audience: '',
@@ -189,8 +187,7 @@ export default function OnboardingPage() {
           niche:               p.niche             ?? '',
           city:                p.city              ?? '',
           state:               p.state             ?? '',
-          service_radius_km:   p.service_radius_km?.toString() ?? '',
-          coverage_areas:      (p.coverage_areas ?? []).join(', '),
+          service_radius_km:   p.service_radius_km?.toString() ?? '30',
           services:            p.services?.length ? p.services : [{ name: '', description: '', price_range: '' }],
           differentials:       p.differentials     ?? '',
           target_audience:     p.target_audience   ?? '',
@@ -222,7 +219,6 @@ export default function OnboardingPage() {
         city:                d.city              || null,
         state:               d.state             || null,
         service_radius_km:   d.service_radius_km ? Number(d.service_radius_km) : null,
-        coverage_areas:      d.coverage_areas ? d.coverage_areas.split(',').map(s => s.trim()).filter(Boolean) : [],
         services:            d.services.filter(s => s.name.trim()),
         differentials:       d.differentials     || null,
         target_audience:     d.target_audience   || null,
@@ -436,6 +432,192 @@ export default function OnboardingPage() {
 }
 
 // ---------------------------------------------------------------------------
+// CitySearch — autocomplete via Nominatim (OpenStreetMap, gratuito)
+// ---------------------------------------------------------------------------
+
+type NominatimResult = {
+  place_id: number
+  display_name: string
+  address: {
+    city?: string
+    town?: string
+    municipality?: string
+    county?: string
+    state?: string
+    state_code?: string
+  }
+}
+
+const STATE_TO_UF: Record<string, string> = {
+  'Acre':'AC','Alagoas':'AL','Amapá':'AP','Amazonas':'AM','Bahia':'BA',
+  'Ceará':'CE','Distrito Federal':'DF','Espírito Santo':'ES','Goiás':'GO',
+  'Maranhão':'MA','Mato Grosso':'MT','Mato Grosso do Sul':'MS','Minas Gerais':'MG',
+  'Pará':'PA','Paraíba':'PB','Paraná':'PR','Pernambuco':'PE','Piauí':'PI',
+  'Rio de Janeiro':'RJ','Rio Grande do Norte':'RN','Rio Grande do Sul':'RS',
+  'Rondônia':'RO','Roraima':'RR','Santa Catarina':'SC','São Paulo':'SP',
+  'Sergipe':'SE','Tocantins':'TO',
+}
+
+function CitySearch({
+  city, state, onSelect,
+}: {
+  city: string
+  state: string
+  onSelect: (city: string, state: string) => void
+}) {
+  const [query, setQuery]         = useState(city || '')
+  const [results, setResults]     = useState<NominatimResult[]>([])
+  const [open, setOpen]           = useState(false)
+  const [loading, setLoading]     = useState(false)
+  const debounceRef               = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const abortRef                  = useRef<AbortController | null>(null)
+
+  // Sincroniza se o valor externo mudar (load de perfil salvo)
+  useEffect(() => { if (city && query !== city) setQuery(city) }, [city]) // eslint-disable-line
+
+  async function search(q: string) {
+    if (q.length < 2) { setResults([]); return }
+    setLoading(true)
+    if (abortRef.current) abortRef.current.abort()
+    abortRef.current = new AbortController()
+    try {
+      const url =
+        `https://nominatim.openstreetmap.org/search` +
+        `?q=${encodeURIComponent(q)}` +
+        `&countrycodes=br&format=json&limit=8&addressdetails=1` +
+        `&email=harpia-beta@dicasdodove.com.br`
+      const res = await fetch(url, { signal: abortRef.current.signal })
+      const data: NominatimResult[] = await res.json()
+      // Filtra para municípios (exclui ruas, POIs, etc.)
+      const cities = data.filter(r =>
+        r.address.city || r.address.town || r.address.municipality
+      )
+      setResults(cities.slice(0, 6))
+      setOpen(cities.length > 0)
+    } catch { /* abortado ou erro de rede */ } finally {
+      setLoading(false)
+    }
+  }
+
+  function handleInput(e: React.ChangeEvent<HTMLInputElement>) {
+    const v = e.target.value
+    setQuery(v)
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(() => search(v), 400)
+  }
+
+  function handleSelect(r: NominatimResult) {
+    const cityName = r.address.city ?? r.address.town ?? r.address.municipality ?? ''
+    const stateName = r.address.state ?? ''
+    const uf = r.address.state_code?.toUpperCase() ?? STATE_TO_UF[stateName] ?? ''
+    setQuery(`${cityName}${uf ? ` — ${uf}` : ''}`)
+    setOpen(false)
+    onSelect(cityName, uf)
+  }
+
+  return (
+    <div className="relative">
+      <div className="relative">
+        <input
+          className={inputCls}
+          placeholder="Digite o nome da cidade..."
+          value={query}
+          onChange={handleInput}
+          onFocus={() => results.length > 0 && setOpen(true)}
+          onBlur={() => setTimeout(() => setOpen(false), 150)}
+          autoComplete="off"
+        />
+        {loading && (
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground animate-pulse">
+            buscando…
+          </span>
+        )}
+      </div>
+
+      {open && results.length > 0 && (
+        <ul className="absolute z-50 mt-1 w-full overflow-hidden rounded-lg border border-border bg-card shadow-lg">
+          {results.map(r => {
+            const cityName = r.address.city ?? r.address.town ?? r.address.municipality ?? ''
+            const stateName = r.address.state ?? ''
+            const uf = r.address.state_code?.toUpperCase() ?? STATE_TO_UF[stateName] ?? ''
+            return (
+              <li key={r.place_id}>
+                <button
+                  type="button"
+                  onMouseDown={() => handleSelect(r)}
+                  className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm hover:bg-muted transition-colors"
+                >
+                  <span className="text-base">📍</span>
+                  <span className="font-medium text-foreground">{cityName}</span>
+                  {uf && <span className="text-muted-foreground">— {uf}</span>}
+                </button>
+              </li>
+            )
+          })}
+        </ul>
+      )}
+
+      {state && (
+        <p className="mt-1 text-xs text-muted-foreground">
+          ✓ {city}{state ? `, ${state}` : ''}
+        </p>
+      )}
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// RadiusSlider — slider visual de raio de atuação
+// ---------------------------------------------------------------------------
+
+function RadiusSlider({
+  value, city, onChange,
+}: {
+  value: string
+  city: string
+  onChange: (v: string) => void
+}) {
+  const km = parseInt(value) || 30
+
+  const label =
+    km <= 15  ? 'bairros próximos' :
+    km <= 40  ? 'cidade e municípios vizinhos' :
+    km <= 100 ? 'toda a região metropolitana' :
+                'ampla região do estado'
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-medium text-foreground">Raio de atuação</span>
+        <span className="font-heading text-lg font-bold text-primary">{km} km</span>
+      </div>
+
+      <input
+        type="range"
+        min={5} max={300} step={5}
+        value={km}
+        onChange={e => onChange(e.target.value)}
+        className="w-full accent-primary"
+      />
+
+      <div className="flex justify-between text-[10px] text-muted-foreground">
+        <span>5 km</span>
+        <span>150 km</span>
+        <span>300 km</span>
+      </div>
+
+      <div className="rounded-lg bg-primary/8 px-4 py-2.5 text-sm text-foreground">
+        {city ? (
+          <>Cobrindo <strong>{km} km</strong> a partir de <strong>{city}</strong> — {label}</>
+        ) : (
+          <>Selecione a cidade primeiro para ver a cobertura</>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
 // NicheButton — reutilizado nos grupos de nicho
 // ---------------------------------------------------------------------------
 
@@ -526,58 +708,22 @@ function Step1({ data, update }: { data: OnboardingData; update: (p: Partial<Onb
           </div>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-3">
-          <div className="sm:col-span-2">
-            <label className={labelCls}>Cidade-base *</label>
-            <input
-              className={inputCls}
-              placeholder="Sorocaba"
-              value={data.city}
-              onChange={e => update({ city: e.target.value })}
-            />
-            <p className={hintCls}>Centro do raio de atuação</p>
-          </div>
-
-          <div>
-            <label className={labelCls}>Estado *</label>
-            <select
-              className={inputCls}
-              value={data.state}
-              onChange={e => update({ state: e.target.value })}
-            >
-              <option value="">UF</option>
-              {ESTADOS.map(uf => (
-                <option key={uf} value={uf}>{uf}</option>
-              ))}
-            </select>
-          </div>
+        <div>
+          <label className={labelCls}>Cidade-base *</label>
+          <CitySearch
+            city={data.city}
+            state={data.state}
+            onSelect={(city, state) => update({ city, state })}
+          />
+          <p className={hintCls}>Digite o nome e selecione na lista — powered by OpenStreetMap</p>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <label className={labelCls}>Raio de atuação (km)</label>
-            <input
-              className={inputCls}
-              type="number"
-              min="1"
-              max="500"
-              placeholder="30"
-              value={data.service_radius_km}
-              onChange={e => update({ service_radius_km: e.target.value })}
-            />
-            <p className={hintCls}>Área que você atende a partir da cidade-base</p>
-          </div>
-
-          <div>
-            <label className={labelCls}>Cidades / bairros atendidos</label>
-            <input
-              className={inputCls}
-              placeholder="Votorantim, Itu, Jundiaí..."
-              value={data.coverage_areas}
-              onChange={e => update({ coverage_areas: e.target.value })}
-            />
-            <p className={hintCls}>Separe por vírgula — entram no SEO local</p>
-          </div>
+        <div>
+          <RadiusSlider
+            value={data.service_radius_km}
+            city={data.city}
+            onChange={v => update({ service_radius_km: v })}
+          />
         </div>
       </div>
     </div>
