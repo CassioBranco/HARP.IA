@@ -618,6 +618,61 @@ function RadiusSlider({
 }
 
 // ---------------------------------------------------------------------------
+// Tooltip — fade in/out ao passar o mouse no ícone de interrogação
+// ---------------------------------------------------------------------------
+
+function Tooltip({ text }: { text: string }) {
+  const [show, setShow] = useState(false)
+  return (
+    <span className="relative inline-flex items-center align-middle ml-1">
+      <button
+        type="button"
+        onMouseEnter={() => setShow(true)}
+        onMouseLeave={() => setShow(false)}
+        className="flex h-4 w-4 items-center justify-center rounded-full bg-muted text-[10px] font-bold text-muted-foreground hover:bg-primary/15 hover:text-primary transition-colors cursor-help"
+        aria-label="Saiba mais"
+        tabIndex={-1}
+      >
+        ?
+      </button>
+      <span
+        className={`pointer-events-none absolute left-6 top-1/2 -translate-y-1/2 z-50 w-64 rounded-xl border border-border bg-card p-3 text-xs leading-relaxed text-foreground shadow-lg transition-all duration-200 ${
+          show ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-1'
+        }`}
+      >
+        {text}
+        {/* Setinha */}
+        <span className="absolute -left-1.5 top-1/2 -translate-y-1/2 h-3 w-3 rotate-45 border-b border-l border-border bg-card" />
+      </span>
+    </span>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// suggestKeywords — gera sugestões básicas sem IA (placeholder para o motor)
+// ---------------------------------------------------------------------------
+
+const NICHE_LABELS: Record<string, string> = {
+  advocacia: 'advogado', contabilidade: 'contador', psicologia: 'psicólogo',
+  clinica: 'médico', odontologia: 'dentista', fisioterapia: 'fisioterapeuta',
+  veterinaria: 'veterinário', imobiliaria: 'imobiliária', restaurante: 'restaurante',
+  salao: 'salão de beleza', escola: 'escola', servicos: 'prestador de serviços',
+  institucional: 'empresa', landing: 'serviço',
+}
+
+function suggestKeywords(niche: string, city: string, businessName: string): string {
+  const n = NICHE_LABELS[niche] ?? niche
+  const c = city || 'sua cidade'
+  const suggestions = [
+    `${n} ${c}`,
+    `${n} em ${c}`,
+    `melhor ${n} ${c}`,
+    businessName ? `${businessName} ${c}` : `${n} perto de mim`,
+  ].filter(Boolean)
+  return suggestions.join(', ')
+}
+
+// ---------------------------------------------------------------------------
 // NicheButton — reutilizado nos grupos de nicho
 // ---------------------------------------------------------------------------
 
@@ -918,38 +973,86 @@ function Step4({ data, update }: { data: OnboardingData; update: (p: Partial<Onb
 // ---------------------------------------------------------------------------
 
 function Step5({ data, update }: { data: OnboardingData; update: (p: Partial<OnboardingData>) => void }) {
+  const suggested = suggestKeywords(data.niche, data.city, data.business_name)
+
+  function applySuggestion() {
+    if (!data.keywords_primary) update({ keywords_primary: suggested })
+  }
+
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <h1 className="font-heading text-2xl font-bold text-foreground">SEO e tom de voz</h1>
+        <h1 className="font-heading text-2xl font-bold text-foreground">
+          SEO
+          <Tooltip text="Search Engine Optimization — conjunto de técnicas que fazem seu site aparecer no Google quando alguém busca pelo seu serviço. O HARPIA aplica tudo automaticamente." />
+          {' '}e tom de voz
+        </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Keywords e tom entram em todo texto gerado — título, meta description, headings e corpo.
         </p>
       </div>
 
+      {/* Banner IA */}
+      <div className="flex items-start gap-3 rounded-xl border border-primary/30 bg-primary/5 px-4 py-3">
+        <span className="mt-0.5 text-lg shrink-0">✨</span>
+        <div className="text-sm">
+          <p className="font-semibold text-foreground">A IA vai sugerir as melhores keywords para o seu negócio</p>
+          <p className="mt-0.5 text-muted-foreground text-xs">
+            Com base no seu nicho, cidade e serviços preenchidos nos steps anteriores, o HARPIA vai gerar automaticamente as keywords com maior potencial de ranqueamento. Você pode editar qualquer uma antes de gerar o site.
+          </p>
+        </div>
+      </div>
+
       <div className="flex flex-col gap-5">
+        {/* Keywords principais */}
         <div>
-          <label className={labelCls}>Keywords principais *</label>
+          <label className={labelCls}>
+            Keywords principais
+            <Tooltip text="Palavras que seus clientes digitam no Google para encontrar seu serviço. Ex: 'dentista sorocaba', 'advogado trabalhista sp'. Inclua sempre a cidade. A IA vai sugerir as melhores para o seu nicho e localização." />
+          </label>
+
+          {/* Sugestão automática */}
+          {suggested && !data.keywords_primary && (
+            <div className="mb-2 flex items-center justify-between rounded-lg border border-dashed border-primary/40 bg-primary/5 px-3 py-2">
+              <p className="text-xs text-muted-foreground">
+                <span className="font-medium text-primary">Sugestão: </span>
+                {suggested}
+              </p>
+              <button
+                type="button"
+                onClick={applySuggestion}
+                className="ml-3 shrink-0 rounded-md bg-primary px-2.5 py-1 text-[11px] font-semibold text-primary-foreground hover:bg-primary/90"
+              >
+                Usar
+              </button>
+            </div>
+          )}
+
           <input
             className={inputCls}
-            placeholder="ortopedista sorocaba, especialista em joelho sorocaba, cirurgião ortopédico..."
+            placeholder={suggested || 'dentista sorocaba, clínica odontológica sorocaba...'}
             value={data.keywords_primary}
             onChange={e => update({ keywords_primary: e.target.value })}
           />
           <p className={hintCls}>Separe por vírgula · inclua a cidade · pense como o cliente busca</p>
         </div>
 
+        {/* Keywords secundárias */}
         <div>
-          <label className={labelCls}>Keywords secundárias</label>
+          <label className={labelCls}>
+            Keywords secundárias
+            <Tooltip text="Termos de suporte que complementam as principais. São usados em páginas internas, artigos de blog e seções específicas. Têm menos volume de busca mas convertem bem porque são mais específicos." />
+          </label>
           <input
             className={inputCls}
-            placeholder="tratamento de coluna sorocaba, fisioterapia pós-operatória..."
+            placeholder="implante dentário sorocaba, clareamento dental, ortodontia adulto..."
             value={data.keywords_secondary}
             onChange={e => update({ keywords_secondary: e.target.value })}
           />
-          <p className={hintCls}>Termos de suporte — entram em páginas internas e blog</p>
+          <p className={hintCls}>Opcional — entram em páginas internas e artigos de blog</p>
         </div>
 
+        {/* Tom de voz */}
         <div>
           <label className={labelCls}>Tom de voz *</label>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -971,8 +1074,12 @@ function Step5({ data, update }: { data: OnboardingData; update: (p: Partial<Onb
           </div>
         </div>
 
+        {/* Intent padrão */}
         <div>
-          <label className={labelCls}>Intent padrão dos artigos de blog</label>
+          <label className={labelCls}>
+            Intent padrão dos artigos de blog
+            <Tooltip text="Intent = intenção de busca do leitor. Define a estrutura do artigo: Informacional explica e educa, Comercial convence e compara, Transacional gera ação imediata (agendamento, contato). O HARPIA adapta o artigo ao intent escolhido." />
+          </label>
           <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
             {INTENTS.map(it => (
               <button
