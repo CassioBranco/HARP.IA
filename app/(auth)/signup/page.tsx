@@ -14,6 +14,19 @@ export default function SignupPage() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [done, setDone] = useState(false)
+  const [resent, setResent] = useState(false)
+  const [resending, setResending] = useState(false)
+
+  async function handleResend() {
+    setResending(true)
+    try {
+      const supabase = createBrowserClient()
+      await supabase.auth.resend({ type: 'signup', email })
+      setResent(true)
+    } finally {
+      setResending(false)
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -62,24 +75,73 @@ export default function SignupPage() {
 
   if (done) {
     return (
-      <div className="flex min-h-screen items-center justify-center p-6">
-        <div className="w-full max-w-md text-center">
-          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-            <svg className="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
+      <div className="flex min-h-screen items-center justify-center bg-background p-6">
+        <div className="w-full max-w-md">
+          {/* Card principal */}
+          <div className="rounded-2xl border border-border bg-card p-8 shadow-sm text-center">
+            {/* Ícone */}
+            <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+              <svg className="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+            </div>
+
+            <h2 className="font-heading mb-2 text-2xl font-bold text-foreground">
+              Confirme seu email
+            </h2>
+            <p className="text-muted-foreground text-sm leading-relaxed">
+              Enviamos um link de confirmação para
+            </p>
+            <p className="mt-1 mb-6 font-semibold text-foreground">{email}</p>
+
+            {/* Passos */}
+            <div className="mb-6 rounded-xl bg-muted/50 p-4 text-left space-y-3">
+              {[
+                { n: '1', text: 'Abra o email na sua caixa de entrada' },
+                { n: '2', text: 'Clique em "Confirmar email" no link que enviamos' },
+                { n: '3', text: 'Volte aqui e faça login normalmente' },
+              ].map(step => (
+                <div key={step.n} className="flex items-start gap-3">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+                    {step.n}
+                  </span>
+                  <span className="text-sm text-foreground pt-0.5">{step.text}</span>
+                </div>
+              ))}
+            </div>
+
+            <Link
+              href="/login"
+              className="block w-full rounded-md bg-primary py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+            >
+              Ir para o login
+            </Link>
+
+            {/* Reenviar */}
+            <div className="mt-5 border-t border-border pt-5">
+              <p className="text-xs text-muted-foreground mb-2">
+                Não recebeu o email? Verifique o spam ou reenvie.
+              </p>
+              {resent ? (
+                <p className="text-xs font-medium text-primary">✓ Email reenviado!</p>
+              ) : (
+                <button
+                  onClick={handleResend}
+                  disabled={resending}
+                  className="text-xs font-medium text-primary hover:underline disabled:opacity-50"
+                >
+                  {resending ? 'Reenviando...' : 'Reenviar email de confirmação'}
+                </button>
+              )}
+            </div>
           </div>
-          <h2 className="font-heading mb-2 text-2xl font-bold text-foreground">Conta criada!</h2>
-          <p className="text-muted-foreground">
-            Enviamos um email de confirmação para <strong>{email}</strong>.
-            Confirme e volte para fazer login.
+
+          <p className="mt-4 text-center text-xs text-muted-foreground">
+            Criou com o email errado?{' '}
+            <Link href="/signup" className="text-primary hover:underline">
+              Tente de novo
+            </Link>
           </p>
-          <Link
-            href="/login"
-            className="mt-8 inline-block rounded-md bg-primary px-8 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
-          >
-            Ir para o login
-          </Link>
         </div>
       </div>
     )
