@@ -25,43 +25,47 @@ function EyeIcon({ open }: { open: boolean }) {
 }
 
 // ---------------------------------------------------------------------------
-// Força de senha
+// Força de senha com checklist de requisitos (mesmo padrão do login)
 // ---------------------------------------------------------------------------
-type Strength = 'fraca' | 'média' | 'forte'
-
-function getStrength(pwd: string): Strength | null {
-  if (!pwd) return null
-  let score = 0
-  if (pwd.length >= 8)            score++
-  if (pwd.length >= 12)           score++
-  if (/[A-Z]/.test(pwd))          score++
-  if (/[0-9]/.test(pwd))          score++
-  if (/[^A-Za-z0-9]/.test(pwd))   score++
-  if (score <= 1) return 'fraca'
-  if (score <= 3) return 'média'
-  return 'forte'
-}
-
-const STRENGTH_CFG = {
-  fraca: { bars: 1, barColor: 'bg-red-500',    textColor: 'text-red-600',    hint: 'Use letras maiúsculas, números ou símbolos' },
-  média: { bars: 2, barColor: 'bg-yellow-500', textColor: 'text-yellow-600', hint: 'Adicione símbolos para ficar mais segura' },
-  forte: { bars: 3, barColor: 'bg-green-500',  textColor: 'text-green-600',  hint: 'Senha segura ✓' },
-}
+const REQS = [
+  { id: 'len',    label: 'Mínimo 8 caracteres',          test: (p: string) => p.length >= 8 },
+  { id: 'upper',  label: 'Pelo menos 1 letra maiúscula', test: (p: string) => /[A-Z]/.test(p) },
+  { id: 'number', label: 'Pelo menos 1 número',          test: (p: string) => /[0-9]/.test(p) },
+  { id: 'symbol', label: 'Pelo menos 1 símbolo (!@#$…)', test: (p: string) => /[^A-Za-z0-9]/.test(p) },
+]
 
 function PasswordStrength({ password }: { password: string }) {
-  const level = getStrength(password)
-  if (!level) return null
-  const cfg = STRENGTH_CFG[level]
+  if (!password) return null
+  const score = REQS.filter(r => r.test(password)).length
+  const level = score <= 1 ? 'Fraca' : score <= 2 ? 'Média' : score === 3 ? 'Boa' : 'Forte'
+  const barColor = score <= 1 ? 'bg-red-500' : score <= 2 ? 'bg-yellow-500' : score === 3 ? 'bg-blue-500' : 'bg-green-500'
+  const textColor = score <= 1 ? 'text-red-600' : score <= 2 ? 'text-yellow-600' : score === 3 ? 'text-blue-600' : 'text-green-600'
+
   return (
-    <div className="mt-2 space-y-1.5">
-      <div className="flex gap-1.5">
-        {[1, 2, 3].map(i => (
-          <div key={i} className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${i <= cfg.bars ? cfg.barColor : 'bg-muted'}`} />
-        ))}
+    <div className="mt-2.5 space-y-2.5 rounded-lg border border-border bg-muted/40 p-3">
+      <div className="flex items-center gap-2">
+        <div className="flex flex-1 gap-1">
+          {[1, 2, 3, 4].map(i => (
+            <div key={i} className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${i <= score ? barColor : 'bg-muted'}`} />
+          ))}
+        </div>
+        <span className={`text-xs font-semibold ${textColor}`}>{level}</span>
       </div>
-      <p className={`text-xs font-medium ${cfg.textColor}`}>
-        Senha <strong>{level}</strong> — {cfg.hint}
-      </p>
+      <ul className="space-y-1">
+        {REQS.map(r => {
+          const ok = r.test(password)
+          return (
+            <li key={r.id} className="flex items-center gap-2">
+              <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px] font-bold transition-colors ${ok ? 'bg-green-100 text-green-600' : 'bg-muted text-muted-foreground'}`}>
+                {ok ? '✓' : '·'}
+              </span>
+              <span className={`text-xs transition-colors ${ok ? 'text-foreground' : 'text-muted-foreground'}`}>
+                {r.label}
+              </span>
+            </li>
+          )
+        })}
+      </ul>
     </div>
   )
 }
