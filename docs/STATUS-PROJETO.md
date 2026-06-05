@@ -141,7 +141,7 @@ Estrutura final: 22 arquivos criados (skills ampliadas com absorção do reposit
 
 ---
 
-## 6.5. ONDE PARAMOS (handoff 2026-06-04 — sessão 3 — fim do dia)
+## 6.5. ONDE PARAMOS (handoff 2026-06-05 — sessão 4 — fim do dia)
 
 **Deploy no ar:** `harp-ia.vercel.app` — auto-deploy a cada push no master. Login funcional, auth completo, fluxo end-to-end testado.
 
@@ -212,12 +212,50 @@ Estrutura final: 22 arquivos criados (skills ampliadas com absorção do reposit
 - Nome comercial — destrava placeholders jurídicos
 - Upsell PR digital como serviço adicional
 
-**PRÓXIMO PASSO (produto):**
-1. Ligar `onboarding_profiles` ao template — substituir conteúdo de exemplo pelo real do banco
-2. Motor de IA — Blocos 1-13 (Agente Onboarding gera textos SEO/GEO/AEO)
-3. OAuth Google — iniciar cedo (timer de 2-6 semanas no Google)
+**Adições da sessão 4 (2026-06-05):**
 
-**Como trabalhamos:** Claude Code (este chat) = estratégia + código + push. Cursor estava sendo usado mas atingiu limite de tokens. Cássio opera via terminal (cmd/PowerShell) para git.
+| Tela / Feature | Arquivo | O que tem |
+|---|---|---|
+| Eye toggle login/signup | `app/(auth)/login/page.tsx` + `signup/page.tsx` | Ícone olho mostra/oculta senha |
+| Força de senha com checklist | `app/(auth)/signup/page.tsx` + `login/page.tsx` | Barra 4 níveis + 4 requisitos com ✓/· |
+| Score CPF dinâmico | `app/onboarding/page.tsx` | Barras de sinal Marca/Posição/Vendas no header, 3 barras no Step 6 |
+| Card de impacto por step | `app/onboarding/page.tsx` | Linguagem leiga explicando o que cada step faz no SEO/GEO/AEO |
+| Tooltips fade in/out | `app/onboarding/page.tsx` | Ícone `?` com tooltip animado nos termos técnicos |
+| Keywords sugeridas | `app/onboarding/page.tsx` | Sugestão automática baseada em nicho+cidade, botão "Usar" |
+| Nominatim autocomplete | `app/onboarding/page.tsx` | Busca de cidades brasileiras via OpenStreetMap (gratuito, sem API key) |
+| Slider de raio de atuação | `app/onboarding/page.tsx` | 5-300km com label contextual dinâmico |
+| Fix iframe preview | `next.config.mjs` | X-Frame-Options SAMEORIGIN (era DENY — bloqueava o preview) |
+| Galeria split-panel | `app/templates/page.tsx` | Sidebar nichos + iframe preview + toggle Desktop/Mobile com moldura iPhone |
+| Página confirme-email | `app/(auth)/confirme-email/page.tsx` | Suspense boundary corrigido, polling automático, reenvio |
+| Mensagens de erro amigáveis | `app/(auth)/signup/page.tsx` + `login/page.tsx` | Rate limit, email não confirmado, credenciais em PT-BR |
+| Confirm email desligado | Supabase | Auth → Providers → Email → Confirm email OFF (beta sem confirmação) |
+| Migration nichos executada | Supabase | 20260604120000_expand_nichos.sql rodado via SQL Editor |
+
+**Fluxo completo testado (beta ativo):**
+```
+/ → /signup → /sites  (sem confirmação de email — modo beta)
+/ → /login  → /sites
+/onboarding → /templates → /sites → /preview/[id]
+```
+
+**⚠️ Pendências críticas antes de cliente real:**
+- 🔴 Rotacionar `SUPABASE_SERVICE_ROLE_KEY` — apareceu em chat duas vezes
+- 🟡 Configurar Resend como SMTP no Supabase (resolver rate limit de 4 emails/hora)
+- 🟡 Confirmar repo GitHub está como **Private**
+- 🟡 OAuth Google — iniciar cedo (timer 2-6 semanas)
+
+**⚠️ Decisões pendentes do Dove:**
+- KPI = citabilidade (Regra 8) — confirmar antes do pitch
+- Nome comercial — destrava placeholders jurídicos
+- Upsell PR digital como serviço adicional
+
+**PRÓXIMO PASSO (produto):**
+1. **Ligar `onboarding_profiles` ao template** — substituir conteúdo de exemplo pelo real do banco (S4.1)
+2. **Motor de IA — Blocos 1-13** — Agente Onboarding gera textos SEO/GEO/AEO (S4)
+3. **OAuth Google** — iniciar cedo (timer de 2-6 semanas) (S2.2)
+4. **SMTP Resend** — configurar no Supabase para emails sem rate limit
+
+**Como trabalhamos:** Claude Code (este chat) = estratégia + código + push direto via Bash. Cursor atingiu limite de tokens. Cássio opera git via cmd/PowerShell.
 
 ---
 
