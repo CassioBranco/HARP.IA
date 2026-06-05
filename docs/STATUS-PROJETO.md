@@ -141,56 +141,83 @@ Estrutura final: 22 arquivos criados (skills ampliadas com absorção do reposit
 
 ---
 
-## 6.5. ONDE PARAMOS (handoff 2026-06-04 — sessão 2)
+## 6.5. ONDE PARAMOS (handoff 2026-06-04 — sessão 3 — fim do dia)
 
-**S1 COMPLETO e no ar:** Supabase (HARP.IA, SP) + 17 tabelas + RLS + Auth email + Next.js 14 + GitHub (CassioBranco/HARP.IA) + Vercel (**harp-ia.vercel.app**, auto-deploy no push do master).
+**Deploy no ar:** `harp-ia.vercel.app` — auto-deploy a cada push no master. Login funcional, auth completo, fluxo end-to-end testado.
 
-**Telas construídas — Jornada 1 e 2 completas (casca visual):**
+---
 
-| Tela | Arquivo | Status |
-|------|---------|--------|
-| Landing page (Apresentação) | `app/page.tsx` | ✅ Hero + Como funciona + SEO/GEO/AEO + Planos + CTA |
-| Login | `app/(auth)/login/page.tsx` | ✅ Formulário real, Supabase Auth, tratamento de erro |
-| Cadastro | `app/(auth)/signup/page.tsx` | ✅ Formulário real, Supabase Auth, tela pós-confirmação |
-| Onboarding wizard | `app/onboarding/page.tsx` | ✅ 6 steps completos, autossalvo Supabase, score ao vivo, layout focado |
-| Dashboard home | `app/(dashboard)/sites/page.tsx` | ✅ Empty state + grid de sites + banner onboarding incompleto + próximos passos |
-| Dashboard layout | `app/(dashboard)/layout.tsx` | ✅ Sidebar com nav, email do usuário, badge de plano |
+### Telas completas — jornada do assinante
 
-**Design system aplicado:**
-- `app/globals.css` — tokens HARPIA (esmeralda + dourado + floresta)
-- `app/layout.tsx` — Plus Jakarta Sans (títulos) + Inter (corpo) via `next/font`
-- `tailwind.config.ts` — `fontFamily.heading` e `fontFamily.body` adicionados
+| Tela | Arquivo | O que tem |
+|------|---------|-----------|
+| Landing page | `app/page.tsx` | Hero + Como funciona + SEO/GEO/AEO + Planos + CTA |
+| Login | `app/(auth)/login/page.tsx` | Supabase Auth real · eye toggle senha · mensagens específicas de erro |
+| Cadastro | `app/(auth)/signup/page.tsx` | Eye toggle · força de senha (fraca/média/forte) · redireciona para `/confirme-email` |
+| Confirme email | `app/(auth)/confirme-email/page.tsx` | Página dedicada · 3 passos · polling automático (detecta confirmação a cada 5s) · reenvio |
+| Onboarding wizard | `app/onboarding/page.tsx` | 6 steps · Nominatim autocomplete de cidade (OpenStreetMap) · slider de raio 5-300km · autossalvo · score ao vivo ≥70% desbloqueia geração |
+| Galeria de templates | `app/templates/page.tsx` | Split-panel: sidebar (14 nichos + 3 paletas) + preview iframe ao vivo · toggle Desktop/Mobile · moldura iPhone |
+| Preview de template | `app/preview/template/page.tsx` | Renderiza template por `?preset=X&palette=Y` (sem auth) |
+| Preview de site | `app/preview/[siteId]/page.tsx` | Barra HARPIA + template com paleta do site do banco |
+| Dashboard home | `app/(dashboard)/sites/page.tsx` | Empty state · grid de sites · banner onboarding incompleto · próximos passos |
+| Dashboard layout | `app/(dashboard)/layout.tsx` | Sidebar nav · email do usuário · LogoutButton |
+| Site publicado | `app/[domain]/page.tsx` | Busca por domínio · SSR · metadata SEO |
 
-**Expansão de nichos (2026-06-04):** plataforma passou de 8 para **14 presets**. Adicionados: `advocacia`, `contabilidade`, `psicologia`, `odontologia`, `fisioterapia`, `veterinaria`. Motivação: profissões reguladas que dependem de SEO por não poderem fazer tráfego pago (OAB, CFM, CFP, CFO). Documentação completa em `docs/NICHOS.md`. Migration em `supabase/migrations/20260604120000_expand_nichos.sql` — **rodar no Supabase antes de usar esses nichos em produção**.
+### Infraestrutura de template
 
-| Galeria de templates | `app/templates/page.tsx` | ✅ 14 nichos × 3 paletas, preview de cores ao vivo, cria registro em `sites`, redireciona pro dashboard |
-| Dashboard home | `app/(dashboard)/sites/page.tsx` | ✅ Empty state + grid de sites + banner onboarding incompleto + próximos passos |
-| Dashboard layout | `app/(dashboard)/layout.tsx` | ✅ Sidebar com nav, email do usuário, badge de plano |
+| Módulo | Arquivo | O que faz |
+|--------|---------|-----------|
+| Template visual | `components/templates/SiteTemplate.tsx` | Server Component — 7 seções + schema JSON-LD + FAQPage (AEO ≥6) |
+| Paletas | `lib/templates/palettes.ts` | 14 nichos × 3 paletas · fallback seguro · CSS variables inline |
+| Conteúdo exemplo | `lib/templates/example-content.ts` | 3 nichos (advocacia, servicos, clinica) + fallback genérico |
 
-**Fluxo completo agora funcional:**
+### Design system
+
+- **Paleta:** azul (`#2563eb` primary) + dourado accent — substituiu esmeralda
+- **Fontes:** Plus Jakarta Sans (títulos) + Inter (corpo) via `next/font`
+- `globals.css` · `layout.tsx` · `tailwind.config.ts` — todos aplicados
+
+### Nichos
+
+- **14 presets** (era 8): `advocacia` `contabilidade` `psicologia` `odontologia` `fisioterapia` `veterinaria` + os 8 originais
+- Documentação completa: `docs/NICHOS.md` (schemas JSON-LD, restrições regulatórias, CTAs, keywords)
+- Migration pendente no Supabase: `supabase/migrations/20260604120000_expand_nichos.sql`
+
+### Auth — fluxo completo funcional
+
 ```
-/ → /signup → /onboarding → /templates → /sites (dashboard)
+/signup → /confirme-email → [clica link email] → /auth/callback → /sites
+/login  → /sites
 ```
 
-| Template do site | `components/templates/SiteTemplate.tsx` | ✅ Server Component completo — nav, hero, serviços, sobre, depoimentos, FAQ (AEO ≥6), CTA, footer, schema JSON-LD + FAQPage |
-| Sistema de paletas | `lib/templates/palettes.ts` | ✅ 14 nichos × 3 paletas, CSS variables injetadas inline |
-| Conteúdo de exemplo | `lib/templates/example-content.ts` | ✅ 3 nichos com exemplo real (advocacia, servicos, clinica) + fallback genérico |
-| Preview do site | `app/preview/[siteId]/page.tsx` | ✅ Barra de preview + renderiza template com paleta do site |
-| Site publicado | `app/[domain]/page.tsx` | ✅ Busca site por domínio, renderiza template, gera metadata SEO |
+- Tenant provisioning: `lib/auth/provision.ts` — cria tenant + trial 7d no signup
+- Callback: `app/auth/callback/route.ts` — troca code por sessão
+- API: `app/api/auth/ensure-profile/route.ts`
 
-**Fluxo completo do protótipo:**
+---
+
+**Fluxo do protótipo (testado end-to-end):**
 ```
-/ → /signup → /onboarding → /templates → /sites → /preview/[id]
+/ → /signup → /confirme-email → /login → /onboarding → /templates → /sites → /preview/[id]
 ```
 
-**Para subir no Vercel:** fazer push no master. Auto-deploy já está configurado.
-**Antes do deploy:** rodar migration `20260604120000_expand_nichos.sql` no Supabase.
+**⚠️ Pendências antes de cliente real:**
+- Rotacionar `SUPABASE_SERVICE_ROLE_KEY` (apareceu em chat — risco de segurança)
+- Confirmar repo GitHub está como **Private**
+- Rodar migration `20260604120000_expand_nichos.sql` no Supabase
+- Desligar "Confirm email" no Supabase para beta (ou manter e garantir que emails chegam)
 
-**PRÓXIMO PASSO:** ligar o onboarding_profiles ao template (substituir conteúdo de exemplo pelo real do banco) + Agente Onboarding (motor de IA — Blocos 1-13).
+**⚠️ Decisões pendentes do Dove:**
+- KPI = citabilidade (Regra 8) — confirmar antes de virar pitch
+- Nome comercial — destrava placeholders jurídicos
+- Upsell PR digital como serviço adicional
 
-**⚠️ Pendências travadas:** rotacionar service_role antes de cliente real · confirmar repo GitHub é Private · decisões do Dove (KPI citabilidade, upsell PR, nome comercial) · OAuth Google (timer 2-6 sem, começar cedo) · aprovar Bloco 0 → escrever Blocos 1-13.
+**PRÓXIMO PASSO (produto):**
+1. Ligar `onboarding_profiles` ao template — substituir conteúdo de exemplo pelo real do banco
+2. Motor de IA — Blocos 1-13 (Agente Onboarding gera textos SEO/GEO/AEO)
+3. OAuth Google — iniciar cedo (timer de 2-6 semanas no Google)
 
-**Como trabalhamos:** Cássio é iniciante em código — explicar simples (conceito+decisão+impacto), guiar clique a clique. Construção real acontece no Cursor (agente nativo); Claude no chat = estratégia, design, desbloqueio. Não usar Lovable (retrabalho). Linguagem/vocabulário = calibragem futura.
+**Como trabalhamos:** Claude Code (este chat) = estratégia + código + push. Cursor estava sendo usado mas atingiu limite de tokens. Cássio opera via terminal (cmd/PowerShell) para git.
 
 ---
 
