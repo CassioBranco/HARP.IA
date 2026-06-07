@@ -102,7 +102,7 @@ export default function SignupPage() {
         email, password,
         options: {
           data: { full_name: name },
-          emailRedirectTo: `${window.location.origin}/auth/callback?next=/sites`,
+          emailRedirectTo: `${window.location.origin}/auth/callback?next=/onboarding`,
         },
       })
       if (authError) {
@@ -120,7 +120,7 @@ export default function SignupPage() {
       }
       if (data.session) {
         try { await ensureProfileOnClient() } catch { /* ignora */ }
-        router.push('/sites'); router.refresh(); return
+        router.push('/onboarding'); router.refresh(); return
       }
       router.push(`/confirme-email?email=${encodeURIComponent(email)}`)
     } finally {
