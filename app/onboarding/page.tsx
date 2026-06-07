@@ -12,39 +12,29 @@ import { createBrowserClient } from '@/lib/supabase/client'
 type ServiceItem = { name: string; description: string; price_range: string }
 
 type OnboardingData = {
-  // Categoria + Nicho (2 cliques)
   category: string
   niche: string
-  // Identidade
   business_name: string
-  // Localização
   city: string
   state: string
   service_radius_km: number
   city2: string
   state2: string
-  // Serviços
   services: ServiceItem[]
-  // Posicionamento
-  differentials: string
+  expertise: string        // "seu conhecimento vale ouro" — mapeia para cases + differentials
   target_audience: string
   pain_points: string
-  // Autoridade
   years_experience: string
   credentials: string
-  // Conhecimento (nova tela — mapeado para `cases` no banco)
-  expertise: string
-  // SEO
   keywords_primary: string[]
   keywords_secondary: string[]
   tone: string
   intent_default_blog: string
-  // GBP
   gbp_connected: boolean
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Categorias e nichos — 7 categorias, 2 cliques
+// Categorias e nichos
 // ─────────────────────────────────────────────────────────────────────────────
 
 const CATEGORIES = [
@@ -67,57 +57,57 @@ const NICHES_BY_CAT: Record<string, { value: string; label: string; icon: string
     { value: 'nutricao',     label: 'Nutrição / Bem-estar',   icon: '🥗' },
   ],
   juridico: [
-    { value: 'advocacia',    label: 'Advocacia',              icon: '⚖️' },
-    { value: 'contabilidade',label: 'Contabilidade',          icon: '📊' },
-    { value: 'consultoria',  label: 'Consultoria / Coaching', icon: '💼' },
+    { value: 'advocacia',     label: 'Advocacia',              icon: '⚖️' },
+    { value: 'contabilidade', label: 'Contabilidade',          icon: '📊' },
+    { value: 'consultoria',   label: 'Consultoria / Coaching', icon: '💼' },
   ],
   beleza: [
-    { value: 'salao',        label: 'Salão de Beleza',        icon: '💇' },
-    { value: 'barbearia',    label: 'Barbearia',              icon: '✂️' },
-    { value: 'estetica',     label: 'Estética / Clínica',     icon: '💅' },
-    { value: 'spa',          label: 'Spa / Bem-estar',        icon: '🧖' },
+    { value: 'salao',    label: 'Salão de Beleza', icon: '💇' },
+    { value: 'barbearia',label: 'Barbearia',        icon: '✂️' },
+    { value: 'estetica', label: 'Estética / Clínica',icon: '💅' },
+    { value: 'spa',      label: 'Spa / Bem-estar',  icon: '🧖' },
   ],
   alimentacao: [
-    { value: 'restaurante',  label: 'Restaurante / Bistrô',   icon: '🍽️' },
-    { value: 'lanchonete',   label: 'Lanchonete / Café',      icon: '☕' },
-    { value: 'padaria',      label: 'Padaria / Confeitaria',  icon: '🥐' },
-    { value: 'bar',          label: 'Bar / Cervejaria',       icon: '🍺' },
+    { value: 'restaurante', label: 'Restaurante / Bistrô',  icon: '🍽️' },
+    { value: 'lanchonete',  label: 'Lanchonete / Café',     icon: '☕' },
+    { value: 'padaria',     label: 'Padaria / Confeitaria', icon: '🥐' },
+    { value: 'bar',         label: 'Bar / Cervejaria',      icon: '🍺' },
   ],
   educacao: [
-    { value: 'escola',       label: 'Escola / Curso',         icon: '🎓' },
-    { value: 'academia',     label: 'Academia / Pilates',      icon: '💪' },
-    { value: 'coaching',     label: 'Coaching / Mentoria',    icon: '🎯' },
-    { value: 'idiomas',      label: 'Escola de Idiomas',      icon: '🌎' },
+    { value: 'escola',   label: 'Escola / Curso',      icon: '🎓' },
+    { value: 'academia', label: 'Academia / Pilates',   icon: '💪' },
+    { value: 'coaching', label: 'Coaching / Mentoria',  icon: '🎯' },
+    { value: 'idiomas',  label: 'Escola de Idiomas',    icon: '🌎' },
   ],
   imoveis: [
-    { value: 'imobiliaria',  label: 'Imobiliária / Corretor', icon: '🏠' },
-    { value: 'construtora',  label: 'Construtora / Reformas', icon: '🏗️' },
-    { value: 'arquitetura',  label: 'Arquitetura / Design',   icon: '📐' },
+    { value: 'imobiliaria', label: 'Imobiliária / Corretor', icon: '🏠' },
+    { value: 'construtora', label: 'Construtora / Reformas', icon: '🏗️' },
+    { value: 'arquitetura', label: 'Arquitetura / Design',   icon: '📐' },
   ],
   geral: [
-    { value: 'servicos',     label: 'Prestação de Serviços',  icon: '🔧' },
-    { value: 'comercio',     label: 'Comércio Local',         icon: '🏪' },
-    { value: 'institucional',label: 'Empresa / Institucional',icon: '🏢' },
-    { value: 'landing',      label: 'Landing Page',           icon: '🚀' },
+    { value: 'servicos',      label: 'Prestação de Serviços',   icon: '🔧' },
+    { value: 'comercio',      label: 'Comércio Local',          icon: '🏪' },
+    { value: 'institucional', label: 'Empresa / Institucional', icon: '🏢' },
+    { value: 'landing',       label: 'Landing Page',            icon: '🚀' },
   ],
 }
 
 const TONES = [
-  { value: 'profissional',  label: 'Profissional',  desc: 'Sério, técnico, confiável',       icon: '👔' },
-  { value: 'proximo',       label: 'Próximo',        desc: 'Caloroso, acessível, humano',    icon: '🤝' },
-  { value: 'autoridade',    label: 'Autoridade',     desc: 'Especialista, direto, assertivo', icon: '🎯' },
-  { value: 'descontraido',  label: 'Descontraído',   desc: 'Informal, leve, direto ao ponto',icon: '😊' },
+  { value: 'profissional', label: 'Profissional',  desc: 'Sério, técnico, confiável',        icon: '👔' },
+  { value: 'proximo',      label: 'Próximo',        desc: 'Caloroso, acessível, humano',     icon: '🤝' },
+  { value: 'autoridade',   label: 'Autoridade',     desc: 'Especialista, direto, assertivo', icon: '🎯' },
+  { value: 'descontraido', label: 'Descontraído',   desc: 'Informal, leve, direto ao ponto', icon: '😊' },
 ]
 
-const TOTAL_SCREENS = 13
+const TOTAL_SCREENS = 11
 
 const EMPTY: OnboardingData = {
   category: '', niche: '', business_name: '',
   city: '', state: '', service_radius_km: 20, city2: '', state2: '',
   services: [{ name: '', description: '', price_range: '' }],
-  differentials: '', target_audience: '', pain_points: '',
-  years_experience: '', credentials: '',
   expertise: '',
+  target_audience: '', pain_points: '',
+  years_experience: '', credentials: '',
   keywords_primary: [], keywords_secondary: [],
   tone: 'profissional', intent_default_blog: 'informacional',
   gbp_connected: false,
@@ -137,23 +127,25 @@ function calcCPF(d: OnboardingData): CPFScore {
     [Number(d.years_experience) > 0,    10],
     [d.credentials.trim().length > 0,   10],
   ] as [boolean, number][]).reduce((s, [ok, pts]) => s + (ok ? pts : 0), 0)
+
   const p = ([
-    [d.differentials.trim().length > 10,   35],
-    [d.target_audience.trim().length > 10,  30],
+    [d.expertise.trim().length > 20,        40],
+    [d.target_audience.trim().length > 10,  35],
     [d.pain_points.trim().length > 10,      25],
-    [d.expertise.trim().length > 20,        10],
   ] as [boolean, number][]).reduce((s, [ok, pts]) => s + (ok ? pts : 0), 0)
+
   const f = ([
     [d.services.some(s => s.name.trim().length > 2), 35],
     [d.keywords_primary.length > 0,                  35],
     [d.tone.length > 0,                              15],
     [d.gbp_connected,                                15],
   ] as [boolean, number][]).reduce((s, [ok, pts]) => s + (ok ? pts : 0), 0)
+
   return { c, p, f, total: Math.round((c + p + f) / 3) }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// SEO Meter — tela "Seu conhecimento vale ouro"
+// SEO Meter
 // ─────────────────────────────────────────────────────────────────────────────
 
 function calcExpertiseSEO(expertise: string, city: string): { score: number; tips: string[]; level: string } {
@@ -186,7 +178,7 @@ function calcExpertiseSEO(expertise: string, city: string): { score: number; tip
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// TagInput — keywords via Enter
+// TagInput
 // ─────────────────────────────────────────────────────────────────────────────
 
 function TagInput({ tags, onAdd, onRemove, placeholder }: {
@@ -298,7 +290,7 @@ function CitySearch({ city, state, onSelect, placeholder }: {
   }
 
   function handleSelect(r: NominatimResult) {
-    const cityName = r.address.city ?? r.address.town ?? r.address.municipality ?? ''
+    const cityName  = r.address.city ?? r.address.town ?? r.address.municipality ?? ''
     const stateName = r.address.state ?? ''
     const uf = r.address.state_code?.toUpperCase() ?? STATE_MAP[stateName] ?? ''
     setQuery(`${cityName}${uf ? ` — ${uf}` : ''}`)
@@ -482,12 +474,13 @@ export default function OnboardingPage() {
   const [profileId, setProfileId] = useState<string | null>(null)
   const [userId,    setUserId]    = useState<string | null>(null)
   const [saving,    setSaving]    = useState(false)
-  const saveTimer  = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // Nicho expandido na tela 1 — qual categoria está aberta
+  const [expandedCat, setExpandedCat] = useState<string>('')
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const cpf         = calcCPF(data)
   const canGenerate = cpf.total >= 70
 
-  // ── Guess category from niche ──
   function guessCategory(niche: string): string {
     for (const [cat, niches] of Object.entries(NICHES_BY_CAT)) {
       if (niches.some(n => n.value === niche)) return cat
@@ -516,10 +509,11 @@ export default function OnboardingPage() {
       if (profiles && profiles.length > 0) {
         const p = profiles[0]
         setProfileId(p.id)
+        const cat = p.niche ? guessCategory(p.niche) : ''
         const city2Raw: string = p.coverage_areas?.[0] ?? ''
         const city2Parts = city2Raw.split(',').map((s: string) => s.trim())
         setData({
-          category:            p.niche ? guessCategory(p.niche) : '',
+          category:            cat,
           niche:               p.niche             ?? '',
           business_name:       p.business_name     ?? '',
           city:                p.city              ?? '',
@@ -528,18 +522,18 @@ export default function OnboardingPage() {
           city2:               city2Parts[0] ?? '',
           state2:              city2Parts[1] ?? '',
           services:            p.services?.length ? p.services : [{ name: '', description: '', price_range: '' }],
-          differentials:       p.differentials     ?? '',
+          expertise:           p.cases ?? p.differentials ?? '',
           target_audience:     p.target_audience   ?? '',
           pain_points:         p.pain_points       ?? '',
           years_experience:    p.years_experience?.toString() ?? '',
           credentials:         (p.credentials ?? []).join(', '),
-          expertise:           p.cases             ?? '',
           keywords_primary:    p.keywords_primary  ?? [],
           keywords_secondary:  p.keywords_secondary ?? [],
           tone:                p.tone              ?? 'profissional',
           intent_default_blog: p.intent_default_blog ?? 'informacional',
           gbp_connected:       p.gbp_connected     ?? false,
         })
+        if (cat) setExpandedCat(cat)
         if (savedScreen) {
           const n = parseInt(savedScreen)
           if (n >= 1 && n <= TOTAL_SCREENS) setScreen(n)
@@ -566,14 +560,14 @@ export default function OnboardingPage() {
         service_radius_km:   d.service_radius_km || null,
         coverage_areas:      coverage,
         services:            d.services.filter(s => s.name.trim()),
-        differentials:       d.differentials     || null,
+        differentials:       d.expertise         || null,  // expertise → differentials
         target_audience:     d.target_audience   || null,
         pain_points:         d.pain_points       || null,
         credentials:         d.credentials
           ? d.credentials.split(',').map(s => s.trim()).filter(Boolean)
           : [],
         years_experience:    d.years_experience ? Number(d.years_experience) : null,
-        cases:               d.expertise         || null,
+        cases:               d.expertise         || null,  // expertise → cases
         keywords_primary:    d.keywords_primary  ?? [],
         keywords_secondary:  d.keywords_secondary ?? [],
         tone:                d.tone              || null,
@@ -644,98 +638,100 @@ export default function OnboardingPage() {
   // ── can-next por tela ──
   const canNext: boolean = (() => {
     switch (screen) {
-      case 1:  return data.category.length > 0
-      case 2:  return data.niche.length > 0
-      case 3:  return data.business_name.trim().length > 2
-      case 4:  return data.city.trim().length > 1
-      case 5:  return data.services.some(s => s.name.trim().length > 1)
-      case 6:  return data.differentials.trim().length > 10
-      case 7:  return data.target_audience.trim().length > 5
-      case 8:  return data.pain_points.trim().length > 5
+      case 1:  return data.niche.length > 0
+      case 2:  return data.business_name.trim().length > 2
+      case 3:  return data.city.trim().length > 1
+      case 4:  return data.services.some(s => s.name.trim().length > 1)
+      case 5:  return data.expertise.trim().length > 10
+      case 6:  return data.target_audience.trim().length > 5
+      case 7:  return data.pain_points.trim().length > 5
+      case 8:  return true
       case 9:  return true
-      case 10: return true
-      case 11: return true
-      case 12: return data.tone.length > 0
-      case 13: return canGenerate
+      case 10: return data.tone.length > 0
+      case 11: return canGenerate
       default: return true
     }
   })()
 
-  const isLast     = screen === TOTAL_SCREENS
-  const nextLabel  = isLast
+  const isLast    = screen === TOTAL_SCREENS
+  const nextLabel = isLast
     ? (canGenerate ? '✨ Gerar meu site' : `Faltam ${70 - cpf.total}% para gerar`)
     : undefined
 
   const layoutProps = { screen, cpf, saving, onBack: back, onNext: isLast ? finish : next, canNext, nextLabel }
+  const TEXTAREA_CLS = `${INPUT_CLS} min-h-[140px] resize-none`
 
   // ─────────────────────────────────────────────────────────────────────────
   // Telas
   // ─────────────────────────────────────────────────────────────────────────
 
-  const TEXTAREA_CLS = `${INPUT_CLS} min-h-[140px] resize-none`
+  // ── Tela 1 — Categoria + Nicho (1 tela, 2 cliques) ──
+  if (screen === 1) {
+    const nichos = expandedCat ? (NICHES_BY_CAT[expandedCat] ?? []) : []
+    const selectedCat = CATEGORIES.find(c => c.value === expandedCat)
 
-  // Tela 1 — Categoria
-  if (screen === 1) return (
-    <ScreenLayout {...layoutProps} hint="Escolha a categoria que melhor define seu tipo de negócio.">
-      <h1 className="font-heading mb-8 text-2xl font-bold text-foreground sm:text-3xl">
-        Que tipo de negócio você tem?
-      </h1>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
-        {CATEGORIES.map(cat => (
-          <button
-            key={cat.value}
-            onClick={() => { update({ category: cat.value, niche: '' }); setTimeout(next, 120) }}
-            className={`flex flex-col items-start gap-2 rounded-2xl border-2 p-4 text-left transition-all ${
-              data.category === cat.value
-                ? 'border-primary bg-primary/10 shadow-sm'
-                : 'border-border bg-card hover:border-primary/40 hover:bg-muted/40'
-            }`}
-          >
-            <span className="text-2xl">{cat.icon}</span>
-            <span className="text-sm font-semibold text-foreground">{cat.label}</span>
-            <span className="text-xs text-muted-foreground leading-snug">{cat.desc}</span>
-          </button>
-        ))}
-      </div>
-    </ScreenLayout>
-  )
-
-  // Tela 2 — Nicho
-  if (screen === 2) {
-    const niches = NICHES_BY_CAT[data.category] ?? NICHES_BY_CAT['geral'] ?? []
     return (
-      <ScreenLayout {...layoutProps} hint="Selecione o nicho e avançamos automaticamente.">
-        <h1 className="font-heading mb-2 text-2xl font-bold text-foreground sm:text-3xl">
-          Qual é a especialidade do seu negócio?
+      <ScreenLayout {...layoutProps} hint="Clique na categoria e depois no tipo de negócio.">
+        <h1 className="font-heading mb-8 text-2xl font-bold text-foreground sm:text-3xl">
+          Que tipo de negócio você tem?
         </h1>
-        <p className="mb-8 text-sm text-muted-foreground">
-          {CATEGORIES.find(c => c.value === data.category)?.label}
-        </p>
-        <div className="grid grid-cols-2 gap-3 sm:gap-4">
-          {niches.map(n => (
-            <button
-              key={n.value}
-              onClick={() => { update({ niche: n.value }); setTimeout(next, 120) }}
-              className={`flex items-center gap-3 rounded-2xl border-2 p-4 text-left transition-all ${
-                data.niche === n.value
-                  ? 'border-primary bg-primary/10 shadow-sm'
-                  : 'border-border bg-card hover:border-primary/40 hover:bg-muted/40'
-              }`}
-            >
-              <span className="text-2xl shrink-0">{n.icon}</span>
-              <span className="text-sm font-semibold text-foreground">{n.label}</span>
-            </button>
-          ))}
+
+        {/* Categorias */}
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+          {CATEGORIES.map(cat => {
+            const isExpanded = expandedCat === cat.value
+            return (
+              <button
+                key={cat.value}
+                onClick={() => setExpandedCat(isExpanded ? '' : cat.value)}
+                className={`flex flex-col items-start gap-2 rounded-2xl border-2 p-4 text-left transition-all ${
+                  isExpanded
+                    ? 'border-primary bg-primary/10 shadow-sm'
+                    : 'border-border bg-card hover:border-primary/40 hover:bg-muted/40'
+                }`}
+              >
+                <span className="text-2xl">{cat.icon}</span>
+                <span className="text-sm font-semibold text-foreground">{cat.label}</span>
+                <span className="text-xs text-muted-foreground leading-snug">{cat.desc}</span>
+              </button>
+            )
+          })}
         </div>
-        <button onClick={back} className="mt-6 text-sm text-muted-foreground hover:text-foreground transition-colors">
-          ← Mudar categoria
-        </button>
+
+        {/* Nichos — aparecem inline ao expandir a categoria */}
+        {expandedCat && nichos.length > 0 && (
+          <div className="mt-6">
+            <p className="mb-3 flex items-center gap-2 text-sm font-semibold text-foreground">
+              <span>{selectedCat?.icon}</span>
+              <span>{selectedCat?.label} — escolha a especialidade:</span>
+            </p>
+            <div className="grid grid-cols-2 gap-3 sm:gap-4">
+              {nichos.map(n => (
+                <button
+                  key={n.value}
+                  onClick={() => {
+                    update({ category: expandedCat, niche: n.value })
+                    setTimeout(next, 150)
+                  }}
+                  className={`flex items-center gap-3 rounded-2xl border-2 p-4 text-left transition-all ${
+                    data.niche === n.value
+                      ? 'border-primary bg-primary/10 shadow-sm'
+                      : 'border-border bg-card hover:border-primary/40 hover:bg-muted/40'
+                  }`}
+                >
+                  <span className="text-2xl shrink-0">{n.icon}</span>
+                  <span className="text-sm font-semibold text-foreground">{n.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </ScreenLayout>
     )
   }
 
-  // Tela 3 — Nome do negócio
-  if (screen === 3) return (
+  // ── Tela 2 — Nome do negócio ──
+  if (screen === 2) return (
     <ScreenLayout {...layoutProps} hint="Exatamente como aparece no Google e nos seus materiais.">
       <h1 className="font-heading mb-8 text-2xl font-bold text-foreground sm:text-3xl">
         Qual é o nome do seu negócio?
@@ -751,8 +747,8 @@ export default function OnboardingPage() {
     </ScreenLayout>
   )
 
-  // Tela 4 — Localização
-  if (screen === 4) {
+  // ── Tela 3 — Localização ──
+  if (screen === 3) {
     const km = data.service_radius_km
     const radiusLabel =
       km <= 10 ? 'bairros próximos' :
@@ -766,13 +762,11 @@ export default function OnboardingPage() {
         </h1>
 
         <div className="flex flex-col gap-6">
-          {/* Cidade principal */}
           <div>
             <label className="mb-2 block text-sm font-medium text-foreground">Cidade principal *</label>
             <CitySearch city={data.city} state={data.state} onSelect={(city, state) => update({ city, state })} />
           </div>
 
-          {/* Raio — máximo 30 km */}
           <div>
             <div className="mb-3 flex items-center justify-between">
               <label className="text-sm font-medium text-foreground">Raio de atuação</label>
@@ -795,7 +789,6 @@ export default function OnboardingPage() {
             </div>
           </div>
 
-          {/* Cidade 2 — opcional */}
           <div>
             <label className="mb-2 block text-sm font-medium text-foreground">
               Segunda cidade <span className="font-normal text-muted-foreground">(opcional)</span>
@@ -807,7 +800,6 @@ export default function OnboardingPage() {
             />
           </div>
 
-          {/* Hint de upgrade */}
           <div className="rounded-xl border border-border/60 bg-muted/30 px-4 py-3 text-xs text-muted-foreground">
             💡 Atende em mais de 2 cidades ou em todo o estado?{' '}
             <span className="font-medium text-foreground">Planos maiores cobrem estadual e nacional.</span>{' '}
@@ -818,8 +810,8 @@ export default function OnboardingPage() {
     )
   }
 
-  // Tela 5 — Serviços
-  if (screen === 5) return (
+  // ── Tela 4 — Serviços ──
+  if (screen === 4) return (
     <ScreenLayout {...layoutProps} hint="Cada serviço vira uma seção do site com SEO próprio.">
       <h1 className="font-heading mb-8 text-2xl font-bold text-foreground sm:text-3xl">
         O que você oferece?
@@ -876,33 +868,92 @@ export default function OnboardingPage() {
     </ScreenLayout>
   )
 
-  // Tela 6 — Diferenciais
-  if (screen === 6) return (
-    <ScreenLayout {...layoutProps} hint="Escreva como você falaria pra um cliente. Sem firula.">
-      <h1 className="font-heading mb-3 text-2xl font-bold text-foreground sm:text-3xl">
-        O que te diferencia dos concorrentes?
-      </h1>
-      <p className="mb-6 text-sm text-muted-foreground">
-        Ex: único dentista da cidade com laser, 15 anos só com casos trabalhistas, atendimento no mesmo dia...
-      </p>
-      <textarea
-        className={TEXTAREA_CLS}
-        placeholder="Seus principais diferenciais..."
-        value={data.differentials}
-        onChange={e => update({ differentials: e.target.value })}
-        autoFocus
-      />
-    </ScreenLayout>
-  )
+  // ── Tela 5 — "Seu conhecimento vale ouro" ──
+  if (screen === 5) {
+    const seo = calcExpertiseSEO(data.expertise, data.city)
+    const barColor =
+      seo.score >= 80 ? 'bg-green-500' :
+      seo.score >= 60 ? 'bg-yellow-500' :
+      seo.score >= 40 ? 'bg-orange-500' :
+      'bg-red-400'
 
-  // Tela 7 — Público
-  if (screen === 7) return (
+    return (
+      <ScreenLayout {...layoutProps}>
+        <div className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-xs font-semibold text-accent-foreground">
+          ⭐ Seu conhecimento vale ouro
+        </div>
+        <h1 className="font-heading mb-3 mt-2 text-2xl font-bold text-foreground sm:text-3xl">
+          O que você sabe que poucos sabem?
+        </h1>
+        <p className="mb-6 text-sm text-muted-foreground">
+          Sua especialização única — o que te diferencia de todo mundo na sua área.
+          Ex: <em>"Especialista em guarda compartilhada há 12 anos em SP"</em>, <em>"Único nutricionista da região com foco em atletas amadores"</em>, <em>"10 anos trabalhando só com cães de grande porte em Sorocaba"</em>.
+        </p>
+
+        <textarea
+          className={TEXTAREA_CLS}
+          placeholder="Descreva sua especialização, seu nicho específico dentro da área e os resultados únicos que você entrega..."
+          value={data.expertise}
+          onChange={e => update({ expertise: e.target.value })}
+          autoFocus
+        />
+
+        {/* SEO Meter */}
+        {data.expertise.trim().length > 0 && (
+          <div className="mt-4 rounded-2xl border border-border bg-card p-4">
+            <div className="mb-3 flex items-center justify-between">
+              <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                Sinal SEO deste campo
+              </span>
+              <span className={`text-xs font-bold ${
+                seo.score >= 80 ? 'text-green-600' :
+                seo.score >= 60 ? 'text-yellow-600' :
+                seo.score >= 40 ? 'text-orange-600' :
+                'text-red-500'
+              }`}>
+                {seo.level} · {seo.score}%
+              </span>
+            </div>
+
+            <div className="mb-3 h-2 overflow-hidden rounded-full bg-muted">
+              <div
+                className={`h-2 rounded-full transition-all duration-700 ${barColor}`}
+                style={{ width: `${seo.score}%` }}
+              />
+            </div>
+
+            {seo.tips.length > 0 && (
+              <ul className="space-y-1.5">
+                {seo.tips.map((tip, i) => (
+                  <li key={i} className="flex items-start gap-2 text-xs text-muted-foreground">
+                    <span className="mt-0.5 shrink-0">{seo.score >= 80 ? '✅' : '💡'}</span>
+                    {tip}
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            <div className="mt-3 flex items-center gap-2 rounded-lg border border-dashed border-primary/30 bg-primary/5 px-3 py-2">
+              <span className="text-sm">✨</span>
+              <span className="text-xs text-muted-foreground">
+                <span className="font-medium text-foreground">Em breve:</span>{' '}
+                IA vai sugerir melhorias e completar lacunas automaticamente
+              </span>
+            </div>
+          </div>
+        )}
+      </ScreenLayout>
+    )
+  }
+
+  // ── Tela 6 — Para quem você atende ──
+  if (screen === 6) return (
     <ScreenLayout {...layoutProps} hint="Quanto mais específico, mais certeiro é o conteúdo gerado.">
       <h1 className="font-heading mb-3 text-2xl font-bold text-foreground sm:text-3xl">
         Para quem você atende?
       </h1>
       <p className="mb-6 text-sm text-muted-foreground">
-        Ex: adultos 30-60 anos com dor crônica em Sorocaba, donos de imóveis no centro da cidade...
+        Ex: adultos 30–60 anos com dor crônica em Sorocaba, donos de imóveis no centro da cidade...
       </p>
       <textarea
         className={TEXTAREA_CLS}
@@ -914,8 +965,8 @@ export default function OnboardingPage() {
     </ScreenLayout>
   )
 
-  // Tela 8 — Dores
-  if (screen === 8) return (
+  // ── Tela 7 — Dores do cliente ──
+  if (screen === 7) return (
     <ScreenLayout {...layoutProps} hint="Essas dores viram perguntas do FAQ — a base do AEO (resposta direta no Google).">
       <h1 className="font-heading mb-3 text-2xl font-bold text-foreground sm:text-3xl">
         Quais são as principais dores do seu cliente?
@@ -933,8 +984,8 @@ export default function OnboardingPage() {
     </ScreenLayout>
   )
 
-  // Tela 9 — Autoridade
-  if (screen === 9) return (
+  // ── Tela 8 — Autoridade ──
+  if (screen === 8) return (
     <ScreenLayout {...layoutProps} hint="Opcional — credenciais viram o bloco de autoridade. Google valoriza especialistas comprovados.">
       <h1 className="font-heading mb-8 text-2xl font-bold text-foreground sm:text-3xl">
         Sua autoridade
@@ -969,88 +1020,8 @@ export default function OnboardingPage() {
     </ScreenLayout>
   )
 
-  // Tela 10 — "Seu conhecimento vale ouro"
-  if (screen === 10) {
-    const seo = calcExpertiseSEO(data.expertise, data.city)
-    const barColor =
-      seo.score >= 80 ? 'bg-green-500' :
-      seo.score >= 60 ? 'bg-yellow-500' :
-      seo.score >= 40 ? 'bg-orange-500' :
-      'bg-red-400'
-
-    return (
-      <ScreenLayout {...layoutProps}>
-        <div className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-xs font-semibold text-accent-foreground">
-          ⭐ Seu conhecimento vale ouro
-        </div>
-        <h1 className="font-heading mb-3 mt-2 text-2xl font-bold text-foreground sm:text-3xl">
-          O que você sabe que poucos sabem?
-        </h1>
-        <p className="mb-6 text-sm text-muted-foreground">
-          Sua especialização única. Ex: "Especialista em guarda compartilhada há 12 anos em SP", "Único nutricionista da região com foco em atletas amadores", "10 anos trabalhando só com cães de grande porte em Sorocaba".
-        </p>
-
-        <textarea
-          className={TEXTAREA_CLS}
-          placeholder="Descreva sua especialização, nicho específico dentro da área, resultados únicos que você entrega..."
-          value={data.expertise}
-          onChange={e => update({ expertise: e.target.value })}
-          autoFocus
-        />
-
-        {/* SEO Meter — aparece ao digitar */}
-        {data.expertise.trim().length > 0 && (
-          <div className="mt-4 rounded-2xl border border-border bg-card p-4">
-            <div className="mb-3 flex items-center justify-between">
-              <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                Sinal SEO deste campo
-              </span>
-              <span className={`text-xs font-bold ${
-                seo.score >= 80 ? 'text-green-600' :
-                seo.score >= 60 ? 'text-yellow-600' :
-                seo.score >= 40 ? 'text-orange-600' :
-                'text-red-500'
-              }`}>
-                {seo.level} · {seo.score}%
-              </span>
-            </div>
-
-            {/* Barra de progresso SEO */}
-            <div className="mb-3 h-2 overflow-hidden rounded-full bg-muted">
-              <div
-                className={`h-2 rounded-full transition-all duration-700 ${barColor}`}
-                style={{ width: `${seo.score}%` }}
-              />
-            </div>
-
-            {/* Dicas em tempo real */}
-            {seo.tips.length > 0 && (
-              <ul className="space-y-1.5">
-                {seo.tips.map((tip, i) => (
-                  <li key={i} className="flex items-start gap-2 text-xs text-muted-foreground">
-                    <span className="mt-0.5 shrink-0">{seo.score >= 80 ? '✅' : '💡'}</span>
-                    {tip}
-                  </li>
-                ))}
-              </ul>
-            )}
-
-            {/* Placeholder para futura API de IA */}
-            <div className="mt-3 flex items-center gap-2 rounded-lg border border-dashed border-primary/30 bg-primary/5 px-3 py-2">
-              <span className="text-sm">✨</span>
-              <span className="text-xs text-muted-foreground">
-                <span className="font-medium text-foreground">Em breve:</span>{' '}
-                IA vai sugerir melhorias e completar lacunas automaticamente
-              </span>
-            </div>
-          </div>
-        )}
-      </ScreenLayout>
-    )
-  }
-
-  // Tela 11 — Keywords (tag input)
-  if (screen === 11) return (
+  // ── Tela 9 — Keywords ──
+  if (screen === 9) return (
     <ScreenLayout
       {...layoutProps}
       hint="Digite cada keyword e pressione Enter. Inclua sempre a cidade."
@@ -1093,7 +1064,6 @@ export default function OnboardingPage() {
           />
         </div>
 
-        {/* Hint IA */}
         <div className="rounded-xl border border-primary/20 bg-primary/5 px-4 py-3">
           <p className="text-sm font-medium text-foreground">✨ A IA vai sugerir as melhores keywords</p>
           <p className="mt-0.5 text-xs text-muted-foreground">
@@ -1104,8 +1074,8 @@ export default function OnboardingPage() {
     </ScreenLayout>
   )
 
-  // Tela 12 — Tom de voz
-  if (screen === 12) return (
+  // ── Tela 10 — Tom de voz ──
+  if (screen === 10) return (
     <ScreenLayout {...layoutProps}>
       <h1 className="font-heading mb-3 text-2xl font-bold text-foreground sm:text-3xl">
         Como você quer soar?
@@ -1135,7 +1105,7 @@ export default function OnboardingPage() {
     </ScreenLayout>
   )
 
-  // Tela 13 — Resumo + GBP + Gerar
+  // ── Tela 11 — Resumo + GBP + Gerar ──
   return (
     <ScreenLayout
       {...layoutProps}
@@ -1162,9 +1132,9 @@ export default function OnboardingPage() {
 
         <div className="space-y-3">
           {[
-            { label: 'C — Conhecimento',  sub: 'Google sabe quem você é',          value: cpf.c, color: 'bg-blue-500' },
-            { label: 'P — Posicionamento',sub: 'Google entende por que te escolher',value: cpf.p, color: 'bg-purple-500' },
-            { label: 'F — Faturamento',   sub: 'Google sabe o que você vende',       value: cpf.f, color: 'bg-green-500' },
+            { label: 'C — Conhecimento',   sub: 'Google sabe quem você é',           value: cpf.c, color: 'bg-blue-500' },
+            { label: 'P — Posicionamento', sub: 'Google entende por que te escolher', value: cpf.p, color: 'bg-purple-500' },
+            { label: 'F — Faturamento',    sub: 'Google sabe o que você vende',       value: cpf.f, color: 'bg-green-500' },
           ].map(({ label, sub, value, color }) => (
             <div key={label}>
               <div className="mb-1 flex items-center justify-between">
