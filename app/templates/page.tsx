@@ -139,16 +139,50 @@ export default function TemplatesPage() {
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) { router.push('/login'); return }
 
-        const { error: dbError } = await supabase
-          .from('sites')
-          .insert({ preset: selectedNiche.value, palette_index: selectedPalette, template: selectedLayout, status: 'draft' })
+        // Busca tenant_id do usuário (necessário para RLS)
+        const { data: userData } = await supabase
+          .from('users')
+          .select('tenant_id')
+          .eq('id', user.id)
+          .single()
 
-        if (dbError) { setError('Erro ao criar site. Tente novamente.'); return }
+        if (!userData?.tenant_id) {
+          setError('Perfil de usuário não encontrado. Faça logout e entre novamente.')
+          return
+        }
+
+        const { data: site, error: dbError } = await supabase
+          .from('sites')
+          .insert({
+            tenant_id: userData.tenant_id,
+            preset: selectedNiche.value,
+            niche: selectedNiche.value,
+            palette_index: selectedPalette,
+            template: selectedLayout,
+            status: 'draft',
+          })
+          .select('id')
+          .single()
+
+        if (dbError) {
+          console.error('Erro ao criar site:', dbError)
+          setError(`Erro ao criar site: ${dbError.message}`)
+          return
+        }
+
+        // Vincula o perfil de onboarding ao site criado
+        if (site?.id) {
+          await supabase
+            .from('onboarding_profiles')
+            .update({ site_id: site.id })
+            .eq('user_id', user.id)
+            .is('site_id', null)
+        }
 
         router.push('/sites')
         router.refresh()
-      } catch {
-        setError('Erro inesperado. Tente novamente.')
+      } catch (e) {
+        setError(`Erro inesperado: ${String(e)}`)
       }
     })
   }
