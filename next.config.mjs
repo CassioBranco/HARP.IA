@@ -1,7 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Sharp precisa ser tratado como externo no bundle do servidor (Vercel)
-  serverExternalPackages: ['sharp'],
+  experimental: {
+    // Sharp precisa ser externo no bundle do servidor (Next.js 14 + Vercel)
+    serverComponentsExternalPackages: ['sharp'],
+  },
   eslint: {
     // Protótipo — ESLint roda separado no CI; não bloqueia o build
     ignoreDuringBuilds: true,
