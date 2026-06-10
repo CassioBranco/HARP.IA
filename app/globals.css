@@ -3,57 +3,57 @@
 @tailwind utilities;
 
 @layer base {
-  /* ── HARPIA Platform Theme — esmeralda + dourado sobre floresta ── */
+  /* ── HARPIA Platform Theme — azul ── */
   :root {
-    --background: 150 30% 99%;
-    --foreground: 165 30% 12%;
+    --background: 214 30% 99%;
+    --foreground: 222 30% 12%;
     --card: 0 0% 100%;
-    --card-foreground: 165 30% 12%;
+    --card-foreground: 222 30% 12%;
     --popover: 0 0% 100%;
-    --popover-foreground: 165 30% 12%;
+    --popover-foreground: 222 30% 12%;
 
-    --primary: 160 84% 30%;
-    --primary-foreground: 150 40% 98%;
-    --secondary: 160 20% 94%;
-    --secondary-foreground: 165 30% 18%;
-    --accent: 38 92% 50%;
-    --accent-foreground: 30 50% 12%;
+    --primary: 221 83% 53%;
+    --primary-foreground: 214 40% 98%;
+    --secondary: 214 20% 94%;
+    --secondary-foreground: 222 30% 18%;
+    --accent: 217 91% 60%;
+    --accent-foreground: 222 50% 10%;
 
-    --muted: 160 16% 95%;
-    --muted-foreground: 165 12% 40%;
+    --muted: 214 16% 95%;
+    --muted-foreground: 220 12% 46%;
     --destructive: 0 72% 48%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 160 14% 88%;
-    --input: 160 14% 88%;
-    --ring: 160 84% 30%;
+    --border: 214 14% 88%;
+    --input: 214 14% 88%;
+    --ring: 221 83% 53%;
 
     --radius: 0.625rem;
   }
 
   .dark {
-    --background: 168 32% 7%;
-    --foreground: 150 18% 92%;
-    --card: 168 28% 10%;
-    --card-foreground: 150 18% 92%;
-    --popover: 168 28% 10%;
-    --popover-foreground: 150 18% 92%;
+    --background: 222 32% 7%;
+    --foreground: 214 18% 92%;
+    --card: 222 28% 10%;
+    --card-foreground: 214 18% 92%;
+    --popover: 222 28% 10%;
+    --popover-foreground: 214 18% 92%;
 
-    --primary: 158 64% 44%;
-    --primary-foreground: 165 40% 8%;
-    --secondary: 165 18% 16%;
-    --secondary-foreground: 150 18% 92%;
-    --accent: 38 90% 55%;
-    --accent-foreground: 30 50% 10%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 222 40% 8%;
+    --secondary: 220 18% 16%;
+    --secondary-foreground: 214 18% 92%;
+    --accent: 213 94% 68%;
+    --accent-foreground: 222 50% 10%;
 
-    --muted: 165 16% 15%;
-    --muted-foreground: 150 10% 62%;
+    --muted: 220 16% 15%;
+    --muted-foreground: 214 10% 62%;
     --destructive: 0 62% 45%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 165 14% 18%;
-    --input: 165 14% 18%;
-    --ring: 158 64% 44%;
+    --border: 220 14% 18%;
+    --input: 220 14% 18%;
+    --ring: 217 91% 60%;
   }
 }
 

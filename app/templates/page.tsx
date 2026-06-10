@@ -4,6 +4,8 @@ import { useState, useTransition, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createBrowserClient } from '@/lib/supabase/client'
+import { LAYOUTS, getRecommendedLayouts } from '@/lib/templates/layouts'
+import type { LayoutId } from '@/lib/templates/layouts'
 
 // ---------------------------------------------------------------------------
 // Dados
@@ -110,16 +112,24 @@ export default function TemplatesPage() {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
 
-  const [selectedNiche,   setSelectedNiche]   = useState<Niche>(NICHOS[0])
+  const [selectedNiche,   setSelectedNiche]   = useState<Niche>(NICHOS[0]!)
+  const [selectedLayout,  setSelectedLayout]  = useState<LayoutId>('clean')
   const [selectedPalette, setSelectedPalette] = useState(0)
   const [viewMode,        setViewMode]        = useState<ViewMode>('desktop')
   const [iframeKey,       setIframeKey]       = useState(0)
   const [error,           setError]           = useState('')
 
-  // Força reload do iframe ao trocar nicho/paleta
-  useEffect(() => { setIframeKey(k => k + 1) }, [selectedNiche.value, selectedPalette])
+  // Força reload do iframe ao trocar nicho/layout/paleta
+  useEffect(() => { setIframeKey(k => k + 1) }, [selectedNiche.value, selectedLayout, selectedPalette])
 
-  const previewSrc = `/preview/template?preset=${selectedNiche.value}&palette=${selectedPalette}`
+  // Ao trocar nicho, sugere o primeiro layout recomendado
+  useEffect(() => {
+    const recommended = getRecommendedLayouts(selectedNiche.value)
+    setSelectedLayout(recommended[0]?.id ?? 'clean')
+    setSelectedPalette(0)
+  }, [selectedNiche.value])
+
+  const previewSrc = `/preview/template?preset=${selectedNiche.value}&palette=${selectedPalette}&layout=${selectedLayout}`
 
   async function handleCreate() {
     setError('')
@@ -131,7 +141,7 @@ export default function TemplatesPage() {
 
         const { error: dbError } = await supabase
           .from('sites')
-          .insert({ preset: selectedNiche.value, palette_index: selectedPalette, status: 'draft' })
+          .insert({ preset: selectedNiche.value, palette_index: selectedPalette, template: selectedLayout, status: 'draft' })
 
         if (dbError) { setError('Erro ao criar site. Tente novamente.'); return }
 
@@ -219,6 +229,43 @@ export default function TemplatesPage() {
             ))}
           </div>
 
+          {/* Layout do site */}
+          <div className="border-t border-border p-4">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+              Layout visual
+            </p>
+            <div className="flex flex-col gap-1">
+              {getRecommendedLayouts(selectedNiche.value).map((layout, idx) => {
+                const isSelected = selectedLayout === layout.id
+                const isRecommended = layout.recommendedFor.includes(selectedNiche.value)
+                return (
+                  <button
+                    key={layout.id}
+                    onClick={() => setSelectedLayout(layout.id)}
+                    className={`flex flex-col rounded-lg border-2 px-3 py-2.5 text-left transition-all ${
+                      isSelected ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/40'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className={`text-xs font-semibold ${isSelected ? 'text-primary' : 'text-foreground'}`}>
+                        {layout.name}
+                      </span>
+                      {isRecommended && idx === 0 && (
+                        <span className="rounded-full bg-primary/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-primary">
+                          recomendado
+                        </span>
+                      )}
+                      {isSelected && <span className="ml-auto text-primary text-xs">✓</span>}
+                    </div>
+                    {isSelected && (
+                      <p className="mt-1 text-[11px] text-muted-foreground leading-snug">{layout.description}</p>
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
           {/* Paletas do nicho selecionado */}
           <div className="border-t border-border p-4">
             <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
@@ -276,13 +323,18 @@ export default function TemplatesPage() {
               <p className="text-sm font-semibold text-foreground">{selectedNiche.label}</p>
               <p className="text-xs text-muted-foreground">{selectedNiche.tagline}</p>
             </div>
-            <div className="ml-auto flex items-center gap-1.5">
-              {selectedNiche.palettes[selectedPalette].colors.map((c, i) => (
-                <div key={i} className="h-4 w-4 rounded-full border border-border/50" style={{ backgroundColor: c }} />
-              ))}
-              <span className="ml-1 text-xs text-muted-foreground">
-                {selectedNiche.palettes[selectedPalette].name}
+            <div className="ml-auto flex items-center gap-3">
+              <span className="rounded-full border border-border px-2 py-0.5 text-xs text-muted-foreground">
+                {LAYOUTS.find(l => l.id === selectedLayout)?.name ?? selectedLayout}
               </span>
+              <div className="flex items-center gap-1.5">
+                {(selectedNiche.palettes[selectedPalette]?.colors ?? []).map((c, i) => (
+                  <div key={i} className="h-4 w-4 rounded-full border border-border/50" style={{ backgroundColor: c }} />
+                ))}
+                <span className="ml-1 text-xs text-muted-foreground">
+                  {selectedNiche.palettes[selectedPalette]?.name ?? ''}
+                </span>
+              </div>
             </div>
           </div>
 
