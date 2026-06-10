@@ -1,5 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Sharp precisa ser tratado como externo no bundle do servidor (Vercel)
+  serverExternalPackages: ['sharp'],
   eslint: {
     // Protótipo — ESLint roda separado no CI; não bloqueia o build
     ignoreDuringBuilds: true,
