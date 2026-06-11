@@ -29,6 +29,8 @@ export default function EditorPage() {
   const [site, setSite] = useState<SiteData | null>(null)
   const [previewKey, setPreviewKey] = useState(0)
   const [, startTransition] = useTransition()
+  const [publishing, setPublishing] = useState(false)
+  const [publishMsg, setPublishMsg] = useState<{ type: 'ok' | 'err'; text: string } | null>(null)
 
   useEffect(() => {
     const supabase = createBrowserClient()
@@ -42,6 +44,30 @@ export default function EditorPage() {
 
   function refreshPreview() {
     startTransition(() => setPreviewKey(k => k + 1))
+  }
+
+  async function handlePublish() {
+    setPublishing(true)
+    setPublishMsg(null)
+    try {
+      const res = await fetch('/api/publish', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ site_id: siteId }),
+      })
+      const json = await res.json()
+      if (!res.ok) {
+        setPublishMsg({ type: 'err', text: json.error ?? 'Erro ao publicar' })
+      } else {
+        setSite(s => s ? { ...s, status: 'published', domain: json.domain } : s)
+        setPublishMsg({ type: 'ok', text: `Site publicado em ${json.domain}` })
+        refreshPreview()
+      }
+    } catch {
+      setPublishMsg({ type: 'err', text: 'Falha de conexão' })
+    } finally {
+      setPublishing(false)
+    }
   }
 
   const previewSrc = site
@@ -117,9 +143,20 @@ export default function EditorPage() {
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
           </button>
 
-          <button className="rounded-md bg-primary px-3 py-1.5 text-xs font-bold text-primary-foreground hover:bg-primary/90 transition-colors">
-            Publicar →
-          </button>
+          <div className="flex flex-col items-end gap-1">
+            <button
+              onClick={handlePublish}
+              disabled={publishing}
+              className="rounded-md bg-primary px-3 py-1.5 text-xs font-bold text-primary-foreground hover:bg-primary/90 disabled:opacity-60 transition-colors"
+            >
+              {publishing ? 'Publicando...' : site?.status === 'published' ? 'Republicar →' : 'Publicar →'}
+            </button>
+            {publishMsg && (
+              <p className={`text-[10px] ${publishMsg.type === 'ok' ? 'text-green-600' : 'text-red-500'}`}>
+                {publishMsg.text}
+              </p>
+            )}
+          </div>
         </div>
 
         {/* Iframe do preview */}
