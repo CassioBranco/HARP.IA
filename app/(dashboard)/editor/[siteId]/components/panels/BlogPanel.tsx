@@ -119,15 +119,18 @@ type EditorProps = {
   onBack: () => void
 }
 
+type ClusterType = 'pillar' | 'satellite'
+
 type PostData = {
   title: string
   content: string
   meta_description: string
   status: Post['status']
+  cluster_type: ClusterType
 }
 
 function BlogEditor({ siteId, postId, onBack }: EditorProps) {
-  const [data, setData] = useState<PostData>({ title: '', content: '', meta_description: '', status: 'draft' })
+  const [data, setData] = useState<PostData>({ title: '', content: '', meta_description: '', status: 'draft', cluster_type: 'satellite' })
   const [loading, setLoading] = useState(!!postId)
   const [saving, setSaving] = useState(false)
   const [aiLoading, setAiLoading] = useState(false)
@@ -172,7 +175,7 @@ function BlogEditor({ siteId, postId, onBack }: EditorProps) {
       const res = await fetch('/api/ai/blog', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ site_id: siteId, keyword }),
+        body: JSON.stringify({ site_id: siteId, keyword, cluster_type: data.cluster_type }),
       })
       if (!res.ok) throw new Error('Falha')
       const { title, content, meta_description } = await res.json()
@@ -208,9 +211,37 @@ function BlogEditor({ siteId, postId, onBack }: EditorProps) {
         {/* Geração IA */}
         <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 flex flex-col gap-2">
           <p className="text-[11px] font-bold text-primary">Gerar com IA</p>
+
+          {/* Tipo de cluster */}
+          <div className="flex flex-col gap-1">
+            <p className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">Tipo de artigo</p>
+            <div className="grid grid-cols-2 gap-1.5">
+              {([
+                { id: 'pillar' as ClusterType,   label: 'Pilar',    desc: 'Tema amplo, hub do cluster' },
+                { id: 'satellite' as ClusterType, label: 'Satélite', desc: 'Subtema específico do pilar' },
+              ] as { id: ClusterType; label: string; desc: string }[]).map(opt => (
+                <button
+                  key={opt.id}
+                  onClick={() => setData(d => ({ ...d, cluster_type: opt.id }))}
+                  className={`flex flex-col rounded-lg border-2 px-2 py-1.5 text-left transition-all ${
+                    data.cluster_type === opt.id ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/40'
+                  }`}
+                >
+                  <span className="text-[11px] font-bold text-foreground">{opt.label}</span>
+                  <span className="text-[9px] text-muted-foreground leading-tight">{opt.desc}</span>
+                </button>
+              ))}
+            </div>
+            {data.cluster_type === 'pillar' && (
+              <p className="text-[9px] text-orange-600 bg-orange-50 rounded px-2 py-1 leading-tight">
+                Artigo pilar deve cobrir o tema amplamente — 1500+ palavras. Cria o hub do cluster.
+              </p>
+            )}
+          </div>
+
           <input
             type="text"
-            placeholder="Ex: como escolher dentista em SP"
+            placeholder={data.cluster_type === 'pillar' ? 'Ex: fisioterapia de ombro em SP' : 'Ex: fisioterapia de ombro para nadadores'}
             value={keyword}
             onChange={e => setKeyword(e.target.value)}
             className="w-full rounded-lg border border-border bg-background px-2.5 py-2 text-[12px] outline-none focus:border-primary"
@@ -269,6 +300,20 @@ function BlogEditor({ siteId, postId, onBack }: EditorProps) {
             <option value="review">Em revisão</option>
             <option value="published">Publicado</option>
           </select>
+        </div>
+
+        {/* Dica de links internos */}
+        <div className="rounded-xl border border-border bg-muted/30 p-3 flex flex-col gap-1.5">
+          <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            Links internos
+          </p>
+          <p className="text-[10px] text-muted-foreground leading-relaxed">
+            Após publicar, toda página precisa de ≥2 links internos apontando pra ela — regra anti-página-órfã do HARPIA.
+            {data.cluster_type === 'satellite'
+              ? ' Adicione um link deste satélite para o artigo pilar do cluster.'
+              : ' Como artigo pilar, vincule todos os satélites do cluster a este artigo.'}
+          </p>
         </div>
       </div>
     </div>
