@@ -15,18 +15,13 @@ type OnboardingData = {
   category: string
   niche: string
   business_name: string
-  about: string            // "o que faz" — texto livre (tela 2)
-  team_size: string        // "quantas pessoas" (tela 2)
   city: string
   state: string
   service_radius_km: number
-  // Google Perfil de Empresas (tela 3)
-  gbp_url: string
-  gbp_no_profile: boolean
-  // Conhecimento (tela 4)
-  expertise: string
-  // campos preenchidos pela IA depois (mantidos por compatibilidade)
+  city2: string
+  state2: string
   services: ServiceItem[]
+  expertise: string        // "seu conhecimento vale ouro" — mapeia para cases + differentials
   target_audience: string
   pain_points: string
   years_experience: string
@@ -97,15 +92,20 @@ const NICHES_BY_CAT: Record<string, { value: string; label: string; icon: string
   ],
 }
 
-const TOTAL_SCREENS = 5
+const TONES = [
+  { value: 'profissional', label: 'Profissional',  desc: 'Sério, técnico, confiável',        icon: '👔' },
+  { value: 'proximo',      label: 'Próximo',        desc: 'Caloroso, acessível, humano',     icon: '🤝' },
+  { value: 'autoridade',   label: 'Autoridade',     desc: 'Especialista, direto, assertivo', icon: '🎯' },
+  { value: 'descontraido', label: 'Descontraído',   desc: 'Informal, leve, direto ao ponto', icon: '😊' },
+]
+
+const TOTAL_SCREENS = 11
 
 const EMPTY: OnboardingData = {
   category: '', niche: '', business_name: '',
-  about: '', team_size: '',
-  city: '', state: '', service_radius_km: 20,
-  gbp_url: '', gbp_no_profile: false,
-  expertise: '',
+  city: '', state: '', service_radius_km: 20, city2: '', state2: '',
   services: [{ name: '', description: '', price_range: '' }],
+  expertise: '',
   target_audience: '', pain_points: '',
   years_experience: '', credentials: '',
   keywords_primary: [], keywords_secondary: [],
@@ -114,70 +114,38 @@ const EMPTY: OnboardingData = {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Chute de nicho a partir do texto livre (sem IA) — tela 2 híbrida
+// Score CPF
 // ─────────────────────────────────────────────────────────────────────────────
 
-// Ordem importa: termos mais específicos primeiro.
-const NICHE_HINTS: [RegExp, string][] = [
-  [/dentist|odonto|dental|implante|ortodont/i,            'odontologia'],
-  [/psicólog|psicolog|terapeut|terapia|psican/i,          'psicologia'],
-  [/fisioterap|\bfisio\b|pilates clínic|rpg\b/i,          'fisioterapia'],
-  [/veterin|\bpet\b|animal|cachorro|gato/i,               'veterinaria'],
-  [/nutri|nutrólog|emagrec|dieta/i,                       'nutricao'],
-  [/clínic|clinic|consultório|médic|medic|saúde|exame/i,  'clinica'],
-  [/advog|advocacia|jurídic|juridic|direito|processo/i,   'advocacia'],
-  [/contab|contador|contábil|fiscal|imposto/i,            'contabilidade'],
-  [/consult|coach|mentor|assessor/i,                      'consultoria'],
-  [/barbear|barber|barba/i,                               'barbearia'],
-  [/salão|salao|cabelo|cabeleire|escova|mechas/i,         'salao'],
-  [/estétic|estetic|depilaç|sobrancelha|manicure|unha|cílios/i, 'estetica'],
-  [/\bspa\b|massag|relaxa/i,                              'spa'],
-  [/restaurant|bistrô|bistro|culinár|prato|gastronom/i,   'restaurante'],
-  [/lanchonete|cafeteria|\bcafé\b|hambúrg|hamburg|burger/i,'lanchonete'],
-  [/padaria|confeit|bolo|doce|pão|panific/i,              'padaria'],
-  [/\bbar\b|cervej|chope|pub|drinks/i,                    'bar'],
-  [/imobiliár|imobiliar|corretor|imóve|imove|aluguel|locaç/i, 'imobiliaria'],
-  [/construt|reforma|\bobra\b|pedreiro|engenhar/i,        'construtora'],
-  [/arquitet|design de interior|paisagis/i,               'arquitetura'],
-  [/idioma|inglês|ingles|espanhol|francês|aula de líng/i, 'idiomas'],
-  [/academia|crossfit|musculaç|treino|personal/i,         'academia'],
-  [/escola|\bcurso\b|ensino|aula|professor|educa/i,       'escola'],
-  [/loja|comércio|comercio|varejo|venda de|boutique/i,    'comercio'],
-]
+type CPFScore = { c: number; p: number; f: number; total: number }
 
-function guessNiche(text: string): string {
-  if (!text || text.trim().length < 3) return ''
-  for (const [re, niche] of NICHE_HINTS) {
-    if (re.test(text)) return niche
-  }
-  return ''
-}
+function calcCPF(d: OnboardingData): CPFScore {
+  const c = ([
+    [d.business_name.trim().length > 2, 30],
+    [d.niche.length > 0,                25],
+    [d.city.trim().length > 2,          25],
+    [Number(d.years_experience) > 0,    10],
+    [d.credentials.trim().length > 0,   10],
+  ] as [boolean, number][]).reduce((s, [ok, pts]) => s + (ok ? pts : 0), 0)
 
-function guessCategory(niche: string): string {
-  for (const [cat, niches] of Object.entries(NICHES_BY_CAT)) {
-    if (niches.some(n => n.value === niche)) return cat
-  }
-  return 'geral'
+  const p = ([
+    [d.expertise.trim().length > 20,        40],
+    [d.target_audience.trim().length > 10,  35],
+    [d.pain_points.trim().length > 10,      25],
+  ] as [boolean, number][]).reduce((s, [ok, pts]) => s + (ok ? pts : 0), 0)
+
+  const f = ([
+    [d.services.some(s => s.name.trim().length > 2), 35],
+    [d.keywords_primary.length > 0,                  35],
+    [d.tone.length > 0,                              15],
+    [d.gbp_connected,                                15],
+  ] as [boolean, number][]).reduce((s, [ok, pts]) => s + (ok ? pts : 0), 0)
+
+  return { c, p, f, total: Math.round((c + p + f) / 3) }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Score CPF (usado só para gravar completeness_score — não bloqueia mais)
-// ─────────────────────────────────────────────────────────────────────────────
-
-function calcCompleteness(d: OnboardingData): number {
-  const signals: [boolean, number][] = [
-    [d.business_name.trim().length > 2, 20],
-    [d.niche.length > 0,                15],
-    [d.city.trim().length > 2,          15],
-    [d.about.trim().length > 20,        20],
-    [d.expertise.trim().length > 20,    20],
-    [!!d.gbp_url || d.gbp_no_profile,   10],
-  ]
-  return signals.reduce((s, [ok, pts]) => s + (ok ? pts : 0), 0)
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// SEO Meter — tela "conhecimento vale ouro"
+// SEO Meter
 // ─────────────────────────────────────────────────────────────────────────────
 
 function calcExpertiseSEO(expertise: string, city: string): { score: number; tips: string[]; level: string } {
@@ -207,6 +175,56 @@ function calcExpertiseSEO(expertise: string, city: string): { score: number; tip
   const level = score >= 80 ? 'Excelente' : score >= 60 ? 'Bom' : score >= 40 ? 'Regular' : 'Fraco'
   if (score >= 80 && tips.length === 0) tips.push('Perfeito! Este conteúdo vai se destacar na busca orgânica.')
   return { score, tips, level }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TagInput
+// ─────────────────────────────────────────────────────────────────────────────
+
+function TagInput({ tags, onAdd, onRemove, placeholder }: {
+  tags: string[]
+  onAdd: (tag: string) => void
+  onRemove: (tag: string) => void
+  placeholder?: string
+}) {
+  const [input, setInput] = useState('')
+
+  function commit(value: string) {
+    const tag = value.trim().replace(/,+$/, '')
+    if (tag && !tags.includes(tag)) onAdd(tag)
+    setInput('')
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === 'Enter' && input.trim()) { e.preventDefault(); commit(input) }
+    else if (e.key === ',' && input.trim()) { e.preventDefault(); commit(input) }
+    else if (e.key === 'Backspace' && !input && tags.length > 0) onRemove(tags[tags.length - 1]!)
+  }
+
+  return (
+    <div className="flex flex-wrap gap-2 rounded-xl border border-input bg-background p-3 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-1 min-h-[60px] cursor-text">
+      {tags.map(tag => (
+        <span key={tag} className="flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary">
+          {tag}
+          <button
+            type="button"
+            onClick={() => onRemove(tag)}
+            className="ml-0.5 text-base leading-none hover:text-destructive transition-colors"
+            aria-label={`Remover ${tag}`}
+          >
+            ×
+          </button>
+        </span>
+      ))}
+      <input
+        value={input}
+        onChange={e => setInput(e.target.value)}
+        onKeyDown={handleKeyDown}
+        placeholder={tags.length === 0 ? (placeholder ?? 'Digite e pressione Enter…') : 'Mais uma…'}
+        className="flex-1 min-w-[140px] bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none py-0.5"
+      />
+    </div>
+  )
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -332,11 +350,48 @@ function CitySearch({ city, state, onSelect, placeholder }: {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// CPF Mini — barras de sinal no header
+// ─────────────────────────────────────────────────────────────────────────────
+
+function SignalBars({ value, color }: { value: number; color: string }) {
+  const bars = Math.round(value / 25)
+  return (
+    <div className="flex items-end gap-0.5 h-4">
+      {[1,2,3,4].map(i => (
+        <div
+          key={i}
+          className={`w-1 rounded-sm transition-all duration-500 ${i <= bars ? color : 'bg-muted'}`}
+          style={{ height: `${i * 25}%` }}
+        />
+      ))}
+    </div>
+  )
+}
+
+function CPFMini({ score }: { score: CPFScore }) {
+  return (
+    <div className="flex items-center gap-3">
+      {[
+        { label: 'C', value: score.c, color: 'bg-blue-500' },
+        { label: 'P', value: score.p, color: 'bg-purple-500' },
+        { label: 'F', value: score.f, color: 'bg-green-500' },
+      ].map(({ label, value, color }) => (
+        <div key={label} className="flex flex-col items-center gap-1" title={`${label}: ${value}%`}>
+          <SignalBars value={value} color={color} />
+          <span className="text-[9px] font-medium text-muted-foreground">{label}</span>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // ScreenLayout — wrapper Typeform-style
 // ─────────────────────────────────────────────────────────────────────────────
 
 interface ScreenLayoutProps {
   screen: number
+  cpf: CPFScore
   saving: boolean
   onBack: () => void
   onNext: () => void
@@ -346,14 +401,22 @@ interface ScreenLayoutProps {
   children: React.ReactNode
 }
 
-function ScreenLayout({ screen, saving, onBack, onNext, canNext, nextLabel, hint, children }: ScreenLayoutProps) {
+function ScreenLayout({ screen, cpf, saving, onBack, onNext, canNext, nextLabel, hint, children }: ScreenLayoutProps) {
   return (
     <div className="flex min-h-screen flex-col bg-background">
       {/* Header */}
       <header className="sticky top-0 z-50 border-b border-border/40 bg-background/95 backdrop-blur">
         <div className="mx-auto flex max-w-2xl items-center justify-between px-6 py-3.5">
           <Link href="/" className="font-heading text-lg font-bold text-primary">HARPIA</Link>
-          {saving && <span className="text-xs text-muted-foreground animate-pulse">Salvando…</span>}
+          <div className="flex items-center gap-4">
+            {saving && <span className="text-xs text-muted-foreground animate-pulse">Salvando…</span>}
+            <CPFMini score={cpf} />
+            <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+              cpf.total >= 70 ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'
+            }`}>
+              {cpf.total}%
+            </span>
+          </div>
         </div>
         {/* Barra de progresso */}
         <div className="h-0.5 bg-muted">
@@ -411,10 +474,19 @@ export default function OnboardingPage() {
   const [profileId, setProfileId] = useState<string | null>(null)
   const [userId,    setUserId]    = useState<string | null>(null)
   const [saving,    setSaving]    = useState(false)
-  // Tela 2: qual categoria está aberta na grade + se o usuário já mexeu manualmente no nicho
+  // Nicho expandido na tela 1 — qual categoria está aberta
   const [expandedCat, setExpandedCat] = useState<string>('')
-  const [nicheTouched, setNicheTouched] = useState(false)
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const cpf         = calcCPF(data)
+  const canGenerate = cpf.total >= 70
+
+  function guessCategory(niche: string): string {
+    for (const [cat, niches] of Object.entries(NICHES_BY_CAT)) {
+      if (niches.some(n => n.value === niche)) return cat
+    }
+    return 'geral'
+  }
 
   // ── Init: auth + restore ──
   useEffect(() => {
@@ -438,20 +510,19 @@ export default function OnboardingPage() {
         const p = profiles[0]
         setProfileId(p.id)
         const cat = p.niche ? guessCategory(p.niche) : ''
-        const gbp = (p.gbp_data ?? {}) as { profile_url?: string; no_profile?: boolean }
+        const city2Raw: string = p.coverage_areas?.[0] ?? ''
+        const city2Parts = city2Raw.split(',').map((s: string) => s.trim())
         setData({
           category:            cat,
           niche:               p.niche             ?? '',
           business_name:       p.business_name     ?? '',
-          about:               p.differentials     ?? '',
-          team_size:           '',
           city:                p.city              ?? '',
           state:               p.state             ?? '',
           service_radius_km:   p.service_radius_km ?? 20,
-          gbp_url:             gbp.profile_url     ?? '',
-          gbp_no_profile:      gbp.no_profile      ?? false,
-          expertise:           p.cases ?? '',
+          city2:               city2Parts[0] ?? '',
+          state2:              city2Parts[1] ?? '',
           services:            p.services?.length ? p.services : [{ name: '', description: '', price_range: '' }],
+          expertise:           p.cases ?? p.differentials ?? '',
           target_audience:     p.target_audience   ?? '',
           pain_points:         p.pain_points       ?? '',
           years_experience:    p.years_experience?.toString() ?? '',
@@ -462,7 +533,7 @@ export default function OnboardingPage() {
           intent_default_blog: p.intent_default_blog ?? 'informacional',
           gbp_connected:       p.gbp_connected     ?? false,
         })
-        if (cat) { setExpandedCat(cat); setNicheTouched(true) }
+        if (cat) setExpandedCat(cat)
         if (savedScreen) {
           const n = parseInt(savedScreen)
           if (n >= 1 && n <= TOTAL_SCREENS) setScreen(n)
@@ -478,10 +549,8 @@ export default function OnboardingPage() {
     setSaving(true)
     try {
       const supabase = createBrowserClient()
-
-      // "o que faz" + "quantas pessoas" viram o texto de diferenciais que a IA lê
-      const teamSentence = d.team_size.trim() ? ` Equipe: ${d.team_size.trim()}.` : ''
-      const differentials = (d.about.trim() + teamSentence).trim() || null
+      const coverage: string[] = []
+      if (d.city2) coverage.push(`${d.city2}${d.state2 ? `, ${d.state2}` : ''}`)
 
       const payload = {
         business_name:       d.business_name     || null,
@@ -489,22 +558,22 @@ export default function OnboardingPage() {
         city:                d.city              || null,
         state:               d.state             || null,
         service_radius_km:   d.service_radius_km || null,
+        coverage_areas:      coverage,
         services:            d.services.filter(s => s.name.trim()),
-        differentials,
+        differentials:       d.expertise         || null,  // expertise → differentials
         target_audience:     d.target_audience   || null,
         pain_points:         d.pain_points       || null,
         credentials:         d.credentials
           ? d.credentials.split(',').map(s => s.trim()).filter(Boolean)
           : [],
         years_experience:    d.years_experience ? Number(d.years_experience) : null,
-        cases:               d.expertise         || null,
+        cases:               d.expertise         || null,  // expertise → cases
         keywords_primary:    d.keywords_primary  ?? [],
         keywords_secondary:  d.keywords_secondary ?? [],
         tone:                d.tone              || null,
         intent_default_blog: d.intent_default_blog || null,
-        gbp_connected:       !!d.gbp_url,
-        gbp_data:            { profile_url: d.gbp_url || null, no_profile: d.gbp_no_profile },
-        completeness_score:  calcCompleteness(d),
+        gbp_connected:       d.gbp_connected,
+        completeness_score:  calcCPF(d).total,
         updated_at:          new Date().toISOString(),
       }
 
@@ -540,25 +609,13 @@ export default function OnboardingPage() {
     })
   }
 
-  // Atualiza o "o que faz" e, se o usuário ainda não mexeu no nicho, aplica o chute
-  function updateAbout(value: string) {
+  function updateService(idx: number, field: keyof ServiceItem, value: string) {
     setData(prev => {
-      const next = { ...prev, about: value }
-      if (!nicheTouched) {
-        const guessed = guessNiche(value)
-        if (guessed) {
-          next.niche = guessed
-          next.category = guessCategory(guessed)
-        }
-      }
+      const services = prev.services.map((s, i) => i === idx ? { ...s, [field]: value } : s)
+      const next = { ...prev, services }
       scheduleSave(next)
       return next
     })
-  }
-
-  function pickNiche(cat: string, niche: string) {
-    setNicheTouched(true)
-    update({ category: cat, niche })
   }
 
   function goTo(n: number) {
@@ -581,24 +638,100 @@ export default function OnboardingPage() {
   // ── can-next por tela ──
   const canNext: boolean = (() => {
     switch (screen) {
-      case 1:  return data.business_name.trim().length > 2
-      case 2:  return data.niche.length > 0 && data.city.trim().length > 1
-      case 3:  return true   // Google é importante mas pode ser pulado sem OAuth ainda
-      case 4:  return data.expertise.trim().length > 10
-      case 5:  return true   // score não bloqueia mais
+      case 1:  return data.niche.length > 0
+      case 2:  return data.business_name.trim().length > 2
+      case 3:  return data.city.trim().length > 1
+      case 4:  return data.services.some(s => s.name.trim().length > 1)
+      case 5:  return data.expertise.trim().length > 10
+      case 6:  return data.target_audience.trim().length > 5
+      case 7:  return data.pain_points.trim().length > 5
+      case 8:  return true
+      case 9:  return true
+      case 10: return data.tone.length > 0
+      case 11: return canGenerate
       default: return true
     }
   })()
 
-  const layoutProps = { screen, saving, onBack: back, onNext: screen === TOTAL_SCREENS ? finish : next, canNext }
+  const isLast    = screen === TOTAL_SCREENS
+  const nextLabel = isLast
+    ? (canGenerate ? '✨ Gerar meu site' : `Faltam ${70 - cpf.total}% para gerar`)
+    : undefined
+
+  const layoutProps = { screen, cpf, saving, onBack: back, onNext: isLast ? finish : next, canNext, nextLabel }
   const TEXTAREA_CLS = `${INPUT_CLS} min-h-[140px] resize-none`
 
   // ─────────────────────────────────────────────────────────────────────────
   // Telas
   // ─────────────────────────────────────────────────────────────────────────
 
-  // ── Tela 1 — Nome do negócio ──
-  if (screen === 1) return (
+  // ── Tela 1 — Categoria + Nicho (1 tela, 2 cliques) ──
+  if (screen === 1) {
+    const nichos = expandedCat ? (NICHES_BY_CAT[expandedCat] ?? []) : []
+    const selectedCat = CATEGORIES.find(c => c.value === expandedCat)
+
+    return (
+      <ScreenLayout {...layoutProps} hint="Clique na categoria e depois no tipo de negócio.">
+        <h1 className="font-heading mb-8 text-2xl font-bold text-foreground sm:text-3xl">
+          Que tipo de negócio você tem?
+        </h1>
+
+        {/* Categorias */}
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+          {CATEGORIES.map(cat => {
+            const isExpanded = expandedCat === cat.value
+            return (
+              <button
+                key={cat.value}
+                onClick={() => setExpandedCat(isExpanded ? '' : cat.value)}
+                className={`flex flex-col items-start gap-2 rounded-2xl border-2 p-4 text-left transition-all ${
+                  isExpanded
+                    ? 'border-primary bg-primary/10 shadow-sm'
+                    : 'border-border bg-card hover:border-primary/40 hover:bg-muted/40'
+                }`}
+              >
+                <span className="text-2xl">{cat.icon}</span>
+                <span className="text-sm font-semibold text-foreground">{cat.label}</span>
+                <span className="text-xs text-muted-foreground leading-snug">{cat.desc}</span>
+              </button>
+            )
+          })}
+        </div>
+
+        {/* Nichos — aparecem inline ao expandir a categoria */}
+        {expandedCat && nichos.length > 0 && (
+          <div className="mt-6">
+            <p className="mb-3 flex items-center gap-2 text-sm font-semibold text-foreground">
+              <span>{selectedCat?.icon}</span>
+              <span>{selectedCat?.label} — escolha a especialidade:</span>
+            </p>
+            <div className="grid grid-cols-2 gap-3 sm:gap-4">
+              {nichos.map(n => (
+                <button
+                  key={n.value}
+                  onClick={() => {
+                    update({ category: expandedCat, niche: n.value })
+                    setTimeout(next, 150)
+                  }}
+                  className={`flex items-center gap-3 rounded-2xl border-2 p-4 text-left transition-all ${
+                    data.niche === n.value
+                      ? 'border-primary bg-primary/10 shadow-sm'
+                      : 'border-border bg-card hover:border-primary/40 hover:bg-muted/40'
+                  }`}
+                >
+                  <span className="text-2xl shrink-0">{n.icon}</span>
+                  <span className="text-sm font-semibold text-foreground">{n.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </ScreenLayout>
+    )
+  }
+
+  // ── Tela 2 — Nome do negócio ──
+  if (screen === 2) return (
     <ScreenLayout {...layoutProps} hint="Exatamente como aparece no Google e nos seus materiais.">
       <h1 className="font-heading mb-8 text-2xl font-bold text-foreground sm:text-3xl">
         Qual é o nome do seu negócio?
@@ -614,118 +747,28 @@ export default function OnboardingPage() {
     </ScreenLayout>
   )
 
-  // ── Tela 2 — Sobre o negócio (o que faz + nicho + onde atende + raio + equipe) ──
-  if (screen === 2) {
+  // ── Tela 3 — Localização ──
+  if (screen === 3) {
     const km = data.service_radius_km
     const radiusLabel =
       km <= 10 ? 'bairros próximos' :
       km <= 20 ? 'cidade e arredores' :
       'cidades vizinhas'
-    const nichos = expandedCat ? (NICHES_BY_CAT[expandedCat] ?? []) : []
 
     return (
       <ScreenLayout {...layoutProps}>
-        <h1 className="font-heading mb-2 text-2xl font-bold text-foreground sm:text-3xl">
-          Conte sobre o seu negócio
+        <h1 className="font-heading mb-8 text-2xl font-bold text-foreground sm:text-3xl">
+          Onde você atende?
         </h1>
-        <p className="mb-8 text-sm text-muted-foreground">
-          O que você faz, para quem, e onde atende. A gente já vai adiantando o tipo de negócio pra você.
-        </p>
 
-        <div className="flex flex-col gap-7">
-          {/* O que faz */}
+        <div className="flex flex-col gap-6">
           <div>
-            <label className="mb-2 block text-sm font-medium text-foreground">O que o seu negócio faz?</label>
-            <textarea
-              className={`${INPUT_CLS} min-h-[110px] resize-none`}
-              placeholder="Ex: Clínica odontológica com foco em implantes e ortodontia para adultos..."
-              value={data.about}
-              onChange={e => updateAbout(e.target.value)}
-              autoFocus
-            />
-          </div>
-
-          {/* Nicho (chute pré-marcado, cliente confirma) */}
-          <div>
-            <label className="mb-2 block text-sm font-medium text-foreground">
-              Tipo de negócio
-              {data.niche && !nicheTouched && (
-                <span className="ml-2 text-xs font-normal text-primary">✨ sugerido — confirme ou troque</span>
-              )}
-            </label>
-
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-              {CATEGORIES.map(cat => {
-                const isExpanded = expandedCat === cat.value
-                const hasSelected = data.category === cat.value && data.niche
-                return (
-                  <button
-                    key={cat.value}
-                    type="button"
-                    onClick={() => setExpandedCat(isExpanded ? '' : cat.value)}
-                    className={`flex flex-col items-start gap-1 rounded-xl border-2 p-3 text-left transition-all ${
-                      isExpanded || hasSelected
-                        ? 'border-primary bg-primary/10'
-                        : 'border-border bg-card hover:border-primary/40 hover:bg-muted/40'
-                    }`}
-                  >
-                    <span className="text-xl">{cat.icon}</span>
-                    <span className="text-xs font-semibold text-foreground leading-tight">{cat.label}</span>
-                  </button>
-                )
-              })}
-            </div>
-
-            {expandedCat && nichos.length > 0 && (
-              <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
-                {nichos.map(n => (
-                  <button
-                    key={n.value}
-                    type="button"
-                    onClick={() => pickNiche(expandedCat, n.value)}
-                    className={`flex items-center gap-2 rounded-xl border-2 p-2.5 text-left transition-all ${
-                      data.niche === n.value
-                        ? 'border-primary bg-primary/10 shadow-sm'
-                        : 'border-border bg-card hover:border-primary/40 hover:bg-muted/40'
-                    }`}
-                  >
-                    <span className="text-lg shrink-0">{n.icon}</span>
-                    <span className="text-xs font-medium text-foreground leading-tight">{n.label}</span>
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {data.niche && (
-              <p className="mt-2 text-xs text-muted-foreground">
-                ✓ Selecionado:{' '}
-                <strong className="text-foreground">
-                  {NICHES_BY_CAT[data.category]?.find(n => n.value === data.niche)?.label ?? data.niche}
-                </strong>
-              </p>
-            )}
-          </div>
-
-          {/* Equipe */}
-          <div>
-            <label className="mb-2 block text-sm font-medium text-foreground">
-              Quantas pessoas trabalham com você?{' '}
-              <span className="font-normal text-muted-foreground">(opcional)</span>
-            </label>
-            <input
-              className={INPUT_CLS}
-              placeholder="Ex: só eu, 3 pessoas, equipe de 10..."
-              value={data.team_size}
-              onChange={e => update({ team_size: e.target.value })}
-            />
-          </div>
-
-          {/* Onde atende + raio */}
-          <div>
-            <label className="mb-2 block text-sm font-medium text-foreground">Onde você atende?</label>
+            <label className="mb-2 block text-sm font-medium text-foreground">Cidade principal *</label>
             <CitySearch city={data.city} state={data.state} onSelect={(city, state) => update({ city, state })} />
+          </div>
 
-            <div className="mt-5 mb-3 flex items-center justify-between">
+          <div>
+            <div className="mb-3 flex items-center justify-between">
               <label className="text-sm font-medium text-foreground">Raio de atuação</label>
               <span className="font-heading text-lg font-bold text-primary">{km} km</span>
             </div>
@@ -741,78 +784,92 @@ export default function OnboardingPage() {
             <div className="mt-3 rounded-xl bg-primary/10 px-4 py-2.5 text-sm text-foreground">
               {data.city
                 ? <>{km} km ao redor de <strong>{data.city}</strong> — {radiusLabel}</>
-                : 'Selecione a cidade para definir sua área'
+                : 'Selecione a cidade primeiro'
               }
             </div>
+          </div>
+
+          <div>
+            <label className="mb-2 block text-sm font-medium text-foreground">
+              Segunda cidade <span className="font-normal text-muted-foreground">(opcional)</span>
+            </label>
+            <CitySearch
+              city={data.city2} state={data.state2}
+              onSelect={(city, state) => update({ city2: city, state2: state })}
+              placeholder="Cidade adicional (opcional)…"
+            />
+          </div>
+
+          <div className="rounded-xl border border-border/60 bg-muted/30 px-4 py-3 text-xs text-muted-foreground">
+            💡 Atende em mais de 2 cidades ou em todo o estado?{' '}
+            <span className="font-medium text-foreground">Planos maiores cobrem estadual e nacional.</span>{' '}
+            Disponível em breve.
           </div>
         </div>
       </ScreenLayout>
     )
   }
 
-  // ── Tela 3 — Perfil no Google ──
-  if (screen === 3) return (
-    <ScreenLayout
-      {...layoutProps}
-      nextLabel={data.gbp_url || data.gbp_no_profile ? 'Continuar →' : 'Pular por agora →'}
-    >
-      <div className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-        🔎 Sua presença no Google
-      </div>
-      <h1 className="font-heading mb-3 mt-2 text-2xl font-bold text-foreground sm:text-3xl">
-        Você já tem um perfil no Google?
+  // ── Tela 4 — Serviços ──
+  if (screen === 4) return (
+    <ScreenLayout {...layoutProps} hint="Cada serviço vira uma seção do site com SEO próprio.">
+      <h1 className="font-heading mb-8 text-2xl font-bold text-foreground sm:text-3xl">
+        O que você oferece?
       </h1>
-      <p className="mb-6 text-sm text-muted-foreground">
-        É o cartão que aparece no Google Maps e na busca, com nome, endereço, fotos e avaliações.
-        Conectar fortalece muito seu posicionamento local.
-      </p>
 
       <div className="flex flex-col gap-4">
-        <div>
-          <label className="mb-2 block text-sm font-medium text-foreground">
-            Cole o link do seu perfil (Google Maps)
-          </label>
-          <input
-            className={INPUT_CLS}
-            placeholder="https://maps.google.com/..."
-            value={data.gbp_url}
-            onChange={e => update({ gbp_url: e.target.value, gbp_no_profile: false })}
-          />
-          <p className="mt-1.5 text-xs text-muted-foreground">
-            No Google Maps: abra seu negócio → Compartilhar → Copiar link.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <span className="h-px flex-1 bg-border" /> ou <span className="h-px flex-1 bg-border" />
-        </div>
+        {data.services.map((svc, i) => (
+          <div key={i} className="rounded-2xl border border-border bg-card p-4">
+            <div className="mb-3 flex items-center justify-between">
+              <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Serviço {i + 1}
+              </span>
+              {data.services.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => update({ services: data.services.filter((_, j) => j !== i) })}
+                  className="text-xs text-muted-foreground hover:text-destructive"
+                >
+                  Remover
+                </button>
+              )}
+            </div>
+            <div className="flex flex-col gap-3">
+              <input
+                className={INPUT_CLS}
+                placeholder="Nome do serviço (ex: Consulta, Limpeza de pele, Defesa criminal...)"
+                value={svc.name}
+                onChange={e => updateService(i, 'name', e.target.value)}
+              />
+              <textarea
+                className={`${INPUT_CLS} min-h-[80px] resize-none`}
+                placeholder="O que inclui, como funciona, resultado esperado..."
+                value={svc.description}
+                onChange={e => updateService(i, 'description', e.target.value)}
+              />
+              <input
+                className={INPUT_CLS}
+                placeholder="Faixa de preço (ex: A partir de R$ 150, Consulte...)"
+                value={svc.price_range}
+                onChange={e => updateService(i, 'price_range', e.target.value)}
+              />
+            </div>
+          </div>
+        ))}
 
         <button
           type="button"
-          onClick={() => update({ gbp_no_profile: !data.gbp_no_profile, gbp_url: '' })}
-          className={`flex items-center gap-3 rounded-2xl border-2 p-4 text-left transition-all ${
-            data.gbp_no_profile
-              ? 'border-primary bg-primary/10'
-              : 'border-border bg-card hover:border-primary/40 hover:bg-muted/40'
-          }`}
+          onClick={() => update({ services: [...data.services, { name: '', description: '', price_range: '' }] })}
+          className="rounded-2xl border-2 border-dashed border-border py-3 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/50 hover:text-primary"
         >
-          <span className="text-2xl">🆕</span>
-          <div>
-            <p className="text-sm font-semibold text-foreground">Ainda não tenho perfil no Google</p>
-            <p className="text-xs text-muted-foreground">Sem problema — a gente te ajuda a criar depois.</p>
-          </div>
+          + Adicionar serviço
         </button>
-
-        <div className="rounded-xl border border-dashed border-primary/30 bg-primary/5 px-4 py-3 text-xs text-muted-foreground">
-          <span className="font-medium text-foreground">Em breve:</span>{' '}
-          conexão automática com login do Google — a IA puxa nome, endereço, fotos e avaliações sozinha.
-        </div>
       </div>
     </ScreenLayout>
   )
 
-  // ── Tela 4 — "Seu conhecimento vale ouro" ──
-  if (screen === 4) {
+  // ── Tela 5 — "Seu conhecimento vale ouro" ──
+  if (screen === 5) {
     const seo = calcExpertiseSEO(data.expertise, data.city)
     const barColor =
       seo.score >= 80 ? 'bg-green-500' :
@@ -830,7 +887,7 @@ export default function OnboardingPage() {
         </h1>
         <p className="mb-6 text-sm text-muted-foreground">
           Sua especialização única — o que te diferencia de todo mundo na sua área.
-          Ex: <em>&quot;Especialista em guarda compartilhada há 12 anos em SP&quot;</em>, <em>&quot;Único nutricionista da região com foco em atletas amadores&quot;</em>, <em>&quot;10 anos só com cães de grande porte em Sorocaba&quot;</em>.
+          Ex: <em>"Especialista em guarda compartilhada há 12 anos em SP"</em>, <em>"Único nutricionista da região com foco em atletas amadores"</em>, <em>"10 anos trabalhando só com cães de grande porte em Sorocaba"</em>.
         </p>
 
         <textarea
@@ -889,45 +946,249 @@ export default function OnboardingPage() {
     )
   }
 
-  // ── Tela 5 — Prévia + Gerar ──
-  const nicheLabel = NICHES_BY_CAT[data.category]?.find(n => n.value === data.niche)?.label ?? data.niche
-  const recap = [
-    { label: 'Negócio',    value: data.business_name, ok: data.business_name.trim().length > 2 },
-    { label: 'Tipo',       value: nicheLabel,         ok: !!data.niche },
-    { label: 'Onde atende', value: data.city ? `${data.city} · ${data.service_radius_km} km` : '', ok: !!data.city },
-    { label: 'Google',     value: data.gbp_url ? 'Perfil conectado' : (data.gbp_no_profile ? 'Vai criar depois' : 'Pulado'), ok: !!data.gbp_url },
-    { label: 'Diferencial', value: data.expertise ? 'Preenchido' : '', ok: data.expertise.trim().length > 10 },
-  ]
-
-  return (
-    <ScreenLayout {...layoutProps} nextLabel="✨ Gerar meu site">
-      <div className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-        ✓ Você está pronto
-      </div>
-      <h1 className="font-heading mb-3 mt-2 text-2xl font-bold text-foreground sm:text-3xl">
-        Tudo certo para gerar seu site 🎉
+  // ── Tela 6 — Para quem você atende ──
+  if (screen === 6) return (
+    <ScreenLayout {...layoutProps} hint="Quanto mais específico, mais certeiro é o conteúdo gerado.">
+      <h1 className="font-heading mb-3 text-2xl font-bold text-foreground sm:text-3xl">
+        Para quem você atende?
       </h1>
       <p className="mb-6 text-sm text-muted-foreground">
-        A IA vai escrever os textos otimizados para o Google e para as IAs (ChatGPT, Gemini, Perplexity),
-        e completar automaticamente público, dores, palavras-chave e tom de voz. Você revisa tudo antes de publicar.
+        Ex: adultos 30–60 anos com dor crônica em Sorocaba, donos de imóveis no centro da cidade...
+      </p>
+      <textarea
+        className={TEXTAREA_CLS}
+        placeholder="Descreva seu público ideal..."
+        value={data.target_audience}
+        onChange={e => update({ target_audience: e.target.value })}
+        autoFocus
+      />
+    </ScreenLayout>
+  )
+
+  // ── Tela 7 — Dores do cliente ──
+  if (screen === 7) return (
+    <ScreenLayout {...layoutProps} hint="Essas dores viram perguntas do FAQ — a base do AEO (resposta direta no Google).">
+      <h1 className="font-heading mb-3 text-2xl font-bold text-foreground sm:text-3xl">
+        Quais são as principais dores do seu cliente?
+      </h1>
+      <p className="mb-6 text-sm text-muted-foreground">
+        Ex: não consegue dormir com a dor, não sabe se o terreno tem estrutura, quer resolver mas não sabe por onde começar...
+      </p>
+      <textarea
+        className={TEXTAREA_CLS}
+        placeholder="Problemas que seu cliente tem antes de te contratar..."
+        value={data.pain_points}
+        onChange={e => update({ pain_points: e.target.value })}
+        autoFocus
+      />
+    </ScreenLayout>
+  )
+
+  // ── Tela 8 — Autoridade ──
+  if (screen === 8) return (
+    <ScreenLayout {...layoutProps} hint="Opcional — credenciais viram o bloco de autoridade. Google valoriza especialistas comprovados.">
+      <h1 className="font-heading mb-8 text-2xl font-bold text-foreground sm:text-3xl">
+        Sua autoridade
+      </h1>
+
+      <div className="flex flex-col gap-5">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-foreground">Anos de experiência</label>
+            <input
+              className={INPUT_CLS}
+              type="number" min="0" max="60" placeholder="Ex: 15"
+              value={data.years_experience}
+              onChange={e => update({ years_experience: e.target.value })}
+            />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-foreground">Registro / Credencial</label>
+            <input
+              className={INPUT_CLS}
+              placeholder="CRM 12345-SP, CRECI, CRC..."
+              value={data.credentials}
+              onChange={e => update({ credentials: e.target.value })}
+            />
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-border/40 bg-muted/30 px-4 py-3 text-xs text-muted-foreground">
+          💡 Esta etapa é opcional mas aumenta o score. Quanto mais completo, melhor o texto gerado.
+        </div>
+      </div>
+    </ScreenLayout>
+  )
+
+  // ── Tela 9 — Keywords ──
+  if (screen === 9) return (
+    <ScreenLayout
+      {...layoutProps}
+      hint="Digite cada keyword e pressione Enter. Inclua sempre a cidade."
+    >
+      <h1 className="font-heading mb-3 text-2xl font-bold text-foreground sm:text-3xl">
+        Palavras-chave do seu negócio
+      </h1>
+      <p className="mb-6 text-sm text-muted-foreground">
+        O que seus clientes digitam no Google para te encontrar?
       </p>
 
-      <div className="rounded-2xl border border-border bg-card divide-y divide-border/60">
-        {recap.map(({ label, value, ok }) => (
-          <div key={label} className="flex items-center justify-between px-4 py-3">
-            <span className="text-sm font-medium text-foreground">{label}</span>
-            <span className="flex items-center gap-2 text-sm text-muted-foreground">
-              {value || <em className="opacity-60">—</em>}
-              <span>{ok ? '✅' : '○'}</span>
-            </span>
-          </div>
+      <div className="flex flex-col gap-6">
+        <div>
+          <label className="mb-2 block text-sm font-medium text-foreground">
+            Principais{' '}
+            <span className="font-normal text-muted-foreground">(as que mais convertem)</span>
+          </label>
+          <TagInput
+            tags={data.keywords_primary}
+            onAdd={tag => update({ keywords_primary: [...data.keywords_primary, tag] })}
+            onRemove={tag => update({ keywords_primary: data.keywords_primary.filter(t => t !== tag) })}
+            placeholder={
+              data.niche && data.city
+                ? `${data.niche} ${data.city}, melhor ${data.niche} ${data.city}…`
+                : 'Ex: dentista sorocaba, clínica odontológica sp…'
+            }
+          />
+        </div>
+
+        <div>
+          <label className="mb-2 block text-sm font-medium text-foreground">
+            Secundárias{' '}
+            <span className="font-normal text-muted-foreground">(opcional — para blog e páginas internas)</span>
+          </label>
+          <TagInput
+            tags={data.keywords_secondary}
+            onAdd={tag => update({ keywords_secondary: [...data.keywords_secondary, tag] })}
+            onRemove={tag => update({ keywords_secondary: data.keywords_secondary.filter(t => t !== tag) })}
+            placeholder="implante dentário, clareamento, ortodontia adulto…"
+          />
+        </div>
+
+        <div className="rounded-xl border border-primary/20 bg-primary/5 px-4 py-3">
+          <p className="text-sm font-medium text-foreground">✨ A IA vai sugerir as melhores keywords</p>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            Com base no seu nicho, cidade e serviços, o HARPIA vai gerar automaticamente as keywords com maior potencial. Você edita antes de gerar o site.
+          </p>
+        </div>
+      </div>
+    </ScreenLayout>
+  )
+
+  // ── Tela 10 — Tom de voz ──
+  if (screen === 10) return (
+    <ScreenLayout {...layoutProps}>
+      <h1 className="font-heading mb-3 text-2xl font-bold text-foreground sm:text-3xl">
+        Como você quer soar?
+      </h1>
+      <p className="mb-8 text-sm text-muted-foreground">
+        O tom de voz define como a IA escreve cada texto do seu site.
+      </p>
+
+      <div className="grid grid-cols-2 gap-3">
+        {TONES.map(t => (
+          <button
+            key={t.value}
+            type="button"
+            onClick={() => { update({ tone: t.value }); setTimeout(next, 150) }}
+            className={`flex flex-col items-start gap-2 rounded-2xl border-2 p-4 text-left transition-all ${
+              data.tone === t.value
+                ? 'border-primary bg-primary/10 shadow-sm'
+                : 'border-border bg-card hover:border-primary/40 hover:bg-muted/40'
+            }`}
+          >
+            <span className="text-2xl">{t.icon}</span>
+            <span className="text-sm font-semibold text-foreground">{t.label}</span>
+            <span className="text-xs text-muted-foreground">{t.desc}</span>
+          </button>
         ))}
       </div>
+    </ScreenLayout>
+  )
 
-      <div className="mt-5 rounded-xl border border-dashed border-primary/30 bg-primary/5 px-4 py-3 text-xs text-muted-foreground">
-        <span className="font-medium text-foreground">O que a IA completa por você:</span>{' '}
-        público-alvo, principais dores, palavras-chave de SEO local, tom de voz e estrutura de FAQ (AEO).
-        Tudo editável no próximo passo.
+  // ── Tela 11 — Resumo + GBP + Gerar ──
+  return (
+    <ScreenLayout
+      {...layoutProps}
+      nextLabel={canGenerate ? '✨ Gerar meu site' : `Faltam ${70 - cpf.total}% para gerar`}
+    >
+      <h1 className="font-heading mb-8 text-2xl font-bold text-foreground sm:text-3xl">
+        Quase lá! 🎉
+      </h1>
+
+      {/* Score CPF */}
+      <div className={`mb-6 rounded-2xl border p-5 ${
+        canGenerate ? 'border-primary/40 bg-primary/5' : 'border-border bg-muted/30'
+      }`}>
+        <div className="mb-4 flex items-center justify-between">
+          <span className="font-heading text-base font-bold text-foreground">
+            Sinais para o Google e as IAs
+          </span>
+          <span className={`font-heading text-xl font-bold ${
+            canGenerate ? 'text-primary' : 'text-muted-foreground'
+          }`}>
+            {cpf.total}%
+          </span>
+        </div>
+
+        <div className="space-y-3">
+          {[
+            { label: 'C — Conhecimento',   sub: 'Google sabe quem você é',           value: cpf.c, color: 'bg-blue-500' },
+            { label: 'P — Posicionamento', sub: 'Google entende por que te escolher', value: cpf.p, color: 'bg-purple-500' },
+            { label: 'F — Faturamento',    sub: 'Google sabe o que você vende',       value: cpf.f, color: 'bg-green-500' },
+          ].map(({ label, sub, value, color }) => (
+            <div key={label}>
+              <div className="mb-1 flex items-center justify-between">
+                <div>
+                  <span className="text-xs font-semibold text-foreground">{label}</span>
+                  <span className="ml-2 text-[10px] text-muted-foreground">{sub}</span>
+                </div>
+                <span className="text-xs font-bold text-muted-foreground">{value}%</span>
+              </div>
+              <div className="h-2 overflow-hidden rounded-full bg-muted">
+                <div
+                  className={`h-2 rounded-full transition-all duration-700 ${color}`}
+                  style={{ width: `${value}%` }}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <p className={`mt-4 text-sm font-medium ${canGenerate ? 'text-primary' : 'text-muted-foreground'}`}>
+          {canGenerate
+            ? '✓ Ótimo! A IA tem o que precisa para gerar seu site.'
+            : `Precisa de 70% no score. Volte e preencha mais campos. Faltam ${70 - cpf.total}%.`
+          }
+        </p>
+      </div>
+
+      {/* GBP */}
+      <div className="rounded-2xl border border-border bg-card p-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm font-semibold text-foreground">Google Perfil de Empresas</p>
+            <p className="mt-0.5 text-xs text-muted-foreground">Integração OAuth — disponível em breve</p>
+          </div>
+          <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
+            Em breve
+          </span>
+        </div>
+        <div className="mt-3 flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => update({ gbp_connected: !data.gbp_connected })}
+            className={`relative h-6 w-11 rounded-full transition-colors ${
+              data.gbp_connected ? 'bg-primary' : 'bg-muted'
+            }`}
+          >
+            <span className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
+              data.gbp_connected ? 'translate-x-5' : ''
+            }`} />
+          </button>
+          <span className="text-sm text-muted-foreground">
+            {data.gbp_connected ? 'Marcado como conectado' : 'Pular por agora'}
+          </span>
+        </div>
       </div>
     </ScreenLayout>
   )
