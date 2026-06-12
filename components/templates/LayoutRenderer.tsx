@@ -11,6 +11,7 @@ import ConversaoLayout from './layouts/ConversaoLayout'
 import MagazineLayout from './layouts/MagazineLayout'
 import AcademiaLayout from './layouts/AcademiaLayout'
 import JovemLayout from './layouts/JovemLayout'
+import TechLayout from './layouts/TechLayout'
 
 interface Props {
   layout: LayoutId
@@ -29,6 +30,7 @@ const LAYOUT_MAP = {
   magazine: MagazineLayout,
   academia: AcademiaLayout,
   jovem: JovemLayout,
+  tech: TechLayout,
 } as const satisfies Record<LayoutId, React.ComponentType<{ c: SiteContent; p: PaletteColors; preview: boolean }>>
 
 export default function LayoutRenderer({ layout, c, p, preview = false }: Props) {

@@ -8,6 +8,7 @@ export type LayoutId =
   | 'magazine'
   | 'academia'
   | 'jovem'
+  | 'tech'
 
 export type Layout = {
   id: LayoutId
@@ -81,6 +82,13 @@ export const LAYOUTS: Layout[] = [
     description: 'Layout assimétrico, gradientes, tipografia grande. Energia e modernidade para públicos jovens.',
     recommendedFor: ['escola', 'landing', 'servicos'],
     sections: ['nav-minimal', 'hero-asymmetric', 'services-offset', 'about-numbers', 'portfolio-scatter', 'testimonials-modern', 'blog', 'faq', 'cta-gradient', 'footer'],
+  },
+  {
+    id: 'tech',
+    name: 'Tech Neon',
+    description: 'Dark theme com gradientes neon, glow blobs, hero assimétrico 3fr/2fr, masonry de serviços. Energia digital e futurista.',
+    recommendedFor: ['servicos', 'landing', 'escola', 'institucional'],
+    sections: ['nav-glass', 'hero-asymmetric', 'strip', 'stats', 'masonry-services', 'about-glow', 'testimonial-center', 'blog', 'faq', 'cta-glow', 'footer'],
   },
 ]
 

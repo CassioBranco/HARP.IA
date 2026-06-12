@@ -4,7 +4,8 @@ import { hasSupabaseEnv } from '@/lib/env'
 import { getPalette } from '@/lib/templates/palettes'
 import LayoutRenderer from '@/components/templates/LayoutRenderer'
 import type { LayoutId } from '@/lib/templates/layouts'
-import type { SiteContent, PaletteColors } from '@/lib/templates/types'
+import type { SiteContent } from '@/lib/templates/example-content'
+import type { PaletteColors } from '@/lib/templates/palettes'
 import type { Metadata } from 'next'
 
 type Props = { params: Promise<{ domain: string }> }
@@ -60,11 +61,11 @@ function buildJsonLd(site: {
     areaServed: city ? { '@type': 'City', name: city } : undefined,
   }
 
-  const faqItems = (content.faq ?? []).slice(0, 6)
+  const faqItems = (content.faqs ?? []).slice(0, 6)
   const faqSchema = faqItems.length >= 6 ? {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
-    mainEntity: faqItems.map(f => ({
+    mainEntity: faqItems.map((f: { question: string; answer: string }) => ({
       '@type': 'Question',
       name: f.question,
       acceptedAnswer: { '@type': 'Answer', text: f.answer },
@@ -165,23 +166,27 @@ export default async function PublishedSitePage({ params }: Props) {
   const faqSec = sectionMap['faq']    as { items?: { question: string; answer: string }[] } | undefined
   const meta   = sectionMap['meta']   as { title?: string; description?: string; keywords?: string[] } | undefined
 
+  const rawServices = svcs?.items ?? (profile?.services as { name: string; description: string; icon?: string }[] | null) ?? []
   const content: SiteContent = {
-    businessName:  profile?.business_name ?? hero?.headline ?? domain,
-    tagline:       hero?.sub ?? '',
-    heroTitle:     hero?.headline ?? '',
-    heroSubtitle:  hero?.sub ?? '',
-    ctaLabel:      hero?.cta_label ?? 'Falar conosco',
-    ctaPhone:      hero?.cta_phone ?? '',
-    aboutTitle:    about?.title ?? 'Sobre nós',
-    aboutText:     about?.body ?? '',
-    credential:    about?.credential ?? (profile?.credentials ?? []).join(', '),
-    services:      svcs?.items ?? (profile?.services as { name: string; description: string }[] | null) ?? [],
-    testimonials:  testi?.items ?? [],
-    faq:           faqSec?.items ?? [],
-    metaTitle:     meta?.title ?? page?.title ?? domain,
-    metaDesc:      meta?.description ?? page?.meta_description ?? '',
-    city:          profile?.city ?? '',
-    niche:         site.niche ?? 'servicos',
+    businessName:    profile?.business_name ?? hero?.headline ?? domain,
+    tagline:         hero?.sub ?? '',
+    heroHeadline:    hero?.headline ?? '',
+    heroSub:         hero?.sub ?? '',
+    ctaLabel:        hero?.cta_label ?? 'Falar conosco',
+    ctaPhone:        hero?.cta_phone ?? '',
+    about:           about?.body ?? '',
+    credential:      about?.credential ?? (profile?.credentials ?? []).join(', '),
+    services:        rawServices.map(s => ({ name: s.name, description: s.description, icon: s.icon ?? '⭐' })),
+    testimonials:    (testi?.items ?? []).map(t => ({ name: t.name, text: t.text, rating: t.rating ?? 5 })),
+    faqs:            faqSec?.items ?? [],
+    city:            profile?.city ?? '',
+    state:           '',
+    address:         '',
+    whatsapp:        profile?.phone ?? '',
+    email:           '',
+    schemaType:      site.niche ?? 'servicos',
+    yearsExperience: profile?.years_experience ?? 0,
+    blogPosts:       [],
   }
 
   const palette = getPalette(site.niche ?? 'servicos', site.palette_index ?? 0) as PaletteColors
