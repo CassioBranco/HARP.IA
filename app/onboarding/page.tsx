@@ -27,12 +27,16 @@ import {
   nicheToSlug,
   areaTipoFromPorte,
   slugifyBusiness,
+  guessNiche,
+  catOfNiche,
 } from './data'
 import '@phosphor-icons/web/fill'
 import '@phosphor-icons/web/duotone'
 import './onboarding.css'
 
 const TOTAL = 7
+// SEO mínimo pra liberar a geração — abaixo disso o site nasce sem chance real de aparecer
+const MIN_SEO = 55
 
 type CityResult = { name: string; state: string; lat?: number; lng?: number }
 
@@ -46,7 +50,7 @@ export default function OnboardingPage() {
   const [about, setAbout] = useState('')
   const [cat, setCat] = useState('saude')
   const [niche, setNiche] = useState('Clínica médica')
-  const [guess] = useState('Clínica médica')
+  const [segTouched, setSegTouched] = useState(false)
   const [otherActive, setOtherActive] = useState(false)
   const [registro, setRegistro] = useState('')
   const [segQuery, setSegQuery] = useState('')
@@ -69,7 +73,11 @@ export default function OnboardingPage() {
   const [loadStep, setLoadStep] = useState(0)
   const [diagModal, setDiagModal] = useState(false)
   const [genError, setGenError] = useState('')
+  const [screenError, setScreenError] = useState('')
   const [mounted, setMounted] = useState(false)
+
+  // palpite de nicho a partir do texto livre (reativo, não fixo)
+  const guess = useMemo(() => guessNiche(about), [about])
 
   const auraRef = useRef<HTMLDivElement>(null)
   const profileIdRef = useRef<string | null>(null)
@@ -149,11 +157,55 @@ export default function OnboardingPage() {
   useEffect(() => {
     if (!mounted) return
     scheduleSave()
+    setScreenError('') // editar qualquer campo limpa o erro de validação
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     objetivo, businessName, about, cat, niche, otherActive, registro,
     porte, radiusKm, areaText, city, uf, gpeModo, gpeLink, answers, dominioModo,
   ])
+
+  // pré-seleciona categoria + nicho pelo palpite, até o cliente escolher na mão
+  useEffect(() => {
+    if (!guess || segTouched) return
+    const gc = catOfNiche(guess)
+    if (gc) {
+      setCat(gc)
+      setNiche(guess)
+      setOtherActive(false)
+    }
+  }, [guess, segTouched])
+
+  // ── validação por tela: trava o avanço sem os campos críticos ──
+  const validateScreen = useCallback(
+    (s: number): string | null => {
+      if (s === 1) {
+        if (!businessName.trim()) return 'Dá um nome pro seu negócio pra continuar.'
+      }
+      if (s === 2) {
+        if (about.trim().length < 10)
+          return 'Conta um pouquinho do que você faz — a IA usa isso pra escrever o seu site.'
+        if (!niche.trim()) return 'Escolha ou digite o segmento do seu negócio.'
+        if (REGULATED[niche] && !registro.trim())
+          return `${REGULATED[niche]} é obrigatório para profissão regulada.`
+      }
+      if (s === 3) {
+        const area = areaTipoFromPorte(porte)
+        if (area !== 'nacional' && !city.trim())
+          return 'Diga em qual cidade fica a base do seu negócio.'
+        if (area === 'regional' && !areaText.trim())
+          return 'Informe as regiões ou estados que você atende.'
+      }
+      if (s === 4) {
+        if (gpeModo === 'vincular') {
+          if (!gpeLink.trim())
+            return 'Cole o link do seu Perfil de Empresa, ou escolha “Criar agora” / “Continuar sem perfil”.'
+          if (gpeErr) return 'Esse link não parece ser do Google. Confira e cole de novo.'
+        }
+      }
+      return null
+    },
+    [businessName, about, niche, registro, porte, city, areaText, gpeModo, gpeLink, gpeErr]
+  )
 
   // ── navegação ─────────────────────────────────────────────
   const auraBurst = useCallback(() => {
@@ -171,13 +223,21 @@ export default function OnboardingPage() {
 
   const go = useCallback(
     (d: number) => {
+      if (d > 0) {
+        const err = validateScreen(screen)
+        if (err) {
+          setScreenError(err)
+          return
+        }
+      }
+      setScreenError('')
       setScreen((s) => {
         const ns = Math.max(0, Math.min(TOTAL - 1, s + d))
         return ns
       })
       auraBurst()
     },
-    [auraBurst]
+    [auraBurst, validateScreen, screen]
   )
   const jump = useCallback(
     (ns: number) => {
@@ -195,6 +255,7 @@ export default function OnboardingPage() {
 
   // ── tela 3: categoria/nicho ───────────────────────────────
   function pickCat(id: string) {
+    setSegTouched(true)
     setCat(id)
     const first = CATS.find((c) => c[0] === id)?.[3][0] ?? ''
     setNiche(first)
@@ -202,10 +263,12 @@ export default function OnboardingPage() {
     setSegQuery('')
   }
   function pickNiche(n: string) {
+    setSegTouched(true)
     setNiche(n)
     setOtherActive(false)
   }
   function activateOther() {
+    setSegTouched(true)
     setOtherActive(true)
     setNiche('')
   }
@@ -218,12 +281,14 @@ export default function OnboardingPage() {
     return all.filter((x) => x[0].toLowerCase().includes(q))
   }, [segQuery])
   function pickFromSearch(catId: string, n: string) {
+    setSegTouched(true)
     setCat(catId)
     setNiche(n)
     setOtherActive(false)
     setSegQuery('')
   }
   function useTypedSeg() {
+    setSegTouched(true)
     setNiche(segQuery.trim())
     setOtherActive(true)
     setSegQuery('')
@@ -293,12 +358,98 @@ export default function OnboardingPage() {
     return { p, label, color }
   }, [answers])
 
+  // ── score real de SEO (pesos por impacto em busca local/GEO) ──
+  const seo = useMemo(() => {
+    const aboutLen = about.trim().length
+    const items = [
+      {
+        key: 'gpe',
+        screen: 4,
+        label: 'Perfil de Empresa no Google',
+        got: gpeModo === 'sem' ? 0 : 25,
+        max: 25,
+        hint: 'Vincule ou crie seu Perfil do Google (tela 5). É o que mais traz cliente da sua região.',
+      },
+      {
+        key: 'eeat',
+        screen: 5,
+        label: 'Conhecimento (E-E-A-T)',
+        got: Math.round((authority.p / 100) * 20),
+        max: 20,
+        hint: 'Responda o que só quem é da área sabe (tela 6). Vira autoridade real pro Google e pras IAs.',
+      },
+      {
+        key: 'loc',
+        screen: 3,
+        label: 'Cidade-base',
+        got: city.trim() ? 15 : 0,
+        max: 15,
+        hint: 'Informe a cidade-base do negócio (tela 4) pra aparecer nas buscas locais.',
+      },
+      {
+        key: 'desc',
+        screen: 2,
+        label: 'Descrição do negócio',
+        got: Math.round(Math.min(1, aboutLen / 120) * 12),
+        max: 12,
+        hint: 'Conte mais sobre o que você faz (tela 3). Quanto mais detalhe, melhor o texto da IA.',
+      },
+      {
+        key: 'seg',
+        screen: 2,
+        label: 'Segmento definido',
+        got: niche.trim() ? 10 : 0,
+        max: 10,
+        hint: 'Escolha o segmento do negócio (tela 3).',
+      },
+      {
+        key: 'dom',
+        screen: 6,
+        label: 'Domínio próprio',
+        got: dominioModo === 'proprio' ? 10 : 4,
+        max: 10,
+        hint: 'Use domínio próprio (tela 7). A autoridade fica com você, não diluída na plataforma.',
+      },
+      {
+        key: 'nome',
+        screen: 1,
+        label: 'Nome do negócio',
+        got: businessName.trim() ? 8 : 0,
+        max: 8,
+        hint: 'Dê um nome ao negócio (tela 2).',
+      },
+    ]
+    const total = items.reduce((a, b) => a + b.got, 0)
+    const label = total < 40 ? 'Fraco' : total < MIN_SEO ? 'Em construção' : total < 80 ? 'Bom' : 'Forte'
+    const color = total < 40 ? '#f87171' : total < MIN_SEO ? '#f5a30a' : total < 80 ? '#8fc0ff' : '#22c55e'
+    const gaps = items
+      .filter((i) => i.got < i.max)
+      .sort((a, b) => b.max - b.got - (a.max - a.got))
+    return { items, total, label, color, gaps, ok: total >= MIN_SEO }
+  }, [businessName, about, niche, city, gpeModo, authority.p, dominioModo])
+
   // ── tela 7: domínio ───────────────────────────────────────
   const slug = useMemo(() => slugifyBusiness(businessName), [businessName])
 
   // ── gerar (Fase 1: salva e entrega ao seletor de modelo) ──
   async function handleGenerate() {
     setGenError('')
+    // revalida as telas críticas; se faltar algo, leva o cliente até lá
+    for (const s of [1, 2, 3, 4]) {
+      const err = validateScreen(s)
+      if (err) {
+        setScreen(s)
+        setScreenError(err)
+        return
+      }
+    }
+    // barra a geração se o SEO não passa do mínimo pra aparecer no Google
+    if (!seo.ok) {
+      setGenError(
+        `Seu SEO está em ${seo.total}% — o mínimo pra começar a aparecer no Google é ${MIN_SEO}%. Reforce os pontos indicados acima.`
+      )
+      return
+    }
     setOverlay(true)
     setLoadStep(0)
     await flushSave()
@@ -400,9 +551,19 @@ export default function OnboardingPage() {
             </span>{' '}
             HARPIA
           </div>
-          <div className={`save${saving ? ' saving' : ''}`}>
-            <span className="dot" />
-            <span>{saving ? 'Salvando…' : 'Salvo'}</span>
+          <div className="head-right">
+            <div className="seo-chip" title="Força de SEO do seu site">
+              <i className="ph-fill ph-gauge" style={{ color: seo.color }} />
+              <span>SEO</span>
+              <b style={{ color: seo.color }}>{seo.total}%</b>
+              <span className="seo-chip-lbl" style={{ color: seo.color }}>
+                {seo.label}
+              </span>
+            </div>
+            <div className={`save${saving ? ' saving' : ''}`}>
+              <span className="dot" />
+              <span>{saving ? 'Salvando…' : 'Salvo'}</span>
+            </div>
           </div>
         </header>
 
@@ -488,7 +649,8 @@ export default function OnboardingPage() {
                 </div>
                 <h1 className="q">Conte rapidinho o que você faz</h1>
                 <p className="hint">
-                  Pode ser informal, a gente usa pra escrever os textos e escolher o segmento.
+                  Pode ser informal. A nossa IA usa o que você escrever aqui pra gerar os textos do
+                  seu site e sugerir o segmento.
                 </p>
                 <textarea
                   className="field"
@@ -808,7 +970,9 @@ export default function OnboardingPage() {
                       <span>
                         <b>SEO mínimo:</b> sem o Perfil de Empresa, seu negócio não aparece no mapa
                         nem nas buscas locais do Google (&quot;perto de mim&quot;), a visibilidade
-                        que mais traz cliente da sua região.
+                        que mais traz cliente da sua região.{' '}
+                        <b>Você pode vincular ou criar o perfil depois</b>, direto no painel, quando
+                        quiser.
                       </span>
                     </div>
                   )}
@@ -1032,6 +1196,47 @@ export default function OnboardingPage() {
                   </button>
                 </div>
 
+                {/* medidor de SEO + o que melhora */}
+                <div className={`seo-card${seo.ok ? ' ok' : ''}`}>
+                  <div className="seo-card-top">
+                    <i className="ph-fill ph-gauge" style={{ color: seo.color }} />
+                    <div className="seo-card-h">
+                      <b>Força de SEO do seu site</b>
+                      <span style={{ color: seo.color }}>
+                        {seo.total}% · {seo.label}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="seo-bar">
+                    <i style={{ width: `${seo.total}%`, background: seo.color }} />
+                    <span className="seo-min" style={{ left: `${MIN_SEO}%` }} title={`Mínimo: ${MIN_SEO}%`} />
+                  </div>
+                  {seo.ok ? (
+                    <p className="seo-msg good">
+                      <i className="ph-fill ph-check-circle" /> Seu site já tem força pra começar a
+                      aparecer no Google. Quer subir ainda mais? Reforce os pontos abaixo.
+                    </p>
+                  ) : (
+                    <p className="seo-msg bad">
+                      <i className="ph-fill ph-warning-circle" /> Ainda falta pra seu site começar a
+                      aparecer no Google. Reforce pelo menos um ponto abaixo pra liberar a geração.
+                    </p>
+                  )}
+                  {seo.gaps.length > 0 && (
+                    <div className="seo-gaps">
+                      {seo.gaps.slice(0, 3).map((g) => (
+                        <button key={g.key} className="seo-gap" onClick={() => jump(g.screen)}>
+                          <i className="ph-fill ph-arrow-up-right" />
+                          <span>
+                            <b>+{g.max - g.got} pts · {g.label}</b>
+                            <span>{g.hint}</span>
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
                 {genError && (
                   <div className="err">
                     <i className="ph-fill ph-warning-circle" /> {genError}
@@ -1047,6 +1252,13 @@ export default function OnboardingPage() {
           </section>
         </div>
 
+        {/* erro de validação da tela atual */}
+        {screenError && (
+          <div className="ob-screen-err" role="alert">
+            <i className="ph-fill ph-warning-circle" /> {screenError}
+          </div>
+        )}
+
         {/* footer */}
         <footer className="foot">
           <button
@@ -1057,7 +1269,12 @@ export default function OnboardingPage() {
             <i className="ph-duotone ph-arrow-left" /> Voltar
           </button>
           {isLastScreen ? (
-            <button className="btn amber big" onClick={handleGenerate}>
+            <button
+              className="btn amber big"
+              onClick={handleGenerate}
+              disabled={!seo.ok}
+              title={seo.ok ? '' : `SEO ${seo.total}% — mínimo ${MIN_SEO}% pra liberar`}
+            >
               Gerar meu site <i className="ph-fill ph-rocket-launch" />
             </button>
           ) : (

@@ -282,6 +282,43 @@
 .ob-page .err i { color: #f87171; font-size: 1.1rem; }
 @keyframes ob-shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
 
+/* erro de validação de tela (acima do rodapé) */
+.ob-page .ob-screen-err { display: flex; align-items: center; gap: .6rem; margin: 0 1.7rem; background: rgba(220,38,38,.16); border: 1px solid rgba(248,113,113,.5); color: #fecaca; border-radius: 12px; padding: .7rem .95rem; font-size: .86rem; animation: ob-shake .4s; }
+.ob-page .ob-screen-err i { color: #f87171; font-size: 1.1rem; flex: none; }
+
+/* chip de SEO no header (sempre visível) */
+.ob-page .head-right { display: flex; align-items: center; gap: .9rem; }
+.ob-page .seo-chip { display: flex; align-items: center; gap: .4rem; font-size: .8rem; font-weight: 600; color: #bcd0ea; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); border-radius: 999px; padding: .32rem .7rem; }
+.ob-page .seo-chip i { font-size: 1rem; }
+.ob-page .seo-chip b { font-weight: 800; }
+.ob-page .seo-chip-lbl { font-weight: 700; }
+@media (max-width: 560px) { .ob-page .seo-chip-lbl { display: none; } }
+
+/* medidor de SEO na tela final */
+.ob-page .seo-card { margin: 1.4rem 0 0; padding: 1.1rem 1.2rem; border-radius: 16px; background: rgba(248,163,10,.07); border: 1px solid rgba(245,163,10,.32); }
+.ob-page .seo-card.ok { background: rgba(34,197,94,.07); border-color: rgba(34,197,94,.32); }
+.ob-page .seo-card-top { display: flex; align-items: center; gap: .7rem; }
+.ob-page .seo-card-top > i { font-size: 1.7rem; }
+.ob-page .seo-card-h { display: flex; flex-direction: column; }
+.ob-page .seo-card-h b { font-family: 'Plus Jakarta Sans'; font-size: 1rem; color: #eaf1fb; }
+.ob-page .seo-card-h span { font-size: .9rem; font-weight: 700; }
+.ob-page .seo-bar { position: relative; height: 9px; border-radius: 999px; background: rgba(255,255,255,.1); margin: .85rem 0 .2rem; overflow: hidden; }
+.ob-page .seo-bar i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 999px; transition: width .35s ease, background .35s ease; }
+.ob-page .seo-min { position: absolute; top: -3px; bottom: -3px; width: 2px; background: rgba(255,255,255,.55); border-radius: 2px; overflow: visible; }
+.ob-page .seo-msg { display: flex; align-items: flex-start; gap: .5rem; font-size: .87rem; margin: .8rem 0 0; }
+.ob-page .seo-msg i { font-size: 1.05rem; flex: none; margin-top: .05rem; }
+.ob-page .seo-msg.good { color: #aef0c4; }
+.ob-page .seo-msg.good i { color: #22c55e; }
+.ob-page .seo-msg.bad { color: #fcd9a6; }
+.ob-page .seo-msg.bad i { color: #f5a30a; }
+.ob-page .seo-gaps { display: flex; flex-direction: column; gap: .5rem; margin-top: .9rem; }
+.ob-page .seo-gap { display: flex; align-items: flex-start; gap: .6rem; text-align: left; width: 100%; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.09); border-radius: 12px; padding: .65rem .8rem; color: #cdd9e8; cursor: pointer; transition: background .15s, border-color .15s; }
+.ob-page .seo-gap:hover { background: rgba(74,134,245,.12); border-color: rgba(74,134,245,.4); }
+.ob-page .seo-gap > i { font-size: 1rem; color: #8fc0ff; flex: none; margin-top: .15rem; }
+.ob-page .seo-gap span { display: flex; flex-direction: column; gap: .15rem; }
+.ob-page .seo-gap b { font-size: .87rem; color: #eaf1fb; }
+.ob-page .seo-gap span span { font-size: .8rem; color: #9fb2cc; font-weight: 500; }
+
 /* empty state (city) */
 .ob-page .empty { padding: 1.4rem; text-align: center; color: #8aa0b6; font-size: .86rem; }
 .ob-page .empty i { display: block; font-size: 1.6rem; color: #5d6b82; margin-bottom: .4rem; }

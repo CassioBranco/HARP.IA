@@ -106,6 +106,80 @@ export function areaTipoFromPorte(porte: Porte): 'local' | 'regional' | 'naciona
   return 'nacional'
 }
 
+// Categoria (id) que contém um dado nicho/label
+export function catOfNiche(label: string): string | null {
+  const f = CATS.find((c) => c[3].includes(label))
+  return f ? f[0] : null
+}
+
+// Adivinha o nicho a partir do texto livre "o que você faz".
+// Best-effort por palavras-chave. Retorna null quando não dá pra inferir
+// com confiança (melhor nenhum palpite do que um errado).
+export function guessNiche(text: string): string | null {
+  const t = (text || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+  if (t.trim().length < 3) return null
+  const KW: [RegExp, string][] = [
+    [/(clinic|medic|consultori|pediatr|cardiolog|dermatolog|ortoped)/, 'Clínica médica'],
+    [/(dent|odonto|ortodont|implante dent)/, 'Odontologia'],
+    [/(psicolog|terapeut|terapia)/, 'Psicologia'],
+    [/(fisioterap|\bfisio\b|pilates)/, 'Fisioterapia'],
+    [/(veterinari|veterinar)/, 'Veterinária'],
+    [/(nutri|dieta)/, 'Nutrição'],
+    [/(otic|optic|oculos|lente de grau)/, 'Óptica'],
+    [/(chaveiro|chave)/, 'Chaveiro'],
+    [/(eletricist|instalacao eletric)/, 'Eletricista'],
+    [/(encanad|hidraulic)/, 'Encanador'],
+    [/(reforma|pedreiro|construc|\bobra)/, 'Reformas'],
+    [/(dedetiz|controle de pragas|\bpragas)/, 'Dedetização'],
+    [/(limpeza|faxina|diarist)/, 'Limpeza'],
+    [/(jardin|paisag)/, 'Jardinagem'],
+    [/(mecanic|oficina)/, 'Mecânica'],
+    [/(auto.?eletric)/, 'Auto elétrica'],
+    [/(funilaria|lanternag|pintura de carr)/, 'Funilaria e pintura'],
+    [/(lava.?rapid|lavagem de carr|estetica automot)/, 'Lava-rápido'],
+    [/(borrach|\bpneu)/, 'Borracharia'],
+    [/(insulfilm|som automot|acessorio.*autom)/, 'Som e acessórios'],
+    [/(salao|cabelei|cabelo)/, 'Salão'],
+    [/(barbear|barbeiro)/, 'Barbearia'],
+    [/(estetic|skincare|limpeza de pele)/, 'Estética'],
+    [/(manicure|\bunha|nail)/, 'Manicure'],
+    [/(tatuage|tattoo)/, 'Tatuagem'],
+    [/(depila|\bcera\b)/, 'Depilação'],
+    [/(restaurante|almoco|\bjantar|comida)/, 'Restaurante'],
+    [/(lanchonet|\blanche|salgad)/, 'Lanchonete'],
+    [/(confeitar|\bbolo|\bdoce)/, 'Confeitaria'],
+    [/(pizza)/, 'Pizzaria'],
+    [/(cafeteria|\bcafe\b|coffee)/, 'Cafeteria'],
+    [/(hamburg|burguer|burger)/, 'Hamburgueria'],
+    [/(idioma|ingles|espanhol)/, 'Escola de idiomas'],
+    [/(reforco escolar|aula particular)/, 'Reforço escolar'],
+    [/(curso tecnic|profissionaliz)/, 'Curso técnico'],
+    [/(autoescola|auto.?escola|\bcnh\b|habilita)/, 'Autoescola'],
+    [/(advog|advocac|juridic|\bdireito)/, 'Advocacia'],
+    [/(contabil|contador)/, 'Contabilidade'],
+    [/(arquitet)/, 'Arquitetura'],
+    [/(consultor)/, 'Consultoria'],
+    [/(marketing|trafego|social media|agencia)/, 'Marketing'],
+    [/(imobili|imovel|imoveis|corretor de imov)/, 'Imobiliária'],
+    [/(roupa|\bmoda|vestuario|boutique)/, 'Loja de roupas'],
+    [/(pet.?shop)/, 'Pet shop'],
+    [/(papelaria)/, 'Papelaria'],
+    [/(material de constru|materiais de constru)/, 'Loja de materiais'],
+    [/(farmacia|drogaria)/, 'Farmácia'],
+    [/(flores|floricultura|buque)/, 'Floricultura'],
+    [/(buffet|bufe)/, 'Buffet'],
+    [/(fotograf)/, 'Fotografia'],
+    [/(aluguel de festa|decoracao de festa)/, 'Aluguel de festa'],
+    [/(academia|crossfit|muscula)/, 'Academia'],
+    [/(\bdanca|ballet|zumba)/, 'Estúdio de dança'],
+  ]
+  for (const [re, label] of KW) if (re.test(t)) return label
+  return null
+}
+
 // Slug do domínio a partir do nome do negócio
 export function slugifyBusiness(name: string): string {
   return (
