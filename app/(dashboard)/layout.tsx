@@ -21,6 +21,7 @@ export default async function DashboardLayout({
   let userEmail = ''
   let bizName = ''
   let plan = ''
+  let gpeConnected = true // assume ok; só avisa se houver perfil e não estiver vinculado
   if (hasSupabaseEnv()) {
     try {
       const supabase = await createServerClient()
@@ -37,12 +38,14 @@ export default async function DashboardLayout({
         if (u?.tenant_id) {
           const { data: prof } = await supabase
             .from('onboarding_profiles')
-            .select('business_name')
+            .select('business_name, gpe_modo')
             .eq('tenant_id', u.tenant_id)
             .order('created_at', { ascending: false })
             .limit(1)
             .maybeSingle()
           bizName = prof?.business_name ?? ''
+          // só avisa se o cliente já passou pelo onboarding e o Google não está vinculado
+          if (prof && prof.gpe_modo && prof.gpe_modo !== 'vincular') gpeConnected = false
         }
       }
     } catch {
@@ -81,7 +84,20 @@ export default async function DashboardLayout({
           </div>
         </aside>
 
-        <main className="main">{children}</main>
+        <main className="main">
+          {!gpeConnected && (
+            <div className="gpe-banner" role="alert">
+              <i className="ph-fill ph-warning" />
+              <span>
+                <b>Conecte seu Perfil de Empresa no Google pro seu site aparecer.</b> Enquanto o
+                Perfil não estiver conectado, seu site não aparece nas buscas do Google — que é o que
+                mais traz cliente da sua região.
+              </span>
+              <Link href="/settings" className="gpe-banner-cta">Conectar agora</Link>
+            </div>
+          )}
+          {children}
+        </main>
       </div>
     </div>
   )
