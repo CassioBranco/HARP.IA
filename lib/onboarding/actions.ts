@@ -7,6 +7,7 @@
 // ============================================================
 
 import { createServerClient } from '@/lib/supabase/server'
+import { ensureTenantProfile } from '@/lib/auth/provision'
 import {
   type OnboardingProfileInput,
   type SaveResult,
@@ -54,6 +55,20 @@ function resolvePreset(profile: { setor?: string | null; niche?: string | null }
   const byNiche = profile?.niche ? SETOR_TO_PRESET[profile.niche] : undefined
   if (byNiche) return byNiche
   return 'servicos'
+}
+
+// Resolve o tenant do usuário de forma resiliente: tenta o valor já lido via
+// RLS; se vier nulo (RLS bloqueando o SELECT em users, ou conta sem provisionar),
+// recorre ao admin client, que ignora RLS — devolve o tenant existente ou cria.
+// Lança erro com a causa real (ex.: service_role inválida) pra UI exibir.
+async function resolveTenantId(
+  userId: string,
+  displayName: string,
+  knownTenantId?: string | null
+): Promise<string> {
+  if (knownTenantId) return knownTenantId
+  const prov = await ensureTenantProfile(userId, displayName)
+  return prov.tenantId
 }
 
 // Remove chaves undefined pra não sobrescrever colunas no update parcial.
@@ -155,8 +170,12 @@ export async function createSiteFromProfile(): Promise<StartGenerationResult> {
     .select('tenant_id, tenants(sites_allowed)')
     .eq('id', user.id)
     .single()
-  const tenantId = userData?.tenant_id
-  if (!tenantId) return { ok: false, error: 'tenant_not_found' }
+  let tenantId: string
+  try {
+    tenantId = await resolveTenantId(user.id, user.email ?? 'Minha conta', userData?.tenant_id)
+  } catch (e) {
+    return { ok: false, error: `provision_failed: ${e instanceof Error ? e.message : String(e)}` }
+  }
 
   // Perfil mais recente do usuário
   const { data: profile } = await supabase
@@ -249,8 +268,12 @@ export async function createSiteWithModel(
     .select('tenant_id, tenants(sites_allowed)')
     .eq('id', user.id)
     .single()
-  const tenantId = userData?.tenant_id
-  if (!tenantId) return { ok: false, error: 'tenant_not_found' }
+  let tenantId: string
+  try {
+    tenantId = await resolveTenantId(user.id, user.email ?? 'Minha conta', userData?.tenant_id)
+  } catch (e) {
+    return { ok: false, error: `provision_failed: ${e instanceof Error ? e.message : String(e)}` }
+  }
 
   const { data: profile } = await supabase
     .from('onboarding_profiles')
