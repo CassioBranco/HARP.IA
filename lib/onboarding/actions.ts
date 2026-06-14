@@ -26,6 +26,36 @@ function calcCompleteness(input: OnboardingProfileInput): number {
   return Math.round((filled / total) * 100)
 }
 
+// ── Mapa setor → preset/niche legado ────────────────────────
+// As colunas sites.preset e sites.niche nasceram com enums fixos (antes da
+// taxonomia setor→profissão). O onboarding v2 grava `setor` (10 setores) e
+// `profissao` (slug livre). Aqui traduzimos pro vocabulário legado de preset,
+// que dirige paleta/conteúdo. Sem isso, o INSERT viola o CHECK e o site não
+// é criado. Todos os valores abaixo são válidos tanto em preset quanto niche.
+const SETOR_TO_PRESET: Record<string, string> = {
+  saude: 'clinica',
+  juridico_financeiro: 'servicos',
+  beleza: 'salao',
+  alimentacao: 'restaurante',
+  casa_construcao: 'servicos',
+  automotivo: 'servicos',
+  educacao: 'escola',
+  imobiliario: 'imobiliaria',
+  comercio: 'servicos',
+  servicos: 'servicos',
+}
+
+// Traduz o perfil pra um preset/niche legado válido (8 valores aceitos pelo
+// CHECK de sites.preset). Fallback seguro: 'servicos' (curinga LocalBusiness).
+function resolvePreset(profile: { setor?: string | null; niche?: string | null } | null): string {
+  const bySetor = profile?.setor ? SETOR_TO_PRESET[profile.setor] : undefined
+  if (bySetor) return bySetor
+  // niche legado já pode ser um valor válido (ex.: registros antigos)
+  const byNiche = profile?.niche ? SETOR_TO_PRESET[profile.niche] : undefined
+  if (byNiche) return byNiche
+  return 'servicos'
+}
+
 // Remove chaves undefined pra não sobrescrever colunas no update parcial.
 function pruneUndefined<T extends Record<string, unknown>>(obj: T): Partial<T> {
   const out: Partial<T> = {}
@@ -156,7 +186,7 @@ export async function createSiteFromProfile(): Promise<StartGenerationResult> {
     return { ok: false, error: 'site_limit' }
   }
 
-  const presetKey = profile.profissao ?? profile.niche ?? profile.setor ?? 'generico'
+  const presetKey = resolvePreset(profile)
 
   const { data: site, error: siteErr } = await supabase
     .from('sites')
@@ -165,7 +195,7 @@ export async function createSiteFromProfile(): Promise<StartGenerationResult> {
       preset: presetKey,
       niche: presetKey,
       palette_index: 0,
-      template: 'Clean',
+      template: 'clean',
       status: 'draft',
     })
     .select('id')
@@ -259,7 +289,7 @@ export async function createSiteWithModel(
     return { ok: false, error: 'site_limit' }
   }
 
-  const presetKey = profile?.profissao ?? profile?.niche ?? profile?.setor ?? 'servicos'
+  const presetKey = resolvePreset(profile)
 
   const { data: site, error: siteErr } = await supabase
     .from('sites')

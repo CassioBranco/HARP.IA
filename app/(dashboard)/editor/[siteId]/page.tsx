@@ -31,6 +31,7 @@ export default function EditorPage() {
   const [activeTab, setActiveTab] = useState<EditorTab>('customize')
   const [viewMode, setViewMode] = useState<ViewMode>('desktop')
   const [site, setSite] = useState<SiteData | null>(null)
+  const [loadError, setLoadError] = useState<string | null>(null)
   const [previewKey, setPreviewKey] = useState(0)
   const [, startTransition] = useTransition()
   const [publishing, setPublishing] = useState(false)
@@ -43,7 +44,10 @@ export default function EditorPage() {
       .select('id,niche,template,palette_index,palette,palette_name,font_pair,domain,status')
       .eq('id', siteId)
       .single()
-      .then(({ data }) => { if (data) setSite(data as SiteData) })
+      .then(({ data, error }) => {
+        if (data) setSite(data as SiteData)
+        else setLoadError(error?.message ?? 'Site não encontrado')
+      })
   }, [siteId])
 
   function refreshPreview() {
@@ -89,7 +93,17 @@ export default function EditorPage() {
   if (!site) {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
-        <div className="text-muted-foreground text-sm">Carregando editor...</div>
+        {loadError ? (
+          <div className="max-w-md text-center px-6">
+            <p className="text-red-500 text-sm font-medium">Não consegui abrir o editor.</p>
+            <p className="text-muted-foreground text-xs mt-2">{loadError}</p>
+            <a href="/sites" className="inline-block mt-4 rounded-md border border-border px-3 py-1.5 text-xs text-foreground hover:bg-muted">
+              Voltar pros meus sites
+            </a>
+          </div>
+        ) : (
+          <div className="text-muted-foreground text-sm">Carregando editor...</div>
+        )}
       </div>
     )
   }
