@@ -1,123 +1,88 @@
+// ============================================================
+// HARPIA — Shell do painel (liquid-glass). Portado de
+// design_handoff_harpia/painel/painel.css. Visual é o protótipo;
+// aqui mora só a fiação (auth, nome do tenant, plano, nav ativa).
+// ============================================================
 import Link from 'next/link'
 import { LogoutButton } from '@/components/draft/LogoutButton'
 import { hasSupabaseEnv } from '@/lib/env'
 import { createServerClient } from '@/lib/supabase/server'
+import PainelNav from './PainelNav'
 
-const NAV = [
-  { href: '/sites',    label: 'Meus sites',     icon: '🌐' },
-  { href: '/blog',     label: 'Blog',            icon: '✍️' },
-  { href: '/editor',   label: 'Editor',          icon: '🎨' },
-  { href: '/settings', label: 'Configurações',   icon: '⚙️' },
-]
+import '@phosphor-icons/web/fill'
+import '@phosphor-icons/web/duotone'
+import './painel.css'
 
 export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  // Tenta buscar email do usuário para exibir no sidebar
   let userEmail = ''
+  let bizName = ''
+  let plan = ''
   if (hasSupabaseEnv()) {
     try {
       const supabase = await createServerClient()
       const { data } = await supabase.auth.getUser()
       userEmail = data.user?.email ?? ''
+      if (data.user) {
+        const { data: u } = await supabase
+          .from('users')
+          .select('tenant_id, tenants(plan)')
+          .eq('id', data.user.id)
+          .single()
+        const t = u?.tenants as { plan?: string } | { plan?: string }[] | null
+        plan = (Array.isArray(t) ? t[0]?.plan : t?.plan) ?? ''
+        if (u?.tenant_id) {
+          const { data: prof } = await supabase
+            .from('onboarding_profiles')
+            .select('business_name')
+            .eq('tenant_id', u.tenant_id)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .maybeSingle()
+          bizName = prof?.business_name ?? ''
+        }
+      }
     } catch {
       // silencioso — não travar o layout por erro de auth
     }
   }
 
-  const initials = userEmail
-    ? userEmail.slice(0, 2).toUpperCase()
-    : '?'
+  const displayName = bizName || userEmail || 'Minha conta'
+  const initials = (bizName || userEmail || '?')
+    .split(/\s+/)
+    .map(w => w[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase()
+  const planLabel = plan ? `Plano ${plan.charAt(0).toUpperCase()}${plan.slice(1)}` : 'Trial Pro'
 
   return (
-    <div className="flex min-h-screen bg-background">
-
-      {/* Sidebar */}
-      <aside className="hidden w-60 shrink-0 flex-col border-r border-border bg-card md:flex">
-        {/* Logo */}
-        <div className="border-b border-border px-6 py-5">
-          <Link href="/sites" className="font-heading text-lg font-bold text-primary">
-            HARPIA
-          </Link>
-        </div>
-
-        {/* Nav */}
-        <nav className="flex-1 px-3 py-4">
-          <ul className="flex flex-col gap-1">
-            {NAV.map(item => (
-              <li key={item.href}>
-                <Link
-                  href={item.href}
-                  className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                >
-                  <span className="text-base">{item.icon}</span>
-                  {item.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-
-          {/* Divider */}
-          <div className="my-4 border-t border-border" />
-
-          <ul className="flex flex-col gap-1">
-            <li>
-              <Link
-                href="/onboarding"
-                className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-              >
-                <span className="text-base">🚀</span>
-                Novo site
-              </Link>
-            </li>
-          </ul>
-        </nav>
-
-        {/* Usuário + plano */}
-        <div className="border-t border-border px-4 py-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">
-              {initials}
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-xs font-medium text-foreground">
-                {userEmail || 'Usuário'}
-              </p>
-              <p className="text-[10px] text-muted-foreground">Trial Pro · 7 dias</p>
-            </div>
+    <div className="painel-shell">
+      <div className="aura" />
+      <div className="app">
+        <aside className="side">
+          <div className="brand">
+            <span className="mk"><i className="ph-fill ph-bird" /></span> HARPIA
           </div>
-          <LogoutButton />
-        </div>
-      </aside>
-
-      {/* Mobile header */}
-      <div className="flex flex-1 flex-col">
-        <header className="flex items-center justify-between border-b border-border px-4 py-3 md:hidden">
-          <Link href="/sites" className="font-heading text-base font-bold text-primary">
-            HARPIA
+          <PainelNav />
+          <Link href="/onboarding" className="nav-item">
+            <i className="ph-duotone ph-rocket-launch" /> Novo site
           </Link>
-          <div className="flex items-center gap-3">
-            {NAV.map(item => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="text-lg"
-                title={item.label}
-              >
-                {item.icon}
-              </Link>
-            ))}
+          <div className="foot">
+            <span className="avatar">{initials}</span>
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <div className="nm">{displayName}</div>
+              <div className="pl">{planLabel}</div>
+            </div>
+            <LogoutButton />
           </div>
-        </header>
+        </aside>
 
-        {/* Conteúdo principal */}
-        <main className="flex-1 p-6 md:p-8">
-          {children}
-        </main>
+        <main className="main">{children}</main>
       </div>
-
     </div>
   )
 }

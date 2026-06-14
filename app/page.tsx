@@ -1,269 +1,228 @@
+// ============================================================
+// HARPIA — Landing pública (Fase 6). Visual = protótipo landing.html
+// (liquid-glass dark). Fiação: CTAs → /signup e /login.
+// Stats e seção "o que muda" usam só fatos reais do produto — sem número
+// fabricado nem depoimento inventado (produto em beta fechado). Quando houver
+// prova social real (clientes, avaliações), dá pra reintroduzir aqui.
+// ============================================================
+import type { Metadata } from 'next'
 import Link from 'next/link'
+import LandingFloaters from './LandingFloaters'
+
+import '@phosphor-icons/web/fill'
+import '@phosphor-icons/web/duotone'
+import './landing.css'
+
+export const metadata: Metadata = {
+  title: 'HARPIA — seu site pronto pra aparecer no Google e nas IAs',
+  description:
+    'A HARPIA cria o site do seu negócio com IA, já otimizado para SEO, GEO e AEO. Você responde poucas perguntas e o site entra no ar pronto pra aparecer na busca. Comece grátis.',
+}
+
+const MODELS = [
+  { name: 'Clean', desc: 'Clínicas e consultórios', bg: 'linear-gradient(160deg,#0E7C86,#16B3A6)' },
+  { name: 'Profissional', desc: 'Advocacia e corporativo', bg: 'linear-gradient(160deg,#1E3A5F,#2C4E78)' },
+  { name: 'Conversão', desc: 'Serviços e emergência', bg: 'linear-gradient(160deg,#15425B,#1E6A8D)' },
+  { name: 'Academia', desc: 'Escolas e cursos', bg: 'linear-gradient(160deg,#1D4ED8,#60A5FA)' },
+]
+
+const FAQ = [
+  ['Preciso saber de tecnologia pra usar?', 'Não. Você responde poucas perguntas em português comum e a IA cuida de todo o resto: textos, estrutura e otimização pra busca.'],
+  ['O que são SEO, GEO e AEO?', 'SEO é aparecer no Google. GEO é ser citado pelas IAs como ChatGPT e Gemini. AEO é virar a resposta direta da busca e por voz. A HARPIA cuida dos três de uma vez.'],
+  ['Posso usar meu próprio domínio?', 'Sim, e é o recomendado pra força de SEO. Se não tiver um, a gente compra e configura pra você. Também dá pra começar com um subdomínio grátis.'],
+  ['O site é meu de verdade?', 'Sim. O conteúdo e o domínio são seus. Você edita tudo quando quiser e a autoridade de busca fica com o seu negócio.'],
+  ['Como funcionam os 7 dias grátis?', 'Você cria seu site e testa tudo sem cartão de crédito. Só decide assinar depois de ver o resultado pronto.'],
+  ['O blog escreve sozinho?', 'Sim. A IA usa o que você ensina sobre a sua área pra publicar artigos que constroem autoridade e melhoram seu ranqueamento ao longo do tempo.'],
+]
 
 export default function HomePage() {
   return (
-    <>
-      <link rel="preconnect" href="https://fonts.googleapis.com" />
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-      {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-      <link
-        rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap"
-      />
-      <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/duotone/style.css"
-      />
-      <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/fill/style.css"
-      />
+    <div className="lp">
+      <div className="aura" />
+      <LandingFloaters />
 
-      <style dangerouslySetInnerHTML={{ __html: `
-        :root {
-          --blue: #1455C9; --blue-d: #0E3E96; --blue-l: #3D7BEE;
-          --amber: #F5A30A; --amber-d: #C97F00;
-          --ink: #14213A; --muted: #5A6678;
-          --glass: rgba(255,255,255,.58);
-          --glass-line: rgba(255,255,255,.85);
-          --radius: 22px;
-        }
-        * { box-sizing: border-box; }
-        body {
-          margin: 0; font-family: 'Inter', system-ui, sans-serif; color: var(--ink);
-          min-height: 100vh; -webkit-font-smoothing: antialiased;
-          background:
-            radial-gradient(900px 600px at 12% -5%, #cfe4ff 0%, transparent 55%),
-            radial-gradient(800px 700px at 100% 0%, #d7f4ee 0%, transparent 50%),
-            radial-gradient(700px 600px at 80% 110%, #e7ddff 0%, transparent 55%),
-            linear-gradient(180deg, #eef4fc 0%, #e9f0f9 100%);
-          background-attachment: fixed;
-        }
-        .hp-page { position: relative; z-index: 1; max-width: 1180px; margin: 0 auto; padding: 1.4rem 2rem 4rem; }
-        h1, h2, h3, .hp-brand, .hp-display { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
-
-        /* NAV de vidro */
-        .hp-nav {
-          display: flex; align-items: center; justify-content: space-between;
-          padding: .7rem .8rem .7rem 1.4rem; border-radius: 999px;
-          background: var(--glass); backdrop-filter: blur(20px) saturate(170%); -webkit-backdrop-filter: blur(20px) saturate(170%);
-          border: 1px solid var(--glass-line);
-          box-shadow: 0 8px 30px rgba(20,33,58,.12), inset 0 1px 0 rgba(255,255,255,.9), inset 0 -1px 2px rgba(20,33,58,.06);
-        }
-        .hp-brand { font-weight: 800; font-size: 1.25rem; letter-spacing: -0.01em; color: var(--blue); display: flex; align-items: center; gap: .5rem; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
-        .hp-brand .hp-dot { width: 26px; height: 26px; border-radius: 9px; background: linear-gradient(160deg, #4a86f5, #1450c4); box-shadow: inset 0 1px 1px rgba(255,255,255,.7), inset 0 -2px 3px rgba(0,0,0,.25), 0 4px 10px rgba(20,80,196,.45); display: grid; place-items: center; color: #fff; }
-        .hp-nav-links { display: flex; gap: 1.6rem; align-items: center; font-size: .9rem; font-weight: 500; color: var(--muted); }
-        .hp-nav-links a { color: var(--muted); text-decoration: none; }
-        .hp-nav-links a:hover { color: var(--ink); }
-
-        /* BOTÕES físicos */
-        .hp-btn { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: .95rem; border: 0; cursor: pointer;
-          display: inline-flex; align-items: center; gap: .55rem; padding: .85rem 1.5rem; border-radius: 14px; color: #fff;
-          background: linear-gradient(180deg, #4a86f5 0%, #1d5fd4 48%, #1450c4 100%);
-          box-shadow:
-            inset 0 1px 0 rgba(255,255,255,.55),
-            inset 0 -2px 3px rgba(8,40,110,.55),
-            0 10px 20px -6px rgba(20,80,196,.6),
-            0 3px 6px rgba(20,33,58,.18);
-          transition: transform .08s ease, box-shadow .12s ease, filter .12s ease;
-          text-decoration: none;
-        }
-        .hp-btn:hover { filter: brightness(1.05); transform: translateY(-1px); }
-        .hp-btn:active { transform: translateY(1px);
-          box-shadow: inset 0 2px 5px rgba(8,40,110,.6), inset 0 1px 0 rgba(255,255,255,.25), 0 2px 5px rgba(20,33,58,.15); }
-        .hp-btn.hp-amber { background: linear-gradient(180deg, #ffc24d 0%, #f5a30a 50%, #d98c00 100%); color: #3a2600;
-          box-shadow: inset 0 1px 0 rgba(255,255,255,.7), inset 0 -2px 3px rgba(150,90,0,.55), 0 10px 20px -6px rgba(220,150,10,.6), 0 3px 6px rgba(20,33,58,.16); }
-        .hp-btn.hp-glass { background: linear-gradient(180deg, rgba(255,255,255,.9), rgba(255,255,255,.6)); color: var(--blue);
-          border: 1px solid rgba(255,255,255,.9);
-          box-shadow: inset 0 1px 0 rgba(255,255,255,.95), 0 8px 18px -6px rgba(20,33,58,.25), 0 2px 4px rgba(20,33,58,.1); }
-        .hp-btn.hp-sm { padding: .55rem 1.05rem; font-size: .85rem; border-radius: 11px; }
-
-        /* HERO */
-        .hp-hero { display: grid; grid-template-columns: 1.05fr .95fr; gap: 2.5rem; align-items: center; margin-top: 2.5rem; }
-        .hp-pill { display: inline-flex; align-items: center; gap: .5rem; font-size: .8rem; font-weight: 700; color: var(--blue-d);
-          background: linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,255,255,.65)); padding: .45rem .9rem; border-radius: 999px;
-          border: 1px solid rgba(255,255,255,.9); box-shadow: inset 0 1px 0 #fff, 0 4px 12px rgba(20,33,58,.1); margin-bottom: 1.5rem; }
-        .hp-pill i { color: var(--amber); }
-        .hp-hero h1 { font-size: clamp(2.4rem, 4.4vw, 3.6rem); line-height: 1.05; letter-spacing: -0.025em; margin: 0 0 1.2rem; font-weight: 800; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
-        .hp-hero h1 .hp-grad { background: linear-gradient(100deg, #1450c4, #3d8bee 60%, #16a8c0); -webkit-background-clip: text; background-clip: text; color: transparent; }
-        .hp-hero p { font-size: 1.12rem; line-height: 1.6; color: var(--muted); max-width: 30rem; margin: 0 0 2rem; }
-        .hp-hero-cta { display: flex; gap: .9rem; flex-wrap: wrap; align-items: center; }
-        .hp-reassure { margin-top: 1.4rem; font-size: .82rem; color: var(--muted); display: flex; align-items: center; gap: .5rem; }
-        .hp-reassure i { color: #1f9d57; }
-
-        /* CARD de site flutuante (tátil) */
-        .hp-float { position: relative; }
-        .hp-card {
-          background: rgba(255,255,255,.72); backdrop-filter: blur(14px) saturate(150%); -webkit-backdrop-filter: blur(14px) saturate(150%);
-          border-radius: var(--radius); border: 1px solid var(--glass-line); padding: 1.3rem;
-          box-shadow: 0 30px 60px -18px rgba(20,33,58,.32), 0 8px 20px rgba(20,33,58,.12), inset 0 1px 0 rgba(255,255,255,.9);
-        }
-        .hp-site-prev { border-radius: 16px; overflow: hidden; border: 1px solid rgba(20,33,58,.08); box-shadow: 0 10px 24px -10px rgba(20,33,58,.4); }
-        .hp-site-prev .hp-bar { display: flex; align-items: center; gap: .4rem; padding: .55rem .8rem; background: linear-gradient(180deg,#fbfdff,#eef3fa); border-bottom: 1px solid rgba(20,33,58,.07); }
-        .hp-site-prev .hp-bar i { width: 10px; height: 10px; border-radius: 50%; box-shadow: inset 0 -1px 1px rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.6); display: inline-block; }
-        .hp-site-prev .hp-bar .hp-r { background: #ff6b5e; } .hp-site-prev .hp-bar .hp-y { background: #ffce4f; } .hp-site-prev .hp-bar .hp-g { background: #54d27a; }
-        .hp-site-prev .hp-body { height: 150px; background: linear-gradient(160deg,#0E7C86,#16B3A6); position: relative; display: flex; align-items: flex-end; padding: 1rem; }
-        .hp-site-prev .hp-body::after { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 75% 25%, rgba(255,255,255,.25), transparent 55%); }
-        .hp-site-prev .hp-body b { color: #fff; font-family: 'Plus Jakarta Sans'; font-size: 1.1rem; position: relative; z-index: 2; }
-        .hp-card-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 1rem; }
-        .hp-card-foot .hp-name { font-weight: 700; font-size: .92rem; }
-        .hp-card-foot .hp-url { font-size: .76rem; color: var(--muted); }
-
-        /* dial de score 3D */
-        .hp-score { position: absolute; right: -1.4rem; top: -1.4rem; width: 104px; height: 104px; border-radius: 50%;
-          background: conic-gradient(var(--amber) 0 84%, rgba(20,33,58,.12) 84% 100%);
-          box-shadow: 0 14px 30px -8px rgba(220,150,10,.55), inset 0 2px 4px rgba(255,255,255,.5); display: grid; place-items: center; }
-        .hp-score .hp-inner { width: 78px; height: 78px; border-radius: 50%; background: linear-gradient(180deg,#ffffff,#eef3fa);
-          box-shadow: inset 0 2px 4px rgba(255,255,255,.9), inset 0 -3px 6px rgba(20,33,58,.12), 0 2px 6px rgba(20,33,58,.1);
-          display: grid; place-items: center; text-align: center; }
-        .hp-score .hp-inner b { font-family: 'Plus Jakarta Sans'; font-size: 1.5rem; color: var(--ink); line-height: 1; }
-        .hp-score .hp-inner span { font-size: .56rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
-
-        /* FEATURES com chip 3D */
-        .hp-features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; margin-top: 3.5rem; }
-        .hp-feature { background: var(--glass); backdrop-filter: blur(16px) saturate(150%); -webkit-backdrop-filter: blur(16px) saturate(150%);
-          border-radius: 20px; border: 1px solid var(--glass-line); padding: 1.5rem;
-          box-shadow: 0 14px 34px -16px rgba(20,33,58,.28), inset 0 1px 0 rgba(255,255,255,.85);
-          transition: transform .15s ease, box-shadow .15s ease; }
-        .hp-feature:hover { transform: translateY(-3px); box-shadow: 0 22px 44px -16px rgba(20,33,58,.34), inset 0 1px 0 rgba(255,255,255,.9); }
-        .hp-chip { width: 54px; height: 54px; border-radius: 16px; display: grid; place-items: center; font-size: 1.6rem; color: #fff; margin-bottom: 1rem;
-          box-shadow: inset 0 2px 2px rgba(255,255,255,.6), inset 0 -3px 5px rgba(0,0,0,.28), 0 8px 16px -4px rgba(20,33,58,.4); }
-        .hp-chip.hp-b { background: linear-gradient(160deg,#4a86f5,#1450c4); }
-        .hp-chip.hp-t { background: linear-gradient(160deg,#27c5b6,#0e8c86); }
-        .hp-chip.hp-a { background: linear-gradient(160deg,#ffc24d,#e08a00); color: #3a2600; }
-        .hp-feature h3 { font-size: 1.08rem; margin: 0 0 .4rem; font-weight: 700; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
-        .hp-feature p { font-size: .9rem; color: var(--muted); line-height: 1.55; margin: 0; }
-
-        .hp-note { margin-top: 2.5rem; text-align: center; font-size: .8rem; color: var(--muted); }
-
-        @media (max-width: 880px) {
-          .hp-hero { grid-template-columns: 1fr; gap: 3rem; }
-          .hp-features { grid-template-columns: 1fr; }
-          .hp-nav-links { display: none; }
-          .hp-score { right: 0; }
-        }
-      ` }} />
-
-      <div className="hp-page">
-        <nav className="hp-nav">
-          <div className="hp-brand">
-            <span className="hp-dot">
-              <i className="ph-fill ph-bird"></i>
-            </span>
-            HARPIA
-          </div>
-          <div className="hp-nav-links">
-            <a href="#">Modelos</a>
-            <a href="#">Recursos</a>
-            <a href="#">Preços</a>
+      <nav className="site">
+        <div className="navbar">
+          <div className="brand"><span className="mk"><i className="ph-fill ph-bird" /></span> HARPIA</div>
+          <div className="nav-links">
+            <a href="#como">Como funciona</a>
+            <a href="#pilares">SEO, GEO, AEO</a>
+            <a href="#modelos">Modelos</a>
+            <a href="#precos">Preços</a>
             <Link href="/login">Entrar</Link>
+            <Link href="/signup" className="btn">Começar grátis</Link>
           </div>
-          <Link href="/signup" className="hp-btn hp-sm">
-            Começar grátis
-          </Link>
-        </nav>
+        </div>
+      </nav>
 
-        <section className="hp-hero">
-          <div>
-            <span className="hp-pill">
-              <i className="ph-fill ph-sparkle"></i>
-              SEO · GEO · AEO em um só lugar
-            </span>
-            <h1>
-              Seu site pronto pra{' '}
-              <span className="hp-grad">aparecer</span>{' '}
-              no Google e nas IAs
-            </h1>
-            <p>
-              A IA escreve cada texto já otimizado. Você responde 6 perguntas e o
-              site entra no ar em minutos, com profundidade de verdade no design e
-              na busca.
-            </p>
-            <div className="hp-hero-cta">
-              <Link href="/signup" className="hp-btn">
-                <i className="ph-fill ph-rocket-launch"></i>
-                Criar meu site agora
+      <header className="wrap hero">
+        <div>
+          <span className="pill"><i className="ph-fill ph-sparkle" /> SEO · GEO · AEO em um só lugar</span>
+          <h1>
+            Seu site pronto pra <span className="grad">aparecer</span> no{' '}
+            <span className="goog">
+              <span style={{ color: '#4285F4' }}>G</span><span style={{ color: '#EA4335' }}>o</span>
+              <span style={{ color: '#FBBC05' }}>o</span><span style={{ color: '#4285F4' }}>g</span>
+              <span style={{ color: '#34A853' }}>l</span><span style={{ color: '#EA4335' }}>e</span>
+            </span>{' '}e nas IAs
+          </h1>
+          <p className="sub">
+            A HARPIA escreve cada texto do seu site com IA, já otimizado pra busca. Você responde poucas
+            perguntas e o site entra no ar pronto pra ser encontrado, no Google e em respostas do ChatGPT,
+            Gemini e Perplexity.
+          </p>
+          <div className="hero-cta">
+            <Link href="/signup" className="btn lg"><i className="ph-fill ph-rocket-launch" /> Começar grátis</Link>
+            <a href="#como" className="btn glass lg"><i className="ph-duotone ph-play-circle" /> Ver como funciona</a>
+          </div>
+          <div className="reassure"><i className="ph-fill ph-check-circle" /> 7 dias grátis, sem cartão de crédito</div>
+        </div>
+        <div className="float">
+          <div className="glass hero-card">
+            <div className="site-prev">
+              <div className="bar"><i className="r" /><i className="y" /><i className="g" /><span className="u">vidaplenastudio.com.br</span></div>
+              <div className="mock">
+                <div className="mock-nav">
+                  <span className="ml">VIDA PLENA<i style={{ color: '#a78bfa' }}>.</i></span>
+                  <span className="mr"><i /><i /><i /><b>Aula grátis</b></span>
+                </div>
+                <div className="mock-hero">
+                  <div className="mock-copy">
+                    <span className="mk">Studio de movimento · Sorocaba</span>
+                    <h4>Mexa o corpo. <em>Sinta a diferença.</em></h4>
+                    <p>Pilates, funcional e yoga em turmas pequenas.</p>
+                    <span className="mbtn">Agendar aula</span>
+                  </div>
+                  <div className="mock-img" />
+                </div>
+              </div>
+            </div>
+            <div className="hcard-foot">
+              <div><div className="nm">Publicado em 1 minuto</div><div className="st">com textos otimizados pra busca</div></div>
+              <Link href="/signup" className="btn amber" style={{ padding: '.5rem 1rem', fontSize: '.82rem' }}>
+                <i className="ph-fill ph-pencil-simple" /> Editar
               </Link>
-              <button className="hp-btn hp-glass">
-                <i className="ph-duotone ph-play-circle"></i>
-                Ver demonstração
-              </button>
-            </div>
-            <div className="hp-reassure">
-              <i className="ph-fill ph-check-circle"></i>
-              7 dias grátis, sem cartão de crédito
             </div>
           </div>
+          <div className="score"><div className="in"><b>92</b><span>score</span></div></div>
+        </div>
+      </header>
 
-          <div className="hp-float">
-            <div className="hp-card">
-              <div className="hp-site-prev">
-                <div className="hp-bar">
-                  <i className="hp-r"></i>
-                  <i className="hp-y"></i>
-                  <i className="hp-g"></i>
-                </div>
-                <div className="hp-body">
-                  <b>Clínica Vida Plena</b>
-                </div>
-              </div>
-              <div className="hp-card-foot">
-                <div>
-                  <div className="hp-name">clinicavidaplena.com.br</div>
-                  <div className="hp-url">Publicado · atualizado hoje</div>
-                </div>
-                <button className="hp-btn hp-amber hp-sm">
-                  <i className="ph-fill ph-pencil-simple"></i>
-                  Editar
-                </button>
-              </div>
-            </div>
-            <div className="hp-score" title="Score SEO/GEO/AEO">
-              <div className="hp-inner">
-                <b>84</b>
-                <span>score</span>
-              </div>
-            </div>
-          </div>
-        </section>
+      {/* stats */}
+      <section className="wrap" style={{ paddingTop: '1rem' }}>
+        <div className="stats">
+          <div className="stat"><div className="n">~10 min</div><div className="l">do zero ao site no ar</div></div>
+          <div className="stat"><div className="n">3 motores</div><div className="l">Google, IAs e busca por voz</div></div>
+          <div className="stat"><div className="n">0</div><div className="l">linhas de código pra você escrever</div></div>
+          <div className="stat"><div className="n">100%</div><div className="l">orgânico, sem tráfego pago</div></div>
+        </div>
+      </section>
 
-        <section className="hp-features">
-          <div className="hp-feature">
-            <div className="hp-chip hp-b">
-              <i className="ph-duotone ph-magnifying-glass"></i>
-            </div>
-            <h3>SEO que ranqueia</h3>
-            <p>
-              Estrutura, schema e velocidade corretas para o Google entender e
-              posicionar o seu site.
-            </p>
-          </div>
-          <div className="hp-feature">
-            <div className="hp-chip hp-t">
-              <i className="ph-duotone ph-brain"></i>
-            </div>
-            <h3>Citado pelas IAs</h3>
-            <p>
-              Conteúdo no formato que ChatGPT, Gemini e Perplexity usam para
-              recomendar o seu negócio.
-            </p>
-          </div>
-          <div className="hp-feature">
-            <div className="hp-chip hp-a">
-              <i className="ph-duotone ph-chat-circle-text"></i>
-            </div>
-            <h3>Resposta direta</h3>
-            <p>
-              FAQ e dados prontos para virar a resposta exibida na busca e por voz.
-            </p>
-          </div>
-        </section>
+      {/* como funciona */}
+      <section className="block wrap" id="como">
+        <div className="head"><span className="eyebrow">Como funciona</span><h2>Do zero ao site publicado em 3 passos</h2><p>Sem escrever uma linha, sem contratar designer, sem esperar semanas.</p></div>
+        <div className="steps">
+          <div className="glass step"><div className="n">1</div><h3>Você conta do negócio</h3><p>Responde poucas perguntas: o que faz, onde atende e o que só você sabe da sua área.</p></div>
+          <div className="glass step"><div className="n">2</div><h3>A IA escreve tudo</h3><p>Cada texto sai otimizado pra SEO, GEO e AEO, com FAQ, blog e dados estruturados.</p></div>
+          <div className="glass step"><div className="n">3</div><h3>Publica no seu domínio</h3><p>O site entra no ar pronto pra aparecer, e você ajusta o que quiser quando quiser.</p></div>
+        </div>
+      </section>
 
-        <p className="hp-note">
-          HARPIA · SEO · GEO · AEO — o site do seu cliente aparece quando o
-          cliente dele busca
-        </p>
-      </div>
-    </>
+      {/* pilares */}
+      <section className="block wrap" id="pilares">
+        <div className="head"><span className="eyebrow">Os 3 pilares</span><h2>A busca mudou. Seu site precisa aparecer nos três lugares</h2><p>Não basta estar no Google. Hoje as pessoas perguntam pra IA e buscam por voz.</p></div>
+        <div className="pillars">
+          <div className="glass pillar"><div className="chip b"><i className="ph-duotone ph-magnifying-glass" /></div><div className="tag">SEO</div><h3>Busca tradicional</h3><p>Estrutura, schema e velocidade corretas pra ranquear no Google quando buscam pelo seu serviço.</p></div>
+          <div className="glass pillar"><div className="chip t"><i className="ph-duotone ph-brain" /></div><div className="tag">GEO</div><h3>Citado pelas IAs</h3><p>Conteúdo no formato que ChatGPT, Gemini e Perplexity usam pra recomendar o seu negócio.</p></div>
+          <div className="glass pillar"><div className="chip a"><i className="ph-duotone ph-chat-circle-text" /></div><div className="tag">AEO</div><h3>Resposta direta</h3><p>FAQ e dados prontos pra virar a resposta exibida na busca e nas perguntas por voz.</p></div>
+        </div>
+      </section>
+
+      {/* modelos */}
+      <section className="block wrap" id="modelos">
+        <div className="head"><span className="eyebrow">Modelos</span><h2>Um visual à altura do seu negócio</h2><p>Dezenas de modelos por segmento, recoloridos pra combinar com a sua marca.</p></div>
+        <div className="models">
+          {MODELS.map(m => (
+            <div className="model" key={m.name}>
+              <div className="thumb" style={{ background: m.bg }}><b>{m.name}</b></div>
+              <div className="ft">{m.desc}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* o que muda — afirmações de valor (sem depoimento fabricado: produto em beta fechado) */}
+      <section className="block wrap">
+        <div className="head"><span className="eyebrow">O que muda</span><h2>Quando seu site aparece nos três motores</h2><p>O foco é um só: você ser encontrado quando o cliente busca, no Google e nas IAs.</p></div>
+        <div className="quotes">
+          <div className="glass quote"><p>Aparece no Google da sua cidade quando alguém busca pelo seu serviço, com estrutura e schema corretos pra ranquear.</p><div className="who"><span className="av"><i className="ph-duotone ph-magnifying-glass" /></span><div><b>Busca tradicional</b><span>SEO local</span></div></div></div>
+          <div className="glass quote"><p>Vira fonte que ChatGPT, Gemini e Perplexity citam quando perguntam por um negócio como o seu.</p><div className="who"><span className="av"><i className="ph-duotone ph-brain" /></span><div><b>Citado pelas IAs</b><span>GEO</span></div></div></div>
+          <div className="glass quote"><p>FAQ e dados estruturados prontos pra virar a resposta direta na busca e por voz, sem você escrever nada.</p><div className="who"><span className="av"><i className="ph-duotone ph-chat-circle-text" /></span><div><b>Resposta direta</b><span>AEO</span></div></div></div>
+        </div>
+      </section>
+
+      {/* preços */}
+      <section className="block wrap" id="precos">
+        <div className="head"><span className="eyebrow">Planos</span><h2>Direto, sem surpresa</h2><p>Todos começam com 7 dias grátis no plano Pro completo.</p></div>
+        <div className="plans">
+          <div className="glass plan">
+            <div className="pn">Starter</div><div className="pr">R$ 97<span>/mês</span></div>
+            <ul>
+              <li><i className="ph-fill ph-check-circle" /> 1 site no seu domínio</li>
+              <li><i className="ph-fill ph-check-circle" /> 4 artigos de blog por mês</li>
+              <li><i className="ph-fill ph-check-circle" /> SEO, GEO e AEO no conteúdo</li>
+            </ul>
+            <Link href="/signup" className="btn glass">Começar grátis</Link>
+          </div>
+          <div className="glass plan hot">
+            <span className="pop">Mais popular</span>
+            <div className="pn">Pro</div><div className="pr">R$ 197<span>/mês</span></div>
+            <ul>
+              <li><i className="ph-fill ph-check-circle" /> 3 sites no seu domínio</li>
+              <li><i className="ph-fill ph-check-circle" /> 20 artigos por mês</li>
+              <li><i className="ph-fill ph-check-circle" /> Score de SEO/GEO/AEO</li>
+              <li><i className="ph-fill ph-check-circle" /> Análise da presença online</li>
+            </ul>
+            <Link href="/signup" className="btn">Começar grátis</Link>
+          </div>
+          <div className="glass plan">
+            <div className="pn">Agency</div><div className="pr">R$ 297<span>/mês</span></div>
+            <ul>
+              <li><i className="ph-fill ph-check-circle" /> Sites ilimitados</li>
+              <li><i className="ph-fill ph-check-circle" /> White-label e painel de clientes</li>
+              <li><i className="ph-fill ph-check-circle" /> API e suporte prioritário</li>
+            </ul>
+            <Link href="/signup" className="btn glass">Falar com vendas</Link>
+          </div>
+        </div>
+      </section>
+
+      {/* faq */}
+      <section className="block wrap">
+        <div className="head"><span className="eyebrow">Dúvidas frequentes</span><h2>O que você precisa saber</h2></div>
+        <div className="faq">
+          {FAQ.map(([q, a]) => (
+            <details key={q}><summary>{q}</summary><p>{a}</p></details>
+          ))}
+        </div>
+      </section>
+
+      {/* cta final */}
+      <section className="wrap">
+        <div className="glass cta-final">
+          <h2>Seu próximo cliente está buscando agora</h2>
+          <p>Crie seu site grátis e comece a aparecer no Google e nas IAs hoje.</p>
+          <Link href="/signup" className="btn amber lg"><i className="ph-fill ph-rocket-launch" /> Criar meu site agora</Link>
+        </div>
+      </section>
+
+      <footer className="site">
+        <div className="wrap foot">
+          <div className="brand"><span className="mk"><i className="ph-fill ph-bird" /></span> HARPIA</div>
+          <span>SEO + GEO + AEO pra negócios locais · feito no Brasil</span>
+          <span>© 2026 HARPIA</span>
+        </div>
+      </footer>
+    </div>
   )
 }

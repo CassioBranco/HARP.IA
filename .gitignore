@@ -44,3 +44,5 @@ supabase/.temp/
 # playwright
 playwright-report/
 test-results/
+.next-dev.log
+docs/_backups/

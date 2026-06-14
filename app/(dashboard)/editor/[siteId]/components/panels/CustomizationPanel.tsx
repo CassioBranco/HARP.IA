@@ -5,15 +5,12 @@ import { createBrowserClient } from '@/lib/supabase/client'
 import type { SiteData } from '../../page'
 import ImageUploader from './ImageUploader'
 import SectionEditor from './SectionEditor'
-
-// Paletas — mesmo sistema da galeria de templates
-const PALETTES: Record<string, { index: number; name: string; colors: [string, string, string] }[]> = {
-  default: [
-    { index: 0, name: 'Azul Profissional', colors: ['#2563eb', '#1d4ed8', '#f8fafc'] },
-    { index: 1, name: 'Verde Saúde',       colors: ['#0d9488', '#5eead4', '#f0fdfa'] },
-    { index: 2, name: 'Grafite Premium',   colors: ['#1e293b', '#f59e0b', '#fffbeb'] },
-  ],
-}
+import {
+  PALETTES,
+  PALETTE_GROUPS,
+  CUSTOM_DEFAULT,
+  buildCustom,
+} from '@/app/templates/model-data'
 
 const FONT_PAIRS = [
   { id: 'classico',   name: 'Clássico',   sample: 'Plus Jakarta + Inter',      heading: "'Plus Jakarta Sans', sans-serif", body: "'Inter', sans-serif" },
@@ -42,21 +39,67 @@ type SubTab = 'cores' | 'fontes' | 'imagens' | 'textos'
 
 export default function CustomizationPanel({ site, siteId, onSave }: Props) {
   const [subTab, setSubTab] = useState<SubTab>('cores')
-  const [selectedPalette, setSelectedPalette] = useState(site.palette_index ?? 0)
+  const [selectedName, setSelectedName] = useState(site.palette_name ?? 'Original')
+  const [custom, setCustom] = useState<string[]>(
+    site.palette_name === 'Personalizada' && site.palette?.colors?.length === 7
+      ? site.palette.colors
+      : CUSTOM_DEFAULT,
+  )
   const [selectedFont, setSelectedFont] = useState(site.font_pair ?? 'classico')
   const [expandedSection, setExpandedSection] = useState<string | null>('hero')
   const [saving, setSaving] = useState(false)
+  const [aiFilling, setAiFilling] = useState(false)
+  const [aiError, setAiError] = useState('')
   const [, startTransition] = useTransition()
 
-  const palettes = PALETTES[site.niche] ?? PALETTES.default ?? []
+  // "Preencher tudo com IA" — dispara o Agente Onboarding (/api/generate/site, SSE)
+  // e atualiza o preview ao concluir. Human-in-the-Loop: não publica, só gera rascunho.
+  async function runAiFill() {
+    setAiFilling(true)
+    setAiError('')
+    try {
+      const res = await fetch('/api/generate/site', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ site_id: siteId }),
+      })
+      if (!res.ok || !res.body) {
+        const txt = await res.text().catch(() => '')
+        setAiError(txt || 'Não consegui gerar o conteúdo agora.')
+        return
+      }
+      // Consome o stream SSE até o fim (o conteúdo é gravado no banco pelo servidor).
+      const reader = res.body.getReader()
+      while (true) {
+        const { done } = await reader.read()
+        if (done) break
+      }
+      onSave({}) // força refresh do preview no parent
+    } catch {
+      setAiError('Falha de conexão ao gerar o conteúdo.')
+    } finally {
+      setAiFilling(false)
+    }
+  }
 
-  async function savePalette(index: number) {
-    setSelectedPalette(index)
+  // Salva a paleta nomeada/custom em sites.palette (jsonb) + palette_name.
+  // 'Original' (colors null) zera a paleta → preview cai no default do nicho.
+  async function savePaletteByName(name: string, colors: string[] | null, group: string) {
+    setSelectedName(name)
     setSaving(true)
+    const palette = colors && colors.length >= 7 ? { name, group, colors } : null
     const supabase = createBrowserClient()
-    await supabase.from('sites').update({ palette_index: index }).eq('id', siteId)
+    await supabase.from('sites').update({ palette, palette_name: name }).eq('id', siteId)
     setSaving(false)
-    onSave({ palette_index: index })
+    onSave({ palette, palette_name: name })
+  }
+
+  function pickCustom(idx: 0 | 1 | 2, val: string) {
+    const next = [...custom]
+    next[idx] = val
+    const built = buildCustom(next[0]!, next[1]!, next[2]!)
+    setCustom(built)
+    void savePaletteByName('Personalizada', built, 'custom')
   }
 
   async function saveFont(fontId: string) {
@@ -105,30 +148,83 @@ export default function CustomizationPanel({ site, siteId, onSave }: Props) {
 
         {/* ── CORES ─────────────────────────────────────────── */}
         {subTab === 'cores' && (
-          <div className="flex flex-col gap-3">
-            <p className="text-xs text-muted-foreground">Escolha a paleta de cores do site.</p>
-            {palettes.map(p => {
-              const [c1, c2, c3] = p.colors
-              const isSelected = selectedPalette === p.index
+          <div className="flex flex-col gap-2">
+            <p className="text-xs text-muted-foreground mb-1">Escolha a paleta de cores do site.</p>
+
+            {/* Original (default do nicho) */}
+            {(() => {
+              const isSel = selectedName === 'Original'
               return (
                 <button
-                  key={p.index}
-                  onClick={() => savePalette(p.index)}
-                  className={`flex items-center gap-3 rounded-xl border-2 p-3 text-left transition-all ${
-                    isSelected ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/40'
+                  onClick={() => savePaletteByName('Original', null, 'base')}
+                  className={`flex items-center gap-3 rounded-xl border-2 p-2.5 text-left transition-all ${
+                    isSel ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/40'
                   }`}
                 >
-                  <div className="flex h-8 w-16 shrink-0 overflow-hidden rounded-lg">
-                    <div className="flex-[2]" style={{ backgroundColor: c1 }} />
-                    <div className="flex-1" style={{ backgroundColor: c2 }} />
-                    <div className="flex-[2]" style={{ backgroundColor: c3 }} />
+                  <div className="flex h-7 w-14 shrink-0 overflow-hidden rounded-lg">
+                    {['#3a4a63', '#26344a', '#5d6b82'].map((c, i) => (
+                      <div key={i} className={i === 0 ? 'flex-[2]' : 'flex-1'} style={{ backgroundColor: c }} />
+                    ))}
                   </div>
-                  <span className="text-xs font-semibold text-foreground">{p.name}</span>
-                  {isSelected && <span className="ml-auto text-primary text-sm">✓</span>}
+                  <span className="text-xs font-semibold text-foreground">Original</span>
+                  {isSel && <span className="ml-auto text-primary text-sm">✓</span>}
                 </button>
               )
+            })()}
+
+            {/* Grupos de paletas nomeadas */}
+            {PALETTE_GROUPS.map(group => {
+              const items = PALETTES.filter(p => p.group === group)
+              if (!items.length) return null
+              return (
+                <div key={group} className="mt-1">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5">{group}</p>
+                  <div className="grid grid-cols-3 gap-1.5">
+                    {items.map(p => {
+                      const isSel = selectedName === p.name
+                      const c = p.colors ?? []
+                      return (
+                        <button
+                          key={p.name}
+                          onClick={() => savePaletteByName(p.name, p.colors, p.group)}
+                          title={p.name}
+                          className={`flex flex-col gap-1 rounded-lg border-2 p-1.5 transition-all ${
+                            isSel ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/40'
+                          }`}
+                        >
+                          <div className="flex h-6 w-full overflow-hidden rounded">
+                            <div className="flex-[2]" style={{ backgroundColor: c[0] }} />
+                            <div className="flex-1" style={{ backgroundColor: c[1] }} />
+                            <div className="flex-1" style={{ backgroundColor: c[2] }} />
+                          </div>
+                          <span className="truncate text-[10px] font-semibold text-foreground">{p.name}</span>
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              )
             })}
-            {saving && <p className="text-center text-[11px] text-muted-foreground">Salvando...</p>}
+
+            {/* Personalizada */}
+            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1 mt-2">Personalizada</p>
+            <div className={`grid grid-cols-3 gap-2 rounded-xl border-2 p-2.5 ${
+              selectedName === 'Personalizada' ? 'border-primary bg-primary/5' : 'border-border'
+            }`}>
+              {(['Principal', 'Apoio', 'Destaque'] as const).map((lbl, i) => (
+                <label key={lbl} className="flex flex-col items-center gap-1 text-[9px] font-bold uppercase tracking-wide text-muted-foreground">
+                  {lbl}
+                  <input
+                    type="color"
+                    value={custom[i]}
+                    onChange={e => pickCustom(i as 0 | 1 | 2, e.target.value)}
+                    className="h-7 w-full cursor-pointer rounded border border-border bg-transparent p-0.5"
+                  />
+                </label>
+              ))}
+            </div>
+
+            {saving && <p className="text-center text-[11px] text-muted-foreground mt-1">Salvando...</p>}
           </div>
         )}
 
@@ -172,6 +268,14 @@ export default function CustomizationPanel({ site, siteId, onSave }: Props) {
         {/* ── TEXTOS ────────────────────────────────────────── */}
         {subTab === 'textos' && (
           <div className="flex flex-col gap-2">
+            <button
+              onClick={runAiFill}
+              disabled={aiFilling}
+              className="mb-1 flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 px-3 py-2.5 text-xs font-bold text-white shadow-sm transition-all hover:brightness-110 disabled:opacity-60"
+            >
+              {aiFilling ? 'Escrevendo seu site…' : '✨ Preencher tudo com IA'}
+            </button>
+            {aiError && <p className="text-[11px] text-red-500">{aiError}</p>}
             <p className="text-xs text-muted-foreground mb-2">
               Edite cada seção do site. Use a IA para reescrever ou melhorar.
             </p>

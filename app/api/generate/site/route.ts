@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server'
 import { createServerClient } from '@/lib/supabase/server'
-import { getAnthropicClient, MODELS } from '@/lib/claude/client'
+import { getAnthropicClient, MODELS, cachedSystem, totalTokens, friendlyAIError } from '@/lib/claude/client'
 import { buildSystemPrompt, serializeProfile } from '@/lib/prompts/loader'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
   // ── Monta prompts ─────────────────────────────────────────
   let systemPrompt: string
   try {
-    systemPrompt = await buildSystemPrompt('onboarding', profile.niche ?? undefined)
+    systemPrompt = await buildSystemPrompt('onboarding', profile.niche ?? undefined, profile.objetivo ?? undefined)
   } catch {
     await supabase
       .from('ia_generations')
@@ -162,7 +162,7 @@ REGRAS:
         const anthropicStream = anthropic.messages.stream({
           model: MODELS.generate,
           max_tokens: 4096,
-          system: systemPrompt,
+          system: cachedSystem(systemPrompt),
           messages: [{ role: 'user', content: userPrompt }],
         })
 
@@ -187,10 +187,13 @@ REGRAS:
         const durationMs = Date.now() - startedAt
         const finalMessage = await anthropicStream.finalMessage()
 
+        const cacheRead = finalMessage.usage.cache_read_input_tokens ?? 0
+        if (cacheRead > 0) console.log(`[generate/site] cache hit: ${cacheRead} tokens lidos do cache`)
+
         await supabase.from('ia_generations').update({
           status: 'done',
           output_data: parsed ?? { raw: fullText },
-          tokens_used: finalMessage.usage.input_tokens + finalMessage.usage.output_tokens,
+          tokens_used: totalTokens(finalMessage.usage),
           duration_ms: durationMs,
           prompt_snapshot: systemPrompt.slice(0, 2000),
         }).eq('id', generationId)
@@ -202,8 +205,10 @@ REGRAS:
 
         controller.enqueue(enc.encode(`data: ${JSON.stringify({ done: true, generation_id: generationId })}\n\n`))
       } catch (err) {
+        const friendly = friendlyAIError(err)
+        console.error('[generate/site] falha na geração:', err)
         await supabase.from('ia_generations').update({ status: 'failed' }).eq('id', generationId)
-        controller.enqueue(enc.encode(`data: ${JSON.stringify({ error: String(err) })}\n\n`))
+        controller.enqueue(enc.encode(`data: ${JSON.stringify({ error: friendly.message })}\n\n`))
       } finally {
         controller.close()
       }

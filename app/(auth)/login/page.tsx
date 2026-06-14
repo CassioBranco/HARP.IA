@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { ensureProfileOnClient } from '@/lib/auth/client'
 import { createBrowserClient } from '@/lib/supabase/client'
+import { GoogleButton } from '../GoogleButton'
 
 // ---------------------------------------------------------------------------
 // Eye icon
@@ -155,6 +156,9 @@ export default function LoginPage() {
 
       {/* Card */}
       <div className="rounded-2xl border border-border bg-card p-8 shadow-sm">
+        {/* Login social */}
+        <GoogleButton next="/sites" label="Entrar com Google" />
+
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
 
           {/* Email */}

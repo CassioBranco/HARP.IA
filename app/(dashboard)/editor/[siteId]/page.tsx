@@ -12,11 +12,15 @@ import AccountPanel from './components/panels/AccountPanel'
 export type EditorTab = 'customize' | 'blog' | 'metrics' | 'account'
 export type ViewMode = 'desktop' | 'mobile'
 
+export type SitePalette = { name?: string; group?: string; colors: string[] } | null
+
 export type SiteData = {
   id: string
   niche: string
   template: string
   palette_index: number
+  palette: SitePalette
+  palette_name: string | null
   font_pair: string
   domain: string | null
   status: string
@@ -36,7 +40,7 @@ export default function EditorPage() {
     const supabase = createBrowserClient()
     supabase
       .from('sites')
-      .select('id,niche,template,palette_index,font_pair,domain,status')
+      .select('id,niche,template,palette_index,palette,palette_name,font_pair,domain,status')
       .eq('id', siteId)
       .single()
       .then(({ data }) => { if (data) setSite(data as SiteData) })
@@ -70,8 +74,16 @@ export default function EditorPage() {
     }
   }
 
+  // Paleta nomeada/custom (escolher-modelo v2) tem prioridade sobre palette_index legado.
+  const paletteColors =
+    site?.palette?.colors && site.palette.colors.length >= 7
+      ? site.palette.colors.slice(0, 7).join(',')
+      : null
+
   const previewSrc = site
-    ? `/preview/template?preset=${site.niche ?? 'servicos'}&palette=${site.palette_index ?? 0}&layout=${site.template ?? 'clean'}&site_id=${siteId}`
+    ? `/preview/template?preset=${site.niche ?? 'servicos'}&palette=${site.palette_index ?? 0}` +
+      `&layout=${site.template ?? 'clean'}&site_id=${siteId}` +
+      (paletteColors ? `&colors=${encodeURIComponent(paletteColors)}` : '')
     : '/preview/template'
 
   if (!site) {

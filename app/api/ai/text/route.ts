@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server'
 import { createServerClient } from '@/lib/supabase/server'
-import { getAnthropicClient, MODELS } from '@/lib/claude/client'
+import { getAnthropicClient, MODELS, cachedSystem, friendlyAIError } from '@/lib/claude/client'
 import { buildSystemPrompt } from '@/lib/prompts/loader'
 
 export const runtime = 'nodejs'
@@ -63,12 +63,18 @@ Retorne APENAS um JSON com a mesma estrutura da seção "${section_type}", melho
 Regras: keyword primária nos primeiros 100 chars, cidade 2x por 200 palavras, zero gerundismo, zero em-dash, CTA com verbo de posse.`
 
   const anthropic = getAnthropicClient()
-  const message = await anthropic.messages.create({
-    model: MODELS.generate,
-    max_tokens: 1024,
-    system: systemPrompt,
-    messages: [{ role: 'user', content: userPrompt }],
-  })
+  let message
+  try {
+    message = await anthropic.messages.create({
+      model: MODELS.generate,
+      max_tokens: 1024,
+      system: cachedSystem(systemPrompt),
+      messages: [{ role: 'user', content: userPrompt }],
+    })
+  } catch (err) {
+    const f = friendlyAIError(err)
+    return Response.json({ error: f.message }, { status: f.status })
+  }
 
   const text = message.content[0]?.type === 'text' ? message.content[0].text : ''
   let content: Record<string, unknown> | null = null

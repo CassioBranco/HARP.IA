@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server'
 import { createServerClient } from '@/lib/supabase/server'
-import { getAnthropicClient, MODELS } from '@/lib/claude/client'
+import { getAnthropicClient, MODELS, cachedSystem, friendlyAIError } from '@/lib/claude/client'
 import { buildSystemPrompt, serializeProfile } from '@/lib/prompts/loader'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
 
   if (!profile) return Response.json({ error: 'Perfil não encontrado' }, { status: 404 })
 
-  const systemPrompt = await buildSystemPrompt('onboarding', niche ?? profile.niche).catch(() => null)
+  const systemPrompt = await buildSystemPrompt('onboarding', niche ?? profile.niche, profile.objetivo ?? undefined).catch(() => null)
   if (!systemPrompt) return Response.json({ error: 'Prompts não configurados' }, { status: 500 })
 
   const userPrompt = `Regenere o conteúdo completo do site com base no perfil abaixo.
@@ -45,12 +45,18 @@ Retorne JSON com exatamente esta estrutura:
 faq deve ter EXATAMENTE 6 perguntas. Nada além do JSON.`
 
   const anthropic = getAnthropicClient()
-  const message = await anthropic.messages.create({
-    model: MODELS.generate,
-    max_tokens: 4096,
-    system: systemPrompt,
-    messages: [{ role: 'user', content: userPrompt }],
-  })
+  let message
+  try {
+    message = await anthropic.messages.create({
+      model: MODELS.generate,
+      max_tokens: 4096,
+      system: cachedSystem(systemPrompt),
+      messages: [{ role: 'user', content: userPrompt }],
+    })
+  } catch (err) {
+    const f = friendlyAIError(err)
+    return Response.json({ error: f.message }, { status: f.status })
+  }
 
   const text = message.content[0]?.type === 'text' ? message.content[0].text : ''
   let parsed: Record<string, unknown> | null = null
