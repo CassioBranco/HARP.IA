@@ -366,7 +366,8 @@ export default function OnboardingPage() {
         key: 'gpe',
         screen: 4,
         label: 'Perfil de Empresa no Google',
-        got: gpeModo === 'sem' ? 0 : 25,
+        // vincular (conectado) = cheio; criar (intenção) = parcial; sem = mínimo
+        got: gpeModo === 'vincular' ? 25 : gpeModo === 'criar' ? 15 : 5,
         max: 25,
         hint: 'Vincule ou crie seu Perfil do Google (tela 5). É o que mais traz cliente da sua região.',
       },
@@ -1089,6 +1090,16 @@ export default function OnboardingPage() {
           <section className={`screen${screen === 6 ? ' active' : ''}`}>
             <div className="panel">
               <div className="card">
+                {gpeModo !== 'vincular' && (
+                  <div className="gpe-alert" role="alert">
+                    <i className="ph-fill ph-warning" />
+                    <span>
+                      <b>Conecte seu Perfil de Empresa no Google pro site aparecer.</b> Pode terminar
+                      o site agora, mas enquanto o Perfil não estiver conectado seu site não aparece
+                      nas buscas do Google. Dá pra conectar depois, no painel.
+                    </span>
+                  </div>
+                )}
                 <div className="step">
                   <span className="n">7</span> Tudo pronto
                 </div>
@@ -1269,12 +1280,7 @@ export default function OnboardingPage() {
             <i className="ph-duotone ph-arrow-left" /> Voltar
           </button>
           {isLastScreen ? (
-            <button
-              className="btn amber big"
-              onClick={handleGenerate}
-              disabled={!seo.ok}
-              title={seo.ok ? '' : `SEO ${seo.total}% — mínimo ${MIN_SEO}% pra liberar`}
-            >
+            <button className="btn amber big" onClick={handleGenerate}>
               Gerar meu site <i className="ph-fill ph-rocket-launch" />
             </button>
           ) : (
