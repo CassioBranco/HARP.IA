@@ -112,7 +112,7 @@
 .em-page .btn.sm { padding: .5rem 1rem; font-size: .82rem; border-radius: 10px; }
 .em-page .top-spacer { width: 1px; }
 
-.em-page .gallery { max-width: 1180px; margin: 0 auto; padding: 1.8rem 1.4rem 3rem; }
+.em-page .gallery { flex: 1; min-height: 0; overflow-y: auto; width: 100%; max-width: 1180px; margin: 0 auto; padding: 1.8rem 1.4rem 3rem; }
 .em-page .ghead { text-align: center; margin: .4rem 0 1.8rem; }
 .em-page .ghead h1 { font-family: 'Plus Jakarta Sans'; font-weight: 800; font-size: clamp(1.5rem, 3vw, 2.1rem); margin: 0 0 .5rem; color: #eaf1fb; }
 .em-page .ghead p { margin: 0 auto; max-width: 560px; font-size: .95rem; color: #9fb2cc; line-height: 1.5; }

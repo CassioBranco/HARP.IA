@@ -11,7 +11,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { LayoutId } from '@/lib/templates/layouts'
 import { createSiteWithModel } from '@/lib/onboarding/actions'
-import { MODELS, OBJETIVO_TO_LAYOUT } from './model-data'
+import { MODELS, OBJETIVO_TO_LAYOUT, ORIGINAL_PALETTES } from './model-data'
 import type { Objetivo } from '@/lib/onboarding/types'
 
 import '@phosphor-icons/web/fill'
@@ -34,6 +34,8 @@ export default function EscolherModelo({ businessName, preset, domain, objetivo 
 
   function previewSrc(layout: LayoutId) {
     const p = new URLSearchParams({ preset, layout })
+    const colors = ORIGINAL_PALETTES[layout]
+    if (colors) p.set('colors', colors.join(','))
     return `/preview/template?${p.toString()}`
   }
 
@@ -45,7 +47,7 @@ export default function EscolherModelo({ businessName, preset, domain, objetivo 
       const res = await createSiteWithModel({
         layout,
         paletteName: 'Original',
-        colors: null,
+        colors: ORIGINAL_PALETTES[layout] ?? null,
         group: 'base',
       })
       if (res.ok && res.site_id) {

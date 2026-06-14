@@ -79,6 +79,24 @@ export function buildCustom(primary: string, support: string, accent: string): s
   return [primary, support, accent, '#FFFFFF', tint(primary, 0.92), shade(primary, 0.78), '#5A6678']
 }
 
+// ── Paleta ORIGINAL de cada template ────────────────────────
+// A assinatura de cor que veio com o design do Claude Design, por modelo.
+// Ordem: [primary, secondary, accent, bg, surface, text, muted] (= --sp..--sm).
+// Usada na grade de escolha pra cada template aparecer com a SUA cara,
+// e gravada como paleta inicial do site ao escolher.
+export const ORIGINAL_PALETTES: Record<LayoutId, string[]> = {
+  clean:        ['#0E7C86', '#16B3A6', '#16B3A6', '#FFFFFF', '#F2F8F9', '#0F2A2E', '#5A7378'],
+  bold:         ['#16B3A6', '#0E7C86', '#19C7B8', '#0F2A2E', '#143A3E', '#EAF6F5', '#8BA8AA'],
+  profissional: ['#1E3A5F', '#2C4E78', '#C9A84C', '#FFFFFF', '#F8F7F4', '#14233A', '#5C6B7E'],
+  portfolio:    ['#0E7C86', '#16B3A6', '#F4B740', '#FFFFFF', '#EEF6F6', '#0F2A2E', '#5A7378'],
+  acolhedor:    ['#6B8F71', '#C99B6E', '#C99B6E', '#FFFDF9', '#F2ECE2', '#2E3A2C', '#7A7468'],
+  conversao:    ['#15425B', '#1E5A78', '#F97316', '#FFFFFF', '#F4F7F9', '#0E2230', '#55636E'],
+  magazine:     ['#1D4ED8', '#1E40AF', '#C2410C', '#FFFFFF', '#F4F5F7', '#111827', '#55627D'],
+  academia:     ['#1D4ED8', '#1E40AF', '#FBBF24', '#FFFFFF', '#EFF4FF', '#101A33', '#55627D'],
+  tech:         ['#6366F1', '#818CF8', '#22D3EE', '#12121E', '#1B1B2E', '#E6E8FF', '#8A8DB0'],
+  jovem:        ['#E0195A', '#F5C518', '#F5C518', '#111111', '#1C1C1C', '#F5F5F5', '#9A9A9A'],
+}
+
 // ── Objetivo → modelo sugerido (pré-seleção da tela) ─────────
 export const OBJETIVO_TO_LAYOUT: Record<Objetivo, LayoutId> = {
   servico_agendamento: 'clean',
