@@ -1,0 +1,190 @@
+/* ============================================================
+   HARPIA — Editor (liquid-glass). Reaproveita os primitivos de
+   painel.css (.glass .btn .field .lbl .badge .pill .note) e adiciona
+   só o layout de 3 colunas (rail + painel + palco) e os blocos do editor.
+   Tudo escopado em .painel-shell pra herdar os tokens da marca.
+   ============================================================ */
+
+/* layout raiz: rail | painel | palco — tela cheia, sem scroll no body */
+.painel-shell .ed{position:relative;z-index:2;height:100vh;display:grid;
+  grid-template-columns:76px 344px 1fr;overflow:hidden}
+
+/* ── Rail de ícones (esquerda) ── */
+.painel-shell .ed-rail{display:flex;flex-direction:column;align-items:center;gap:.45rem;
+  padding:1rem .55rem;border-right:1px solid var(--line);background:rgba(10,17,32,.6);
+  backdrop-filter:blur(14px)}
+.painel-shell .ed-rail .mk{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;
+  color:#fff;font-size:1.25rem;margin-bottom:.6rem;background:linear-gradient(160deg,#4a86f5,#1450c4);
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.6),0 6px 14px rgba(20,80,196,.45)}
+.painel-shell .ed-tab{width:60px;display:flex;flex-direction:column;align-items:center;gap:.28rem;
+  padding:.6rem 0;border:0;border-radius:13px;background:none;color:var(--muted);
+  font-size:.6rem;font-weight:700;letter-spacing:.01em;cursor:pointer;transition:all .14s}
+.painel-shell .ed-tab svg{width:18px;height:18px}
+.painel-shell .ed-tab:hover{background:rgba(255,255,255,.06);color:#fff}
+.painel-shell .ed-tab.on{background:rgba(61,139,238,.16);color:#fff;box-shadow:inset 0 0 0 1px rgba(61,139,238,.35)}
+.painel-shell .ed-rail .foot{margin-top:auto;display:flex}
+
+/* ── Painel central (controles) ── */
+.painel-shell .ed-panel{display:flex;flex-direction:column;min-height:0;
+  border-right:1px solid var(--line);background:rgba(10,17,32,.42);backdrop-filter:blur(14px)}
+.painel-shell .ed-ph{display:flex;align-items:center;justify-content:space-between;gap:.6rem;
+  padding:1.05rem 1.15rem;border-bottom:1px solid var(--line)}
+.painel-shell .ed-ph h2{margin:0;font-size:.74rem;font-weight:800;text-transform:uppercase;
+  letter-spacing:.09em;color:var(--muted)}
+.painel-shell .ed-ph .sub{font-size:.72rem;color:#ff9b9b;font-weight:700;margin-top:.15rem}
+.painel-shell .ed-subtabs{display:flex;gap:.15rem;padding:.55rem .8rem 0;border-bottom:1px solid var(--line)}
+.painel-shell .ed-subtab{flex:1;padding:.55rem 0;font-family:'Plus Jakarta Sans';font-size:.8rem;
+  font-weight:700;color:var(--muted);background:none;border:0;border-bottom:2px solid transparent;cursor:pointer;transition:color .14s}
+.painel-shell .ed-subtab:hover{color:#cfe0f5}
+.painel-shell .ed-subtab.on{color:#fff;border-bottom-color:var(--blue)}
+.painel-shell .ed-scroll{flex:1;overflow-y:auto;padding:1rem 1.1rem;display:flex;flex-direction:column;gap:.8rem}
+
+/* tipografia de apoio */
+.painel-shell .ed-hint{font-size:.8rem;color:var(--muted);line-height:1.5;margin:0}
+.painel-shell .ed-cap{font-size:.66rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--muted2);margin:0}
+.painel-shell .ed-saving{text-align:center;font-size:.74rem;color:var(--muted2)}
+.painel-shell .ed-err{font-size:.78rem;color:#ff9b9b;font-weight:600;background:rgba(220,38,38,.12);
+  border:1px solid rgba(248,113,113,.4);border-radius:10px;padding:.55rem .7rem}
+
+/* cartões e opções selecionáveis */
+.painel-shell .ed-card{background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:14px;padding:.95rem}
+.painel-shell .ed-opt{display:flex;flex-direction:column;gap:.3rem;text-align:left;cursor:pointer;
+  background:rgba(255,255,255,.04);border:2px solid var(--line);border-radius:13px;padding:.7rem .8rem;
+  color:var(--ink);transition:all .14s}
+.painel-shell .ed-opt:hover{border-color:rgba(61,139,238,.5)}
+.painel-shell .ed-opt.on{border-color:var(--blue);background:rgba(61,139,238,.12)}
+.painel-shell .ed-opt b{font-family:'Plus Jakarta Sans';font-size:.84rem;font-weight:700}
+.painel-shell .ed-opt span{font-size:.72rem;color:var(--muted)}
+
+/* paletas */
+.painel-shell .ed-pal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem}
+.painel-shell .ed-pal{display:flex;flex-direction:column;gap:.4rem;padding:.5rem;border:2px solid var(--line);
+  border-radius:11px;background:rgba(255,255,255,.04);cursor:pointer;transition:all .14s}
+.painel-shell .ed-pal:hover{border-color:rgba(61,139,238,.5)}
+.painel-shell .ed-pal.on{border-color:var(--blue);background:rgba(61,139,238,.12)}
+.painel-shell .ed-pal .sw{display:flex;height:24px;border-radius:7px;overflow:hidden}
+.painel-shell .ed-pal .sw i{display:block;height:100%}
+.painel-shell .ed-pal .nm{font-size:.7rem;font-weight:700;color:var(--ink);text-align:center;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.painel-shell .ed-pal-row{display:flex;align-items:center;gap:.7rem}
+.painel-shell .ed-pal-row .sw{width:56px;height:26px;flex:none}
+.painel-shell .ed-custom{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;border:2px solid var(--line);
+  border-radius:13px;padding:.7rem;background:rgba(255,255,255,.04)}
+.painel-shell .ed-custom.on{border-color:var(--blue);background:rgba(61,139,238,.1)}
+.painel-shell .ed-custom label{display:flex;flex-direction:column;align-items:center;gap:.3rem;
+  font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+.painel-shell .ed-custom input[type=color]{width:100%;height:30px;border-radius:8px;cursor:pointer;
+  border:1px solid var(--line);background:transparent;padding:2px}
+
+/* fontes */
+.painel-shell .ed-font b{font-family:'Plus Jakarta Sans';font-size:.84rem}
+.painel-shell .ed-font .smp{font-size:.72rem;color:var(--muted)}
+
+/* botão IA (gradiente violeta) */
+.painel-shell .ed-ai{width:100%;display:flex;align-items:center;justify-content:center;gap:.5rem;
+  border:0;border-radius:13px;padding:.8rem;font-family:'Plus Jakarta Sans';font-weight:700;font-size:.86rem;
+  color:#fff;cursor:pointer;background:linear-gradient(180deg,#8b7bf5,#5a4ad6);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 12px 22px -8px rgba(124,109,240,.55);transition:filter .12s,transform .08s}
+.painel-shell .ed-ai:hover{filter:brightness(1.07);transform:translateY(-1px)}
+.painel-shell .ed-ai[disabled]{opacity:.55;pointer-events:none}
+.painel-shell .ed-ai.sm{padding:.55rem;font-size:.78rem;border-radius:11px}
+
+/* acordeão de seções (textos) */
+.painel-shell .ed-acc{border:1px solid var(--line);border-radius:13px;overflow:hidden;background:rgba(255,255,255,.03)}
+.painel-shell .ed-acc-h{width:100%;display:flex;align-items:center;justify-content:space-between;
+  padding:.7rem .9rem;background:none;border:0;color:var(--ink);font-size:.82rem;font-weight:700;
+  font-family:'Plus Jakarta Sans';cursor:pointer}
+.painel-shell .ed-acc-h:hover{background:rgba(255,255,255,.05)}
+.painel-shell .ed-acc-b{border-top:1px solid var(--line);padding:.9rem;display:flex;flex-direction:column;gap:.7rem}
+.painel-shell .ed-field-group{display:flex;flex-direction:column;gap:.35rem}
+
+/* lista (blog / regras) */
+.painel-shell .ed-list{display:flex;flex-direction:column;gap:.55rem}
+.painel-shell .ed-item{display:flex;flex-direction:column;gap:.3rem;text-align:left;width:100%;cursor:pointer;
+  background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:12px;padding:.75rem .85rem;
+  color:var(--ink);transition:all .14s}
+.painel-shell .ed-item:hover{border-color:rgba(61,139,238,.45);background:rgba(61,139,238,.07)}
+.painel-shell .ed-item .ti{font-size:.82rem;font-weight:700;line-height:1.25;font-family:'Plus Jakarta Sans'}
+.painel-shell .ed-item .mt{font-size:.7rem;color:var(--muted2)}
+.painel-shell .ed-empty{display:flex;flex-direction:column;align-items:center;gap:.6rem;text-align:center;
+  padding:2.4rem 1rem;color:var(--muted)}
+.painel-shell .ed-empty svg{color:#8fc0ff;opacity:.6}
+
+/* score / métricas */
+.painel-shell .ed-pillars{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem}
+.painel-shell .ed-pillar{display:flex;flex-direction:column;align-items:center;gap:.35rem;padding:.6rem .3rem;
+  border:2px solid var(--line);border-radius:13px;background:rgba(255,255,255,.04);cursor:pointer;transition:all .14s}
+.painel-shell .ed-pillar:hover{border-color:rgba(61,139,238,.4)}
+.painel-shell .ed-pillar.on{border-color:var(--blue);background:rgba(61,139,238,.1)}
+.painel-shell .ed-pillar .pl{font-size:.62rem;font-weight:800;color:var(--muted)}
+.painel-shell .ed-rule{border:1px solid var(--line);border-radius:11px;overflow:hidden;background:rgba(255,255,255,.03)}
+.painel-shell .ed-rule.fail{border-color:rgba(248,113,113,.45);background:rgba(220,38,38,.08)}
+.painel-shell .ed-rule .rh{display:flex;align-items:flex-start;gap:.6rem;padding:.65rem .75rem}
+.painel-shell .ed-rule .rh .ck{font-size:.95rem;line-height:1;margin-top:.05rem;flex:none}
+.painel-shell .ed-rule .rh .ck.ok{color:#86efac}
+.painel-shell .ed-rule .rh .ck.no{color:#f87171}
+.painel-shell .ed-rule .rd{font-size:.78rem;font-weight:600;line-height:1.3}
+.painel-shell .ed-rule .fix{border-top:1px solid rgba(248,113,113,.35);background:rgba(220,38,38,.1);
+  padding:.6rem .75rem;font-size:.78rem;color:#fecaca;line-height:1.5}
+.painel-shell .ed-rule .more{font-size:.72rem;font-weight:700;color:#8fc0ff;background:none;border:0;cursor:pointer;flex:none}
+
+/* uso / barras */
+.painel-shell .ed-usebar{height:7px;border-radius:99px;background:rgba(150,170,200,.2);overflow:hidden}
+.painel-shell .ed-usebar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#4a86f5,#36d6e6)}
+.painel-shell .ed-usebar i.warn{background:linear-gradient(90deg,#f5a30a,#f97316)}
+.painel-shell .ed-usebar i.full{background:linear-gradient(90deg,#f97316,#ef4444)}
+.painel-shell .ed-link{display:flex;align-items:center;justify-content:space-between;
+  border:1px solid var(--line);border-radius:11px;padding:.65rem .85rem;background:rgba(255,255,255,.04);
+  color:var(--ink);font-size:.82rem;font-weight:600;transition:all .14s}
+.painel-shell .ed-link:hover{background:rgba(255,255,255,.08)}
+
+/* dropzone de imagem */
+.painel-shell .ed-drop{display:flex;flex-direction:column;align-items:center;gap:.5rem;padding:1.6rem 1rem;
+  border:2px dashed var(--line);border-radius:14px;background:rgba(255,255,255,.03);color:var(--muted);
+  cursor:pointer;transition:all .14s}
+.painel-shell .ed-drop:hover{border-color:var(--blue);background:rgba(61,139,238,.07);color:#fff}
+.painel-shell .ed-img-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+.painel-shell .ed-img{position:relative;overflow:hidden;border-radius:11px;border:1px solid var(--line)}
+.painel-shell .ed-img img{width:100%;aspect-ratio:1;object-fit:cover;display:block}
+.painel-shell .ed-img .tag{position:absolute;top:.35rem;right:.35rem;font-size:.6rem;font-weight:800;
+  background:#22c55e;color:#06310f;padding:.15rem .4rem;border-radius:999px}
+
+/* ── Palco / preview (direita) ── */
+.painel-shell .ed-stage{display:flex;flex-direction:column;min-width:0}
+.painel-shell .ed-toolbar{display:flex;align-items:center;gap:.6rem;padding:.65rem 1rem;
+  border-bottom:1px solid var(--line);background:rgba(10,17,32,.5)}
+.painel-shell .ed-seg{display:flex;gap:.15rem;background:rgba(255,255,255,.06);border:1px solid var(--line);
+  border-radius:11px;padding:.2rem}
+.painel-shell .ed-seg button{display:inline-flex;align-items:center;gap:.4rem;border:0;background:none;
+  color:var(--muted);font-size:.78rem;font-weight:700;padding:.4rem .8rem;border-radius:8px;cursor:pointer}
+.painel-shell .ed-seg button.on{background:rgba(61,139,238,.22);color:#fff}
+.painel-shell .ed-url{flex:1;min-width:0;font-size:.78rem;color:var(--muted);background:rgba(255,255,255,.05);
+  border:1px solid var(--line);border-radius:9px;padding:.45rem .8rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.painel-shell .ed-icon-btn{width:34px;height:34px;display:grid;place-items:center;border:1px solid var(--line);
+  background:rgba(255,255,255,.05);color:var(--muted);border-radius:9px;cursor:pointer}
+.painel-shell .ed-icon-btn:hover{color:#fff;background:rgba(255,255,255,.1)}
+.painel-shell .ed-pubmsg{font-size:.68rem;font-weight:600}
+.painel-shell .ed-pubmsg.ok{color:#86efac}
+.painel-shell .ed-pubmsg.err{color:#ff9b9b}
+
+.painel-shell .ed-canvas{flex:1;overflow:auto;display:flex;align-items:flex-start;justify-content:center;
+  padding:1.3rem;background:rgba(4,9,20,.45)}
+.painel-shell .ed-browser{width:100%;max-width:1080px;border:1px solid var(--line);border-radius:14px;
+  overflow:hidden;background:#fff;box-shadow:0 30px 60px -24px rgba(0,0,0,.6);height:calc(100vh - 112px)}
+.painel-shell .ed-chrome{display:flex;align-items:center;gap:.4rem;padding:.5rem .8rem;
+  background:rgba(10,17,32,.6);border-bottom:1px solid var(--line)}
+.painel-shell .ed-chrome .dot{width:10px;height:10px;border-radius:50%}
+.painel-shell .ed-chrome .u{margin-left:.6rem;flex:1;font-size:.7rem;color:var(--muted);
+  background:rgba(255,255,255,.06);border-radius:6px;padding:.2rem .55rem}
+.painel-shell .ed-browser iframe{width:100%;height:calc(100% - 33px);border:0;background:#fff}
+.painel-shell .ed-phone{width:390px;height:720px;border:7px solid #0b1426;border-radius:42px;overflow:hidden;
+  position:relative;background:#0b1426;box-shadow:0 30px 60px -24px rgba(0,0,0,.7)}
+.painel-shell .ed-phone .notch{position:absolute;top:8px;left:50%;transform:translateX(-50%);
+  width:80px;height:20px;border-radius:999px;background:#0b1426;z-index:2}
+.painel-shell .ed-phone .scr{height:100%;border-radius:34px;overflow:hidden;background:#fff}
+.painel-shell .ed-phone iframe{width:100%;height:100%;border:0}
+.painel-shell .ed-loading{display:grid;place-items:center;height:100vh;color:var(--muted);font-size:.9rem}
+
+@media(max-width:1100px){
+  .painel-shell .ed{grid-template-columns:64px 300px 1fr}
+}

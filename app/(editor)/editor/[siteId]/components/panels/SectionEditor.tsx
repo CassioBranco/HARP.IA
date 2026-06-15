@@ -84,85 +84,68 @@ export default function SectionEditor({ siteId, sectionType, niche, onSaved }: P
   }
 
   if (loading) {
-    return <div className="px-3 py-4 text-center text-[11px] text-muted-foreground">Carregando...</div>
+    return <p className="ed-saving">Carregando…</p>
   }
 
   if (!content) {
     return (
-      <div className="flex flex-col gap-2 p-3">
-        <p className="text-[11px] text-muted-foreground">Conteúdo ainda não gerado.</p>
-        <button
-          onClick={() => rewriteWithAI('block')}
-          disabled={aiLoading}
-          className="flex items-center justify-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-[11px] font-bold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
-        >
-          {aiLoading ? 'Gerando...' : '✨ Gerar com IA'}
+      <>
+        <p className="ed-hint">Conteúdo ainda não gerado.</p>
+        <button onClick={() => rewriteWithAI('block')} disabled={aiLoading} className="ed-ai sm">
+          {aiLoading ? 'Gerando…' : '✨ Gerar com IA'}
         </button>
-      </div>
+      </>
     )
   }
 
   const editableFields = getEditableFields(sectionType, content)
 
   return (
-    <div className="flex flex-col gap-3 p-3">
-
-      {/* Campos editáveis */}
+    <>
       {editableFields.map(({ key, label, multiline }) => {
         const value = String(content[key] ?? '')
         return (
-          <div key={key} className="flex flex-col gap-1">
-            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{label}</label>
+          <div key={key} className="ed-field-group">
+            <label className="lbl" style={{ margin: 0 }}>{label}</label>
             {multiline ? (
               <textarea
+                className="field"
                 value={value}
                 rows={3}
+                style={{ resize: 'vertical' }}
                 onChange={e => setContent(prev => ({ ...prev!, [key]: e.target.value }))}
                 onBlur={() => save({ ...content })}
-                className="w-full resize-none rounded-lg border border-border bg-background px-2.5 py-2 text-[12px] text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary/20"
               />
             ) : (
               <input
+                className="field"
                 type="text"
                 value={value}
                 onChange={e => setContent(prev => ({ ...prev!, [key]: e.target.value }))}
                 onBlur={() => save({ ...content })}
-                className="w-full rounded-lg border border-border bg-background px-2.5 py-2 text-[12px] text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary/20"
               />
             )}
           </div>
         )
       })}
 
-      {saving && <p className="text-center text-[10px] text-muted-foreground">Salvando...</p>}
+      {saving && <p className="ed-saving">Salvando…</p>}
 
-      {/* Botões IA */}
-      <div className="mt-1 flex gap-2 border-t border-border pt-2">
-        <button
-          onClick={() => rewriteWithAI('block')}
-          disabled={aiLoading}
-          className="flex flex-1 items-center justify-center gap-1 rounded-lg border border-primary/30 bg-primary/5 px-2 py-1.5 text-[11px] font-semibold text-primary hover:bg-primary/10 disabled:opacity-50 transition-colors"
-        >
-          {aiLoading && aiMode === 'block' ? (
-            <span className="animate-pulse">Reescrevendo...</span>
-          ) : (
-            <><span>✨</span> Reescrever bloco</>
-          )}
+      <div style={{ display: 'flex', gap: '.5rem', borderTop: '1px solid var(--line)', paddingTop: '.7rem' }}>
+        <button onClick={() => rewriteWithAI('block')} disabled={aiLoading} className="ed-ai sm" style={{ flex: 1 }}>
+          {aiLoading && aiMode === 'block' ? 'Reescrevendo…' : '✨ Reescrever bloco'}
         </button>
         <button
           onClick={() => rewriteWithAI('page')}
           disabled={aiLoading}
-          className="flex flex-1 items-center justify-center gap-1 rounded-lg border border-border px-2 py-1.5 text-[11px] font-semibold text-muted-foreground hover:bg-muted disabled:opacity-50 transition-colors"
+          className="btn glass sm"
+          style={{ flex: 1 }}
           title="Regerar a página toda com IA"
         >
-          {aiLoading && aiMode === 'page' ? (
-            <span className="animate-pulse">Regerando...</span>
-          ) : (
-            <><span>⟳</span> Página toda</>
-          )}
+          {aiLoading && aiMode === 'page' ? 'Regerando…' : '⟳ Página toda'}
         </button>
       </div>
-    </div>
+    </>
   )
 }
 
