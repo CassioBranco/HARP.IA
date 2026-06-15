@@ -25,9 +25,11 @@ export function LogoutButton() {
       type="button"
       onClick={handleLogout}
       disabled={loading}
-      className="mt-3 w-full rounded-md border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-50"
+      className="foot-logout"
+      title="Sair da conta"
+      aria-label="Sair da conta"
     >
-      {loading ? 'Saindo...' : 'Sair da conta'}
+      <i className="ph-fill ph-sign-out" />
     </button>
   )
 }

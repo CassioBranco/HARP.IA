@@ -39,7 +39,7 @@ export default async function MetricsPage() {
   if (!siteId) {
     return (
       <>
-        <div className="topbar"><div><h1>Métricas</h1><div className="sub">como você está aparecendo</div></div></div>
+        <div className="topbar"><div><h1>Painel</h1><div className="sub">como você está aparecendo</div></div></div>
         <div className="glass empty">
           <i className="ph-duotone ph-chart-line-up" />
           Publique um site primeiro — o score de SEO, GEO e AEO aparece aqui.
@@ -48,5 +48,19 @@ export default async function MetricsPage() {
     )
   }
 
-  return <MetricsView siteId={siteId} domain={domain || 'seu site'} />
+  // Artigos do blog do site — alimenta as métricas de conteúdo + o calendário.
+  const { data: postRows } = await supabase
+    .from('blog_posts')
+    .select('title, status, created_at, published_at')
+    .eq('site_id', siteId)
+    .order('created_at', { ascending: false })
+
+  const posts = (postRows ?? []).map(p => ({
+    title: p.title as string,
+    status: p.status as 'draft' | 'review' | 'published',
+    created_at: p.created_at as string,
+    published_at: (p.published_at as string | null) ?? null,
+  }))
+
+  return <MetricsView siteId={siteId} domain={domain || 'seu site'} posts={posts} />
 }

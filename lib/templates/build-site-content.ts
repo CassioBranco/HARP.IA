@@ -80,18 +80,19 @@ export async function buildSiteContent(
     return acc
   }, {})
 
-  const hero  = sectionMap['hero']   as { headline?: string; sub?: string; cta_label?: string; cta_phone?: string } | undefined
-  const about = sectionMap['about']  as { title?: string; body?: string; credential?: string } | undefined
+  const hero  = sectionMap['hero']   as { headline?: string; sub?: string; cta_label?: string; cta_phone?: string; image?: string } | undefined
+  const about = sectionMap['about']  as { title?: string; body?: string; credential?: string; image?: string } | undefined
   const svcs  = sectionMap['services'] as { items?: { name: string; description: string; icon?: string }[] } | undefined
   const testi = sectionMap['testimonials'] as { items?: { name: string; text: string; rating?: number }[] } | undefined
   const faqSec = sectionMap['faq']   as { items?: { question: string; answer: string }[] } | undefined
 
   const rawServices = svcs?.items ?? (profile?.services as { name: string; description: string; icon?: string }[] | null) ?? []
 
-  // Imagens reais do cliente (mais recentes primeiro) entram em hero/sobre.
+  // Imagem: a escolha manual do cliente (section.content.image) vence;
+  // senão cai pras imagens enviadas (mais recentes primeiro).
   const imgs = (images ?? []) as { webp_url: string; alt_text: string | null }[]
-  const heroImage = imgs[0]?.webp_url
-  const aboutImage = imgs[1]?.webp_url ?? imgs[0]?.webp_url
+  const heroImage = hero?.image ?? imgs[0]?.webp_url
+  const aboutImage = about?.image ?? imgs[1]?.webp_url ?? imgs[0]?.webp_url
 
   const content: SiteContent = {
     businessName:    profile?.business_name ?? hero?.headline ?? site.domain ?? 'Seu negócio',

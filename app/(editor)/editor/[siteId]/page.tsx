@@ -5,11 +5,7 @@ import { useParams } from 'next/navigation'
 import { createBrowserClient } from '@/lib/supabase/client'
 import EditorSidebar from './components/EditorSidebar'
 import CustomizationPanel from './components/panels/CustomizationPanel'
-import BlogPanel from './components/panels/BlogPanel'
-import MetricsPanel from './components/panels/MetricsPanel'
-import AccountPanel from './components/panels/AccountPanel'
 
-export type EditorTab = 'customize' | 'blog' | 'metrics' | 'account'
 export type ViewMode = 'desktop' | 'mobile'
 
 export type SitePalette = { name?: string; group?: string; colors: string[] } | null
@@ -28,7 +24,6 @@ export type SiteData = {
 
 export default function EditorPage() {
   const { siteId } = useParams<{ siteId: string }>()
-  const [activeTab, setActiveTab] = useState<EditorTab>('customize')
   const [viewMode, setViewMode] = useState<ViewMode>('desktop')
   const [site, setSite] = useState<SiteData | null>(null)
   const [loadError, setLoadError] = useState<string | null>(null)
@@ -110,20 +105,15 @@ export default function EditorPage() {
       <div className="ed">
 
         {/* Rail de ícones */}
-        <EditorSidebar activeTab={activeTab} onTabChange={setActiveTab} site={site} />
+        <EditorSidebar site={site} />
 
-        {/* Painel de controles */}
+        {/* Painel de controles — edição do site */}
         <div className="ed-panel">
-          {activeTab === 'customize' && (
-            <CustomizationPanel
-              site={site}
-              siteId={siteId}
-              onSave={(updated) => { setSite(s => s ? { ...s, ...updated } : s); refreshPreview() }}
-            />
-          )}
-          {activeTab === 'blog' && <BlogPanel siteId={siteId} />}
-          {activeTab === 'metrics' && <MetricsPanel siteId={siteId} />}
-          {activeTab === 'account' && <AccountPanel />}
+          <CustomizationPanel
+            site={site}
+            siteId={siteId}
+            onSave={(updated) => { setSite(s => s ? { ...s, ...updated } : s); refreshPreview() }}
+          />
         </div>
 
         {/* Palco / preview */}

@@ -5,10 +5,10 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
 const NAV = [
+  { href: '/metrics',  label: 'Painel',         icon: 'ph-chart-line-up' },
   { href: '/sites',    label: 'Meus sites',    icon: 'ph-globe-hemisphere-west' },
   { href: '/editor',   label: 'Editor',         icon: 'ph-pencil-ruler' },
   { href: '/blog',     label: 'Blog',           icon: 'ph-article' },
-  { href: '/metrics',  label: 'Métricas',       icon: 'ph-chart-line-up' },
   { href: '/settings', label: 'Configurações',  icon: 'ph-gear' },
 ]
 

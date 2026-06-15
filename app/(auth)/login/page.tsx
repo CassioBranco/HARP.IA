@@ -129,7 +129,8 @@ export default function LoginPage() {
       }
       try { await ensureProfileOnClient() } catch { /* ignora */ }
       const next = new URLSearchParams(window.location.search).get('next')
-      router.push(next?.startsWith('/') ? next : '/sites')
+      // Painel principal = Métricas (visão de como o site está aparecendo).
+      router.push(next?.startsWith('/') ? next : '/metrics')
       router.refresh()
     } finally {
       setLoading(false)

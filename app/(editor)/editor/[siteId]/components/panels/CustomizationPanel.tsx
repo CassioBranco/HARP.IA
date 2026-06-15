@@ -217,7 +217,7 @@ export default function CustomizationPanel({ site, siteId, onSave }: Props) {
         )}
 
         {/* ── IMAGENS ── */}
-        {subTab === 'imagens' && <ImageUploader siteId={siteId} niche={site.niche} />}
+        {subTab === 'imagens' && <ImageUploader siteId={siteId} niche={site.niche} onAssigned={() => onSave({})} />}
 
         {/* ── TEXTOS ── */}
         {subTab === 'textos' && (

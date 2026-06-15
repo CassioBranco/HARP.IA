@@ -24,10 +24,21 @@ function grade(n: number): string {
   return 'Precisa de atenção'
 }
 
-export default function MetricsView({ siteId, domain }: { siteId: string; domain: string }) {
+type PostLite = {
+  title: string
+  status: 'draft' | 'review' | 'published'
+  created_at: string
+  published_at: string | null
+}
+
+const MONTHS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro']
+const WEEKDAYS = ['D','S','T','Q','Q','S','S']
+
+export default function MetricsView({ siteId, domain, posts = [] }: { siteId: string; domain: string; posts?: PostLite[] }) {
   const [data, setData] = useState<ScoreData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [calRef, setCalRef] = useState(() => { const d = new Date(); return { y: d.getFullYear(), m: d.getMonth() } })
 
   useEffect(() => {
     let alive = true
@@ -46,10 +57,39 @@ export default function MetricsView({ siteId, domain }: { siteId: string; domain
   const toImprove = (data?.rules ?? []).filter(r => !r.passed).slice(0, 4)
   const allGood = !!data && toImprove.length === 0
 
+  // ── Blog: métricas de conteúdo (reais) ──────────────────────
+  const published = posts.filter(p => p.status === 'published').length
+  const drafts = posts.filter(p => p.status === 'draft' || p.status === 'review').length
+  const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0, 0, 0, 0)
+  const thisMonth = posts.filter(p => new Date(p.created_at) >= monthStart).length
+
+  // ── Calendário de postagens ─────────────────────────────────
+  // Dias do mês que têm artigo (published_at se publicado, senão created_at).
+  const postedDays = new Set<number>()
+  for (const p of posts) {
+    const ref = p.published_at ?? p.created_at
+    const d = new Date(ref)
+    if (d.getFullYear() === calRef.y && d.getMonth() === calRef.m) postedDays.add(d.getDate())
+  }
+  const firstWeekday = new Date(calRef.y, calRef.m, 1).getDay()
+  const daysInMonth = new Date(calRef.y, calRef.m + 1, 0).getDate()
+  const today = new Date()
+  const isCurrentMonth = today.getFullYear() === calRef.y && today.getMonth() === calRef.m
+  const cells: (number | null)[] = [
+    ...Array(firstWeekday).fill(null),
+    ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
+  ]
+  function shiftMonth(delta: number) {
+    setCalRef(({ y, m }) => {
+      const nm = m + delta
+      return { y: y + Math.floor(nm / 12), m: ((nm % 12) + 12) % 12 }
+    })
+  }
+
   return (
     <>
       <div className="topbar">
-        <div><h1>Métricas</h1><div className="sub">{domain} · como você está aparecendo</div></div>
+        <div><h1>Painel</h1><div className="sub">{domain} · como você está aparecendo</div></div>
       </div>
 
       {error && <div className="glass empty"><i className="ph-duotone ph-warning" /> {error}</div>}
@@ -102,6 +142,51 @@ export default function MetricsView({ siteId, domain }: { siteId: string; domain
                   ))
                 )}
               </div>
+            </div>
+          </div>
+
+          {/* ── Conteúdo (blog) + calendário de postagens ── */}
+          <div className="cols" style={{ marginTop: '1.2rem' }}>
+            {/* métricas reais do blog */}
+            <div className="glass card">
+              <h3><i className="ph-duotone ph-article" /> Conteúdo do blog</h3>
+              <div className="stats" style={{ marginTop: '.4rem' }}>
+                <div className="stat"><div className="n">{published}</div><div className="l">publicados</div></div>
+                <div className="stat"><div className="n">{drafts}</div><div className="l">em rascunho</div></div>
+                <div className="stat"><div className="n">{thisMonth}</div><div className="l">criados este mês</div></div>
+              </div>
+              <a href="/blog" className="btn glass" style={{ marginTop: '1rem', display: 'inline-flex' }}>
+                <i className="ph-fill ph-pencil-simple" /> Ir pro blog
+              </a>
+            </div>
+
+            {/* calendário de postagens (datas reais dos artigos) */}
+            <div className="glass card">
+              <div className="cal-head">
+                <h3 style={{ margin: 0 }}><i className="ph-duotone ph-calendar-dots" /> Calendário de postagens</h3>
+                <div className="cal-nav">
+                  <button onClick={() => shiftMonth(-1)} aria-label="Mês anterior"><i className="ph-bold ph-caret-left" /></button>
+                  <span>{MONTHS[calRef.m]} {calRef.y}</span>
+                  <button onClick={() => shiftMonth(1)} aria-label="Próximo mês"><i className="ph-bold ph-caret-right" /></button>
+                </div>
+              </div>
+              <div className="cal-grid">
+                {WEEKDAYS.map((w, i) => <span key={`w${i}`} className="cal-wd">{w}</span>)}
+                {cells.map((day, i) => {
+                  if (day === null) return <span key={`e${i}`} className="cal-cell empty" />
+                  const posted = postedDays.has(day)
+                  const isToday = isCurrentMonth && day === today.getDate()
+                  return (
+                    <span key={`d${day}`} className={`cal-cell${posted ? ' posted' : ''}${isToday ? ' today' : ''}`}>
+                      {day}
+                      {posted && <i className="cal-dot" />}
+                    </span>
+                  )
+                })}
+              </div>
+              <p className="sub" style={{ fontSize: '.72rem', marginTop: '.7rem' }}>
+                Pontos marcam dias com artigo. Agendamento de posts futuros chega em breve.
+              </p>
             </div>
           </div>
 

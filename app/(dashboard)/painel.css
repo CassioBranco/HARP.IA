@@ -74,6 +74,9 @@
 .painel-shell .side .foot{margin-top:auto;display:flex;align-items:center;gap:.6rem;padding:.7rem;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid var(--line)}
 .painel-shell .side .foot .nm{font-size:.8rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .painel-shell .side .foot .pl{font-size:.68rem;color:var(--muted2)}
+.painel-shell .foot-logout{flex-shrink:0;width:32px;height:32px;display:grid;place-items:center;border-radius:9px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--muted);cursor:pointer;transition:all .15s;font-size:1rem}
+.painel-shell .foot-logout:hover{color:#fff;border-color:var(--blue);background:rgba(61,139,238,.16)}
+.painel-shell .foot-logout:disabled{opacity:.5;cursor:default}
 .painel-shell .main{min-width:0;padding:1.6rem 2rem}
 .painel-shell .topbar{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1.6rem}
 .painel-shell .topbar h1{font-size:1.5rem;margin:0;font-weight:800}
@@ -313,3 +316,17 @@
 .painel-shell .gpe-banner-cta{flex:none;font-weight:700;font-size:.84rem;color:#3a2600;background:linear-gradient(180deg,#ffc24d,#f5a30a);padding:.5rem .9rem;border-radius:10px;text-decoration:none;white-space:nowrap}
 .painel-shell .gpe-banner-cta:hover{filter:brightness(1.05)}
 @media (max-width:640px){.painel-shell .gpe-banner{flex-wrap:wrap}}
+
+/* ── Calendário de postagens (painel/métricas) ── */
+.painel-shell .cal-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1rem;flex-wrap:wrap}
+.painel-shell .cal-nav{display:flex;align-items:center;gap:.5rem;font-size:.84rem;font-weight:600;color:var(--ink)}
+.painel-shell .cal-nav button{width:28px;height:28px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--muted);border-radius:8px;cursor:pointer;display:grid;place-items:center}
+.painel-shell .cal-nav button:hover{color:#fff;border-color:var(--blue)}
+.painel-shell .cal-nav span{min-width:130px;text-align:center}
+.painel-shell .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:.3rem}
+.painel-shell .cal-wd{text-align:center;font-size:.66rem;font-weight:700;color:var(--muted2);padding:.2rem 0}
+.painel-shell .cal-cell{position:relative;aspect-ratio:1;display:grid;place-items:center;font-size:.8rem;color:var(--muted);border-radius:8px}
+.painel-shell .cal-cell.empty{visibility:hidden}
+.painel-shell .cal-cell.posted{color:#fff;background:rgba(61,139,238,.16);font-weight:600}
+.painel-shell .cal-cell.today{box-shadow:inset 0 0 0 1px var(--blue);color:#fff}
+.painel-shell .cal-dot{position:absolute;bottom:5px;width:5px;height:5px;border-radius:50%;background:var(--blue)}
