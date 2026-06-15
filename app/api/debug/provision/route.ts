@@ -40,7 +40,21 @@ export async function GET(request: Request) {
     service_equals_anon: !!serviceKey && serviceKey === anonKey,
   }
 
-  // Testa de verdade: o admin client consegue LER e CONTAR users?
+  // Teste 1 — fetch CRU no REST endpoint: revela o status HTTP e o corpo reais
+  // (ex.: 401 "Invalid API key" = chave não aceita pelo gateway).
+  if (url && serviceKey) {
+    try {
+      const r = await fetch(`${url}/rest/v1/users?select=id&limit=1`, {
+        headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` },
+      })
+      const body = await r.text()
+      report.raw_rest = { status: r.status, body: body.slice(0, 300) }
+    } catch (e) {
+      report.raw_rest = { error: e instanceof Error ? e.message : String(e) }
+    }
+  }
+
+  // Teste 2 — via supabase-js, com o erro inteiro serializado
   if (url && serviceKey) {
     try {
       const admin = createClient(url, serviceKey, {
@@ -50,16 +64,8 @@ export async function GET(request: Request) {
         .from('users')
         .select('*', { count: 'exact', head: true })
       report.users_read = error
-        ? { ok: false, code: error.code, message: error.message }
+        ? { ok: false, error: { code: error.code, message: error.message, details: error.details, hint: error.hint } }
         : { ok: true, count }
-
-      // Também testa tenants (onde o provisionamento insere primeiro)
-      const { error: tErr } = await admin
-        .from('tenants')
-        .select('*', { count: 'exact', head: true })
-      report.tenants_read = tErr
-        ? { ok: false, code: tErr.code, message: tErr.message }
-        : { ok: true }
     } catch (e) {
       report.admin_client_error = e instanceof Error ? e.message : String(e)
     }
