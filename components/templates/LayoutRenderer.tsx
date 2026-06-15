@@ -1,6 +1,7 @@
 import type { SiteContent } from '@/lib/templates/example-content'
 import type { PaletteColors } from '@/lib/templates/palettes'
 import type { LayoutId } from '@/lib/templates/layouts'
+import { getFontPair } from '@/lib/templates/fonts'
 
 import CleanLayout from './layouts/CleanLayout'
 import BoldLayout from './layouts/BoldLayout'
@@ -18,6 +19,8 @@ interface Props {
   c: SiteContent
   p: PaletteColors
   preview?: boolean
+  /** id do par tipográfico escolhido pelo cliente (sites.font_pair) */
+  fontPair?: string | null
 }
 
 const LAYOUT_MAP = {
@@ -33,7 +36,25 @@ const LAYOUT_MAP = {
   tech: TechLayout,
 } as const satisfies Record<LayoutId, React.ComponentType<{ c: SiteContent; p: PaletteColors; preview: boolean }>>
 
-export default function LayoutRenderer({ layout, c, p, preview = false }: Props) {
+export default function LayoutRenderer({ layout, c, p, preview = false, fontPair }: Props) {
   const Component = LAYOUT_MAP[layout] ?? CleanLayout
-  return <Component c={c} p={p} preview={preview} />
+  const font = getFontPair(fontPair)
+
+  // Override de fonte: renderizado DEPOIS do layout, então vence as vars :root
+  // que cada layout define internamente (--font-heading / --font-body / --serif).
+  // --font-accent (mono/decorativa) é preservado de propósito.
+  return (
+    <>
+      <Component c={c} p={p} preview={preview} />
+      {font && (
+        <>
+          {/* eslint-disable-next-line @next/next/no-page-custom-font */}
+          <link rel="stylesheet" href={font.href} />
+          <style dangerouslySetInnerHTML={{ __html:
+            `:root{--font-heading:${font.heading};--serif:${font.heading};--font-body:${font.body};}`
+          }} />
+        </>
+      )}
+    </>
+  )
 }

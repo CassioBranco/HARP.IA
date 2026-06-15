@@ -1,11 +1,9 @@
 import { notFound } from 'next/navigation'
 import { createServerClient } from '@/lib/supabase/server'
 import { hasSupabaseEnv } from '@/lib/env'
-import { getPalette } from '@/lib/templates/palettes'
+import { buildSiteContent } from '@/lib/templates/build-site-content'
 import LayoutRenderer from '@/components/templates/LayoutRenderer'
-import type { LayoutId } from '@/lib/templates/layouts'
 import type { SiteContent } from '@/lib/templates/example-content'
-import type { PaletteColors } from '@/lib/templates/palettes'
 import type { Metadata } from 'next'
 
 type Props = { params: Promise<{ domain: string }> }
@@ -120,79 +118,22 @@ export default async function PublishedSitePage({ params }: Props) {
 
   const supabase = await createServerClient()
 
-  // Busca site + perfil de onboarding em paralelo
-  const { data: site } = await supabase
-    .from('sites')
-    .select('id, niche, template, palette_index, status, domain')
-    .eq('domain', domain)
-    .eq('status', 'published')
-    .maybeSingle()
+  const built = await buildSiteContent(supabase, { domain })
+  if (!built) notFound()
 
-  if (!site) notFound()
+  const { content, layout, palette, fontPair } = built
 
-  const [{ data: page }, { data: profile }] = await Promise.all([
-    supabase
-      .from('pages')
-      .select('id, title, meta_description')
-      .eq('site_id', site.id)
-      .eq('slug', 'home')
-      .single(),
-    supabase
-      .from('onboarding_profiles')
-      .select('business_name, city, state, phone, credentials, years_experience, services, tone')
-      .eq('site_id', site.id)
-      .single(),
-  ])
-
-  // Busca sections
-  const { data: sections } = page?.id
-    ? await supabase
-        .from('sections')
-        .select('section_type, content')
-        .eq('page_id', page.id)
-        .order('order_index')
-    : { data: [] }
-
-  const sectionMap = (sections ?? []).reduce<Record<string, unknown>>((acc, s) => {
-    acc[s.section_type] = s.content
-    return acc
-  }, {})
-
-  // Monta SiteContent a partir das sections reais
-  const hero   = sectionMap['hero']   as { headline?: string; sub?: string; cta_label?: string; cta_phone?: string } | undefined
-  const about  = sectionMap['about']  as { title?: string; body?: string; credential?: string } | undefined
-  const svcs   = sectionMap['services'] as { items?: { name: string; description: string; icon?: string }[] } | undefined
-  const testi  = sectionMap['testimonials'] as { items?: { name: string; text: string; rating?: number }[] } | undefined
-  const faqSec = sectionMap['faq']    as { items?: { question: string; answer: string }[] } | undefined
-  const meta   = sectionMap['meta']   as { title?: string; description?: string; keywords?: string[] } | undefined
-
-  const rawServices = svcs?.items ?? (profile?.services as { name: string; description: string; icon?: string }[] | null) ?? []
-  const content: SiteContent = {
-    businessName:    profile?.business_name ?? hero?.headline ?? domain,
-    tagline:         hero?.sub ?? '',
-    heroHeadline:    hero?.headline ?? '',
-    heroSub:         hero?.sub ?? '',
-    ctaLabel:        hero?.cta_label ?? 'Falar conosco',
-    ctaPhone:        hero?.cta_phone ?? '',
-    about:           about?.body ?? '',
-    credential:      about?.credential ?? (profile?.credentials ?? []).join(', '),
-    services:        rawServices.map(s => ({ name: s.name, description: s.description, icon: s.icon ?? '⭐' })),
-    testimonials:    (testi?.items ?? []).map(t => ({ name: t.name, text: t.text, rating: t.rating ?? 5 })),
-    faqs:            faqSec?.items ?? [],
-    city:            profile?.city ?? '',
-    state:           '',
-    address:         '',
-    whatsapp:        profile?.phone ?? '',
-    email:           '',
-    schemaType:      site.niche ?? 'servicos',
-    yearsExperience: profile?.years_experience ?? 0,
-    blogPosts:       [],
+  // Perfil mínimo para o JSON-LD, derivado do conteúdo já montado.
+  const jsonLdProfile = {
+    business_name: content.businessName,
+    city: content.city,
+    state: content.state,
+    phone: content.whatsapp,
+    credentials: content.credential ? content.credential.split(',').map(s => s.trim()) : [],
+    years_experience: content.yearsExperience,
   }
 
-  const palette = getPalette(site.niche ?? 'servicos', site.palette_index ?? 0) as PaletteColors
-  const layout = (site.template ?? 'clean') as LayoutId
-
-  const { base: jsonLd, faqSchema } = buildJsonLd(site, content, profile)
+  const { base: jsonLd, faqSchema } = buildJsonLd({ niche: built.niche, domain }, content, jsonLdProfile)
 
   return (
     <>
@@ -208,7 +149,7 @@ export default async function PublishedSitePage({ params }: Props) {
         />
       )}
 
-      <LayoutRenderer layout={layout} c={content} p={palette} preview={false} />
+      <LayoutRenderer layout={layout} c={content} p={palette} fontPair={fontPair} preview={false} />
     </>
   )
 }

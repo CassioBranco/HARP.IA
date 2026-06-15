@@ -6,6 +6,7 @@
 import { redirect } from 'next/navigation'
 import { hasSupabaseEnv } from '@/lib/env'
 import { createServerClient } from '@/lib/supabase/server'
+import { FONT_PAIRS } from '@/lib/templates/fonts'
 
 import '@phosphor-icons/web/fill'
 import '@phosphor-icons/web/duotone'
@@ -22,5 +23,15 @@ export default async function EditorLayout({
     const { data } = await supabase.auth.getUser()
     if (!data.user) redirect('/login')
   }
-  return children
+  return (
+    <>
+      {/* Carrega as fontes dos 6 pares pra que os tiles do painel de Fontes
+          mostrem cada tipografia na sua própria letra. */}
+      {FONT_PAIRS.map(fp => (
+        // eslint-disable-next-line @next/next/no-page-custom-font
+        <link key={fp.id} rel="stylesheet" href={fp.href} />
+      ))}
+      {children}
+    </>
+  )
 }

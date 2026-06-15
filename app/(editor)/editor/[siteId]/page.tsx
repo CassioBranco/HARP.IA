@@ -78,17 +78,12 @@ export default function EditorPage() {
     }
   }
 
-  // Paleta nomeada/custom (escolher-modelo v2) tem prioridade sobre palette_index legado.
-  const paletteColors =
-    site?.palette?.colors && site.palette.colors.length >= 7
-      ? site.palette.colors.slice(0, 7).join(',')
-      : null
-
+  // Preview do CONTEÚDO REAL do site (texto + paleta + fonte + imagens enviadas).
+  // Lê do banco, que já está atualizado pelos saves do painel. previewKey força
+  // o reload do iframe após cada alteração. chrome=0 esconde a barra (sem chrome dobrado).
   const previewSrc = site
-    ? `/preview/template?preset=${site.niche ?? 'servicos'}&palette=${site.palette_index ?? 0}` +
-      `&layout=${site.template ?? 'clean'}&site_id=${siteId}` +
-      (paletteColors ? `&colors=${encodeURIComponent(paletteColors)}` : '')
-    : '/preview/template'
+    ? `/preview/${siteId}?chrome=0&v=${previewKey}`
+    : 'about:blank'
 
   const url = site?.domain ?? `${siteId}.harp-ia.com`
 

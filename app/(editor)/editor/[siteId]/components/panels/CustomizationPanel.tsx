@@ -11,15 +11,7 @@ import {
   CUSTOM_DEFAULT,
   buildCustom,
 } from '@/app/templates/model-data'
-
-const FONT_PAIRS = [
-  { id: 'classico',   name: 'Clássico',   sample: 'Plus Jakarta + Inter',      heading: "'Plus Jakarta Sans', sans-serif", body: "'Inter', sans-serif" },
-  { id: 'elegante',   name: 'Elegante',   sample: 'Playfair + Lato',           heading: "'Playfair Display', serif",      body: "'Lato', sans-serif" },
-  { id: 'moderno',    name: 'Moderno',    sample: 'Sora + DM Sans',            heading: "'Sora', sans-serif",             body: "'DM Sans', sans-serif" },
-  { id: 'acolhedor',  name: 'Acolhedor',  sample: 'Merriweather + Nunito',     heading: "'Merriweather', serif",          body: "'Nunito', sans-serif" },
-  { id: 'arrojado',   name: 'Arrojado',   sample: 'Bebas Neue + Inter',        heading: "'Bebas Neue', sans-serif",       body: "'Inter', sans-serif" },
-  { id: 'jovem',      name: 'Jovem',      sample: 'Space Grotesk + Outfit',    heading: "'Space Grotesk', sans-serif",    body: "'Outfit', sans-serif" },
-]
+import { FONT_PAIRS } from '@/lib/templates/fonts'
 
 const SECTIONS = ['hero', 'about', 'services', 'faq']
 const SECTION_LABELS: Record<string, string> = {
