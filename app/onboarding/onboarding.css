@@ -134,6 +134,7 @@
 .ob-page .niche { position: relative; border: 1px solid rgba(255,255,255,.16); background: rgba(255,255,255,.04); color: #cdddef; font-size: .84rem; font-weight: 600; padding: .5rem .85rem; border-radius: 11px; transition: all .15s; }
 .ob-page .niche:hover { background: rgba(255,255,255,.09); }
 .ob-page .niche.on { background: rgba(61,139,238,.18); border-color: var(--blue); color: #fff; }
+.ob-page .ob-hint { font-size: .8rem; color: rgba(205,221,239,.7); line-height: 1.45; }
 .ob-page .niche.guess::after { content: 'sugerido'; position: absolute; top: -8px; right: -6px; font-family: 'Plus Jakarta Sans'; font-size: .56rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; color: #3a2600; background: linear-gradient(180deg, #ffc24d, #e08a00); padding: .1rem .35rem; border-radius: 5px; box-shadow: 0 3px 7px rgba(220,150,10,.5); }
 
 /* porte cards */

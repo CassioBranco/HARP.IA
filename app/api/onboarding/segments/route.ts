@@ -30,9 +30,10 @@ export async function GET(req: NextRequest) {
     .select('profissao_key, label, setor, regulado, conselho, doc_label, restricao')
     .eq('is_active', true)
     .order('ordem', { ascending: true })
-    .limit(20)
+    .limit(100)
 
-  // Busca por rótulo OU chave; vazio = lista inicial (top 20 por ordem)
+  // O catálogo é pequeno (≈56). O cliente carrega tudo uma vez e filtra
+  // sem acento (PT-BR). Mantemos o filtro por q como atalho/compat.
   // Sanitiza chars que têm significado na sintaxe de filtro do PostgREST.
   const safe = q.replace(/[,()*%\\]/g, '').slice(0, 60)
   if (safe.length >= 2) {

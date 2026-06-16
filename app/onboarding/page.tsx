@@ -39,6 +39,17 @@ const TOTAL = 7
 const MIN_SEO = 55
 
 type CityResult = { name: string; state: string; lat?: number; lng?: number }
+type SegRow = {
+  profissao_key: string
+  label: string
+  setor: string
+  regulado: boolean
+  doc_label: string | null
+  restricao: string | null
+}
+
+// Normaliza p/ busca PT-BR: minúsculo e sem acento ("mecânica" → "mecanica").
+const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
 
 export default function OnboardingPage() {
   const router = useRouter()
@@ -49,11 +60,13 @@ export default function OnboardingPage() {
   const [businessName, setBusinessName] = useState('')
   const [about, setAbout] = useState('')
   const [cat, setCat] = useState('saude')
-  const [niche, setNiche] = useState('Clínica médica')
+  const [niche, setNiche] = useState('')
   const [segTouched, setSegTouched] = useState(false)
   const [otherActive, setOtherActive] = useState(false)
   const [registro, setRegistro] = useState('')
   const [segQuery, setSegQuery] = useState('')
+  const [segPick, setSegPick] = useState<SegRow | null>(null)   // segmento escolhido na taxonomia
+  const [segCatalog, setSegCatalog] = useState<SegRow[]>([])    // catálogo completo (carregado 1x)
   const [porte, setPorte] = useState<Porte>('micro_pequena')
   const [city, setCity] = useState('')
   const [uf, setUf] = useState('')
@@ -84,6 +97,12 @@ export default function OnboardingPage() {
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const cityTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+  // documento regulatório exigido (conselho) — da taxonomia se escolhido, senão fallback do mapa fixo
+  const regDoc = useMemo(
+    () => (segPick?.regulado ? (segPick.doc_label ?? 'Registro profissional') : (REGULATED[niche] ?? null)),
+    [segPick, niche]
+  )
+
   // ── auth gate (mesmo padrão do app) ───────────────────────
   useEffect(() => {
     setMounted(true)
@@ -102,11 +121,11 @@ export default function OnboardingPage() {
       objetivo,
       business_name: businessName || null,
       differentials: about || null,
-      setor: catLabel,
+      setor: segPick ? segPick.setor : catLabel,
       profissao: niche || null,
-      niche: niche ? nicheToSlug(niche) : null,
-      segmento_custom: otherActive ? niche || null : null,
-      registro_profissional: REGULATED[niche] ? registro || null : null,
+      niche: segPick ? segPick.profissao_key : (niche ? nicheToSlug(niche) : null),
+      segmento_custom: !segPick && niche ? niche : null,
+      registro_profissional: regDoc ? registro || null : null,
       porte,
       area_tipo: area,
       service_radius_km: area === 'local' ? radiusKm : null,
@@ -126,7 +145,7 @@ export default function OnboardingPage() {
       dominio: dominioModo === 'proprio' ? `${slug}.com.br` : `${slug}.harpia.site`,
     }
   }, [
-    objetivo, businessName, about, cat, niche, otherActive, registro,
+    objetivo, businessName, about, cat, niche, segPick, otherActive, registro,
     porte, radiusKm, areaText, city, uf, gpeModo, gpeLink, answers, dominioModo,
   ])
 
@@ -160,7 +179,7 @@ export default function OnboardingPage() {
     setScreenError('') // editar qualquer campo limpa o erro de validação
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    objetivo, businessName, about, cat, niche, otherActive, registro,
+    objetivo, businessName, about, cat, niche, segPick, otherActive, registro,
     porte, radiusKm, areaText, city, uf, gpeModo, gpeLink, answers, dominioModo,
   ])
 
@@ -185,8 +204,8 @@ export default function OnboardingPage() {
         if (about.trim().length < 10)
           return 'Conta um pouquinho do que você faz — a IA usa isso pra escrever o seu site.'
         if (!niche.trim()) return 'Escolha ou digite o segmento do seu negócio.'
-        if (REGULATED[niche] && !registro.trim())
-          return `${REGULATED[niche]} é obrigatório para profissão regulada.`
+        if (regDoc && !registro.trim())
+          return `${regDoc} é obrigatório para profissão regulada.`
       }
       if (s === 3) {
         const area = areaTipoFromPorte(porte)
@@ -204,7 +223,7 @@ export default function OnboardingPage() {
       }
       return null
     },
-    [businessName, about, niche, registro, porte, city, areaText, gpeModo, gpeLink, gpeErr]
+    [businessName, about, niche, registro, regDoc, porte, city, areaText, gpeModo, gpeLink, gpeErr]
   )
 
   // ── navegação ─────────────────────────────────────────────
@@ -254,41 +273,35 @@ export default function OnboardingPage() {
   }
 
   // ── tela 3: categoria/nicho ───────────────────────────────
-  function pickCat(id: string) {
-    setSegTouched(true)
-    setCat(id)
-    const first = CATS.find((c) => c[0] === id)?.[3][0] ?? ''
-    setNiche(first)
-    setOtherActive(false)
-    setSegQuery('')
-  }
-  function pickNiche(n: string) {
-    setSegTouched(true)
-    setNiche(n)
-    setOtherActive(false)
-  }
-  function activateOther() {
-    setSegTouched(true)
-    setOtherActive(true)
-    setNiche('')
-  }
-  // resultados da busca de segmento (sobre os dados do protótipo)
+  // Sugestões iniciais (catálogo de 56 segmentos via niche_taxonomy) — uma vez.
+  // Carrega o catálogo de segmentos (≈56) uma vez. O filtro é client-side.
+  useEffect(() => {
+    let alive = true
+    fetch('/api/onboarding/segments')
+      .then((r) => r.json())
+      .then((j) => { if (alive && Array.isArray(j.results)) setSegCatalog(j.results as SegRow[]) })
+      .catch(() => {})
+    return () => { alive = false }
+  }, [])
+
+  // Filtro sem acento (PT-BR): "mecanica" acha "Oficina Mecânica".
   const segResults = useMemo(() => {
-    const q = segQuery.trim().toLowerCase()
+    const q = norm(segQuery.trim())
     if (q.length < 2) return null
-    const all: [string, string][] = []
-    CATS.forEach((c) => c[3].forEach((n) => all.push([n, c[0]])))
-    return all.filter((x) => x[0].toLowerCase().includes(q))
-  }, [segQuery])
-  function pickFromSearch(catId: string, n: string) {
+    return segCatalog.filter((r) => norm(r.label).includes(q) || norm(r.profissao_key).includes(q))
+  }, [segQuery, segCatalog])
+
+  function pickSeg(row: SegRow) {
     setSegTouched(true)
-    setCat(catId)
-    setNiche(n)
+    setSegPick(row)
+    setCat(row.setor)
+    setNiche(row.label)
     setOtherActive(false)
     setSegQuery('')
   }
   function useTypedSeg() {
     setSegTouched(true)
+    setSegPick(null)
     setNiche(segQuery.trim())
     setOtherActive(true)
     setSegQuery('')
@@ -531,8 +544,6 @@ export default function OnboardingPage() {
     return items
   }, [mounted])
 
-  const regDoc = REGULATED[niche]
-  const catObj = CATS.find((c) => c[0] === cat)
   const isLastScreen = screen === TOTAL - 1
 
   return (
@@ -672,70 +683,57 @@ export default function OnboardingPage() {
                   autoComplete="off"
                 />
 
-                {segResults === null ? (
-                  <>
-                    <div className="cats">
-                      {CATS.map((c) => (
-                        <button
-                          key={c[0]}
-                          className={`chip${c[0] === cat ? ' on' : ''}`}
-                          onClick={() => pickCat(c[0])}
-                        >
-                          <i className={`ph-duotone ${c[2]}`} />
-                          {c[1]}
-                        </button>
-                      ))}
-                    </div>
-                    <div className="niches">
-                      {catObj?.[3].map((n) => (
-                        <button
-                          key={n}
-                          className={`niche${n === niche && !otherActive ? ' on' : ''}${
-                            n === guess ? ' guess' : ''
-                          }`}
-                          onClick={() => pickNiche(n)}
-                        >
-                          {n}
-                        </button>
-                      ))}
-                      <button
-                        className={`niche niche-other${otherActive ? ' on' : ''}`}
-                        onClick={activateOther}
-                      >
-                        <i className="ph-duotone ph-plus-circle" /> Outro
-                      </button>
-                      {otherActive && (
-                        <div className="other-wrap">
-                          <input
-                            className="field other-input"
-                            maxLength={40}
-                            value={niche}
-                            onChange={(e) => setNiche(e.target.value)}
-                            placeholder="Escreva seu segmento. Ex.: Mecânica de motos"
-                            autoComplete="off"
-                          />
-                        </div>
-                      )}
-                    </div>
-                  </>
-                ) : (
+                {/* segmento já escolhido (some quando o cliente volta a buscar) */}
+                {niche && segResults === null && (
+                  <div className="niches" style={{ marginBottom: '.5rem' }}>
+                    <button
+                      className="niche on"
+                      onClick={() => { setSegPick(null); setNiche(''); setOtherActive(false); setSegTouched(true) }}
+                      title="Trocar segmento"
+                    >
+                      <i className="ph-fill ph-check-circle" /> {niche}
+                      {regDoc ? <span className="reg-tag" style={{ marginLeft: '.4rem' }}>{regDoc}</span> : null}
+                      <i className="ph-bold ph-x" style={{ marginLeft: '.45rem', opacity: .7 }} />
+                    </button>
+                  </div>
+                )}
+
+                {/* resultados da busca */}
+                {segResults !== null && (
                   <div className="niches">
                     {segResults.length ? (
-                      segResults.map((x) => (
+                      segResults.map((r) => (
                         <button
-                          key={x[0]}
-                          className={`niche${x[0] === niche ? ' on' : ''}`}
-                          onClick={() => pickFromSearch(x[1], x[0])}
+                          key={r.profissao_key}
+                          className={`niche${r.profissao_key === segPick?.profissao_key ? ' on' : ''}`}
+                          onClick={() => pickSeg(r)}
                         >
-                          {x[0]}
+                          {r.label}
+                          {r.regulado ? (
+                            <span className="reg-tag" style={{ marginLeft: '.35rem' }}>{r.doc_label ?? 'regulada'}</span>
+                          ) : null}
                         </button>
                       ))
                     ) : (
                       <button className="niche niche-other on" onClick={useTypedSeg}>
-                        <i className="ph-duotone ph-plus-circle" /> Usar segmento digitado
+                        <i className="ph-duotone ph-plus-circle" /> Usar “{segQuery.trim()}”
                       </button>
                     )}
                   </div>
+                )}
+
+                {/* sugestões populares quando o campo está vazio e nada escolhido */}
+                {segResults === null && !niche && segCatalog.length > 0 && (
+                  <>
+                    <p className="ob-hint" style={{ margin: '.1rem 0 .5rem' }}>Populares — ou digite o seu acima:</p>
+                    <div className="niches">
+                      {segCatalog.slice(0, 10).map((r) => (
+                        <button key={r.profissao_key} className="niche" onClick={() => pickSeg(r)}>
+                          {r.label}
+                        </button>
+                      ))}
+                    </div>
+                  </>
                 )}
 
                 {regDoc && (
