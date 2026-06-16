@@ -199,11 +199,19 @@ REGRAS:
         }).eq('id', generationId)
 
         // Salva seções na tabela sections se o parse funcionou
+        let saveError: string | null = null
         if (parsed) {
-          await saveSections(supabase as unknown as SupabaseClient, site_id, parsed)
+          saveError = await saveSections(supabase as unknown as SupabaseClient, site_id, tenantId, parsed)
+        } else {
+          saveError = 'A IA não retornou um JSON válido. Tente gerar novamente.'
         }
 
-        controller.enqueue(enc.encode(`data: ${JSON.stringify({ done: true, generation_id: generationId })}\n\n`))
+        if (saveError) {
+          await supabase.from('ia_generations').update({ status: 'failed' }).eq('id', generationId)
+          controller.enqueue(enc.encode(`data: ${JSON.stringify({ error: `Conteúdo gerado mas não salvo: ${saveError}` })}\n\n`))
+        } else {
+          controller.enqueue(enc.encode(`data: ${JSON.stringify({ done: true, generation_id: generationId })}\n\n`))
+        }
       } catch (err) {
         const friendly = friendlyAIError(err)
         console.error('[generate/site] falha na geração:', err)
@@ -225,19 +233,25 @@ REGRAS:
 }
 
 // ── Salva conteúdo gerado nas sections da página home ─────
+// tenant_id é obrigatório: a RLS de pages/sections exige
+// tenant_id = auth_tenant_id() no WITH CHECK do INSERT. Sem ele o
+// insert é rejeitado silenciosamente e o site fica vazio.
+// Retorna null em sucesso, ou a mensagem de erro pra rota reportar.
 async function saveSections(
   supabase: SupabaseClient,
   siteId: string,
+  tenantId: string,
   content: Record<string, unknown>
-) {
+): Promise<string | null> {
   // Garante que a página home existe
-  const { data: page } = await supabase
+  const { data: page, error: pageErr } = await supabase
     .from('pages')
-    .upsert({ site_id: siteId, slug: 'home', intent: 'transacional', published: false }, { onConflict: 'site_id,slug' })
+    .upsert({ site_id: siteId, tenant_id: tenantId, slug: 'home', intent: 'transacional', published: false }, { onConflict: 'site_id,slug' })
     .select('id')
     .single()
 
-  if (!page?.id) return
+  if (pageErr) return pageErr.message
+  if (!page?.id) return 'Não foi possível criar a página.'
 
   const pageId = page.id
   const sections = [
@@ -250,10 +264,11 @@ async function saveSections(
   ]
 
   for (const s of sections) {
-    await supabase.from('sections').upsert(
-      { page_id: pageId, ...s },
+    const { error: secErr } = await supabase.from('sections').upsert(
+      { page_id: pageId, tenant_id: tenantId, ...s },
       { onConflict: 'page_id,section_type' }
     )
+    if (secErr) return secErr.message
   }
 
   // Atualiza meta da página
@@ -264,4 +279,6 @@ async function saveSections(
       meta_description: meta.description,
     }).eq('id', pageId)
   }
+
+  return null
 }

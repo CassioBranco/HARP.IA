@@ -152,6 +152,7 @@ Responda APENAS o alt text, sem aspas, sem explicações.`,
     .from('images')
     .insert({
       site_id: siteId,
+      tenant_id: userData?.tenant_id,
       original_url: originalUrl,
       webp_url: webpUrl,
       alt_text: altText,

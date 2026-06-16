@@ -67,5 +67,5 @@ export default async function PostEditorPage({ params }: { params: { postId: str
     }
   }
 
-  return <PostEditor siteId={siteId} domain={domain} initial={post} />
+  return <PostEditor siteId={siteId} tenantId={tenantId} domain={domain} initial={post} />
 }

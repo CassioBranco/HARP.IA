@@ -40,10 +40,12 @@ const IDEA_TEMPLATES = [
 
 export default function PostEditor({
   siteId,
+  tenantId,
   domain,
   initial,
 }: {
   siteId: string
+  tenantId: string
   domain: string
   initial: PostEditorData
 }) {
@@ -98,7 +100,7 @@ export default function PostEditor({
         } else {
           const { data: ins, error } = await supabase
             .from('blog_posts')
-            .insert({ ...payload, site_id: siteId })
+            .insert({ ...payload, site_id: siteId, tenant_id: tenantId })
             .select('id')
             .single()
           if (error) throw error

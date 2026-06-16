@@ -91,7 +91,7 @@ export default function ImageUploader({ siteId, niche, onAssigned }: Props) {
   async function assign(sectionType: string, url: string) {
     const supabase = createBrowserClient()
     const { data: page } = await supabase
-      .from('pages').select('id').eq('site_id', siteId).eq('slug', 'home').maybeSingle()
+      .from('pages').select('id, tenant_id').eq('site_id', siteId).eq('slug', 'home').maybeSingle()
     if (!page?.id) { setError('Gere o site antes de aplicar imagens.'); return }
 
     const { data: sec } = await supabase
@@ -101,7 +101,8 @@ export default function ImageUploader({ siteId, niche, onAssigned }: Props) {
     if (sec?.id) {
       await supabase.from('sections').update({ content: merged }).eq('id', sec.id)
     } else {
-      await supabase.from('sections').insert({ page_id: page.id, section_type: sectionType, content: merged })
+      // tenant_id obrigatório pela RLS de sections (herda da página)
+      await supabase.from('sections').insert({ page_id: page.id, tenant_id: page.tenant_id, section_type: sectionType, content: merged })
     }
     setAssigned(prev => ({ ...prev, [sectionType]: url }))
     onAssigned?.()
