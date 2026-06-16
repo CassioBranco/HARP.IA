@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server'
 import { createServerClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { getAnthropicClient, MODELS } from '@/lib/claude/client'
 
 export const runtime = 'nodejs'
@@ -86,9 +87,14 @@ export async function POST(req: NextRequest) {
 
   const { width = originalWidth, height = originalHeight } = await sharp(webpBuffer).metadata()
 
-  // Obtém cidade do perfil de onboarding
-  const siteData = site as unknown as { city?: string }
-  const cityName = siteData.city ?? 'São Paulo'
+  // Obtém cidade do perfil de onboarding.
+  // O embed `city:onboarding_profiles(city)` volta como relação aninhada
+  // (array ou objeto {city}), nunca string — extrair com cuidado.
+  const embed = (site as unknown as { city?: unknown }).city
+  const rawCity = Array.isArray(embed)
+    ? (embed[0] as { city?: unknown } | undefined)?.city
+    : (embed as { city?: unknown } | null)?.city
+  const cityName = typeof rawCity === 'string' && rawCity.trim() ? rawCity : 'São Paulo'
   const coords = getCityCoords(cityName)
 
   // Gera alt text via Claude Vision (Haiku — mais barato pra análise)
@@ -132,20 +138,25 @@ Responda APENAS o alt text, sem aspas, sem explicações.`,
   const originalPath = `sites/${siteId}/${timestamp}_original.${originalExt}`
   const webpPath = `sites/${siteId}/${timestamp}.webp`
 
-  const { error: origErr } = await supabase.storage
+  // Upload no storage via service_role: a sessão do usuário é bloqueada pela
+  // RLS de storage.objects (bucket público só libera leitura). A posse do site
+  // já foi validada acima, então o upload server-side é seguro.
+  const storage = createAdminClient()
+
+  const { error: origErr } = await storage.storage
     .from('images')
     .upload(originalPath, buffer, { contentType: file.type, upsert: false })
 
-  const { error: webpErr } = await supabase.storage
+  const { error: webpErr } = await storage.storage
     .from('images')
     .upload(webpPath, webpBuffer, { contentType: 'image/webp', upsert: false })
 
   if (origErr || webpErr) {
-    return Response.json({ error: 'Falha no upload para storage' }, { status: 500 })
+    return Response.json({ error: `Falha no upload para storage: ${(origErr ?? webpErr)?.message}` }, { status: 500 })
   }
 
-  const { data: { publicUrl: originalUrl } } = supabase.storage.from('images').getPublicUrl(originalPath)
-  const { data: { publicUrl: webpUrl } } = supabase.storage.from('images').getPublicUrl(webpPath)
+  const { data: { publicUrl: originalUrl } } = storage.storage.from('images').getPublicUrl(originalPath)
+  const { data: { publicUrl: webpUrl } } = storage.storage.from('images').getPublicUrl(webpPath)
 
   // Salva metadados na tabela images
   const { data: imageRecord, error: dbErr } = await supabase
