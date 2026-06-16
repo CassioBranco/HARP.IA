@@ -330,3 +330,29 @@
 .painel-shell .cal-cell.posted{color:#fff;background:rgba(61,139,238,.16);font-weight:600}
 .painel-shell .cal-cell.today{box-shadow:inset 0 0 0 1px var(--blue);color:#fff}
 .painel-shell .cal-dot{position:absolute;bottom:5px;width:5px;height:5px;border-radius:50%;background:var(--blue)}
+
+/* ============================================================
+   Polish (2026-06-16): scrollbar temática, conteúdo centrado em
+   telas grandes (24"/1920px) e easing mais suave nas transições.
+   ============================================================ */
+
+/* Barra de rolagem na cor da marca (combina com o liquid-glass) */
+.painel-shell{scrollbar-color:rgba(180,205,240,.34) transparent}
+.painel-shell ::-webkit-scrollbar{width:11px;height:11px}
+.painel-shell ::-webkit-scrollbar-track{background:transparent}
+.painel-shell ::-webkit-scrollbar-thumb{background:rgba(180,205,240,.28);border-radius:999px;border:3px solid transparent;background-clip:padding-box}
+.painel-shell ::-webkit-scrollbar-thumb:hover{background:rgba(120,170,255,.55);background-clip:padding-box}
+
+/* Em telas grandes o conteúdo não estica de ponta a ponta: centraliza */
+@media(min-width:1500px){
+  .painel-shell .main{max-width:1380px;margin-inline:auto}
+}
+
+/* Easing mais suave (ease-out) — tira a sensação "dura" sem mudar durações */
+.painel-shell .btn,
+.painel-shell .nav-item,
+.painel-shell .sitecard,
+.painel-shell .tab,
+.painel-shell .field,
+.painel-shell .glass,
+.painel-shell a{transition-timing-function:cubic-bezier(.22,1,.36,1)}

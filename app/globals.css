@@ -69,3 +69,39 @@
     font-family: var(--font-heading);
   }
 }
+
+/* ============================================================
+   Scroll & movimento — rolagem suave + barras temáticas globais
+   + respeito a prefers-reduced-motion (acessibilidade).
+   Superfícies escuras (.painel-shell/.lp/.ob-page) sobrescrevem
+   a cor da barra nos próprios CSS.
+   ============================================================ */
+html { scroll-behavior: smooth; }
+
+/* Firefox */
+* { scrollbar-width: thin; scrollbar-color: rgba(120,140,170,.45) transparent; }
+
+/* WebKit/Chromium/Safari */
+*::-webkit-scrollbar { width: 11px; height: 11px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb {
+  background: rgba(120,140,170,.42);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(120,140,170,.62);
+  background-clip: padding-box;
+}
+*::-webkit-scrollbar-corner { background: transparent; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

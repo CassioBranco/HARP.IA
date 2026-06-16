@@ -199,3 +199,10 @@
 @media(max-width:1100px){
   .painel-shell .ed{grid-template-columns:64px 300px 1fr}
 }
+
+/* Polish (2026-06-16): easing mais suave nos controles do editor */
+.painel-shell .ed-tab,
+.painel-shell .ed-subtab,
+.painel-shell .ed-acc,
+.painel-shell .ed-gal-card,
+.painel-shell .ed-img{transition-timing-function:cubic-bezier(.22,1,.36,1)}
