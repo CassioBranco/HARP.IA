@@ -79,6 +79,15 @@ export async function POST(req: NextRequest) {
     )
   }
 
+  // Sem chave de IA no ambiente: falha limpa ANTES de registrar a geração.
+  // (evita 500 cru + linha presa em 'running' que ainda contava na quota diária)
+  if (!process.env.ANTHROPIC_API_KEY) {
+    return new Response(
+      JSON.stringify({ error: 'Geração de IA indisponível: a chave da API não está configurada no servidor.' }),
+      { status: 503, headers: { 'Content-Type': 'application/json' } }
+    )
+  }
+
   // ── Registra geração (status=running) ─────────────────────
   const { data: generation } = await supabase
     .from('ia_generations')
