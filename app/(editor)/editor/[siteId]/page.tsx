@@ -22,6 +22,14 @@ export type SiteData = {
   status: string
 }
 
+const GEN_STEPS = [
+  'Analisando seu negócio…',
+  'Escrevendo os textos…',
+  'Otimizando pra busca no Google…',
+  'Montando as seções do site…',
+  'Quase lá, dando os retoques…',
+]
+
 export default function EditorPage() {
   const { siteId } = useParams<{ siteId: string }>()
   const [viewMode, setViewMode] = useState<ViewMode>('desktop')
@@ -34,6 +42,14 @@ export default function EditorPage() {
   // Geração automática do conteúdo na 1ª abertura (site recém-criado vem vazio).
   const [gen, setGen] = useState<{ state: 'idle' | 'running' | 'error'; msg?: string }>({ state: 'idle' })
   const autoGenChecked = useRef(false)
+  // Mensagens que vão trocando enquanto gera (a geração nao da progresso granular).
+  const [genStep, setGenStep] = useState(0)
+
+  useEffect(() => {
+    if (gen.state !== 'running') { setGenStep(0); return }
+    const id = setInterval(() => setGenStep((i) => (i + 1) % GEN_STEPS.length), 2400)
+    return () => clearInterval(id)
+  }, [gen.state])
 
   useEffect(() => {
     const supabase = createBrowserClient()
@@ -217,12 +233,30 @@ export default function EditorPage() {
               }}>
                 {gen.state === 'running' ? (
                   <>
-                    <i className="ph-fill ph-sparkle ai-spark" style={{ fontSize: '2.4rem' }} />
+                    <style dangerouslySetInnerHTML={{ __html: `
+                      @keyframes harpFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-7px) scale(1.1)}}
+                      @keyframes harpGlow{0%,100%{filter:drop-shadow(0 0 6px rgba(124,109,240,.45))}50%{filter:drop-shadow(0 0 18px rgba(59,130,246,.85))}}
+                      @keyframes harpDots{0%{opacity:.2}20%{opacity:1}100%{opacity:.2}}
+                      @keyframes harpBar{0%{transform:translateX(-120%)}100%{transform:translateX(420%)}}
+                      .harp-spark{display:inline-block;animation:harpFloat 2.4s ease-in-out infinite,harpGlow 2.4s ease-in-out infinite}
+                      .harp-track{position:relative;width:200px;height:4px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.1)}
+                      .harp-track i{position:absolute;top:0;left:0;width:46px;height:100%;border-radius:999px;background:linear-gradient(90deg,#7c6df0,#3b82f6 55%,#16a8c0);animation:harpBar 1.5s ease-in-out infinite}
+                      .harp-dots i{display:inline-block;animation:harpDots 1.4s infinite}
+                      .harp-dots i:nth-child(2){animation-delay:.2s}
+                      .harp-dots i:nth-child(3){animation-delay:.4s}
+                      @media(prefers-reduced-motion:reduce){.harp-spark,.harp-track i,.harp-dots i{animation:none!important}}
+                    ` }} />
+                    <i className="ph-fill ph-sparkle ai-spark harp-spark" style={{ fontSize: '2.6rem' }} />
                     <b style={{ color: '#fff', fontFamily: "'Plus Jakarta Sans'", fontSize: '1.05rem' }}>
-                      A IA está escrevendo seu site…
+                      A IA está escrevendo seu site
+                      <span className="harp-dots"><i>.</i><i>.</i><i>.</i></span>
                     </b>
-                    <span style={{ color: 'var(--muted)', fontSize: '.85rem', maxWidth: 320 }}>
-                      Isso leva alguns segundos. Não feche esta página.
+                    <span style={{ color: 'var(--muted)', fontSize: '.85rem', maxWidth: 320, minHeight: '1.2em', transition: 'opacity .3s' }}>
+                      {GEN_STEPS[genStep]}
+                    </span>
+                    <div className="harp-track" style={{ marginTop: '.3rem' }}><i /></div>
+                    <span style={{ color: 'var(--muted2, #8aa0b6)', fontSize: '.74rem', marginTop: '.2rem' }}>
+                      Não feche esta página.
                     </span>
                   </>
                 ) : (
