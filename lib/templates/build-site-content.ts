@@ -57,7 +57,7 @@ export async function buildSiteContent(
       .maybeSingle(),
     supabase
       .from('onboarding_profiles')
-      .select('business_name, city, state, phone, credentials, years_experience, services, tone')
+      .select('business_name, city, state, credentials, years_experience, services, tone')
       .eq('site_id', site.id)
       .maybeSingle(),
     supabase
@@ -81,6 +81,9 @@ export async function buildSiteContent(
   }, {})
 
   const hero  = sectionMap['hero']   as { headline?: string; sub?: string; cta_label?: string; cta_phone?: string; image?: string } | undefined
+  // telefone não é capturado no onboarding hoje; usa o cta_phone do hero se for um
+  // número real (a IA escreve "[NÃO INFORMADO]" quando o cliente não informou).
+  const heroPhone = hero?.cta_phone && /\d/.test(hero.cta_phone) ? hero.cta_phone : ''
   const about = sectionMap['about']  as { title?: string; body?: string; credential?: string; image?: string } | undefined
   const svcs  = sectionMap['services'] as { items?: { name: string; description: string; icon?: string }[] } | undefined
   const testi = sectionMap['testimonials'] as { items?: { name: string; text: string; rating?: number }[] } | undefined
@@ -100,7 +103,7 @@ export async function buildSiteContent(
     heroHeadline:    hero?.headline ?? '',
     heroSub:         hero?.sub ?? '',
     ctaLabel:        hero?.cta_label ?? 'Falar conosco',
-    ctaPhone:        hero?.cta_phone ?? '',
+    ctaPhone:        heroPhone,
     about:           about?.body ?? '',
     credential:      about?.credential ?? (profile?.credentials ?? []).join(', '),
     services:        rawServices.map(s => ({ name: s.name, description: s.description, icon: s.icon ?? '⭐' })),
@@ -109,7 +112,7 @@ export async function buildSiteContent(
     city:            profile?.city ?? '',
     state:           profile?.state ?? '',
     address:         '',
-    whatsapp:        profile?.phone ?? '',
+    whatsapp:        heroPhone,
     email:           '',
     schemaType:      site.niche ?? 'servicos',
     yearsExperience: profile?.years_experience ?? 0,

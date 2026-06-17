@@ -16,6 +16,12 @@ export async function POST(req: NextRequest) {
   const { site_id, niche } = await req.json() as { site_id: string; niche: string }
   if (!site_id) return Response.json({ error: 'site_id é obrigatório' }, { status: 400 })
 
+  // tenant_id é obrigatório pela RLS de pages/sections — sem ele o upsert é
+  // bloqueado em silêncio e a regeneração não grava nada (bug do "Página toda").
+  const { data: me } = await supabase.from('users').select('tenant_id').eq('id', user.id).single()
+  const tenantId = me?.tenant_id
+  if (!tenantId) return Response.json({ error: 'Tenant não encontrado' }, { status: 403 })
+
   const { data: profile } = await supabase
     .from('onboarding_profiles')
     .select('*')
@@ -69,7 +75,7 @@ faq deve ter EXATAMENTE 6 perguntas. Nada além do JSON.`
     // Salva sections atualizadas
     const { data: page } = await supabase
       .from('pages')
-      .upsert({ site_id, slug: 'home', intent: 'transacional', published: false }, { onConflict: 'site_id,slug' })
+      .upsert({ site_id, tenant_id: tenantId, slug: 'home', intent: 'transacional', published: false }, { onConflict: 'site_id,slug' })
       .select('id')
       .single()
 
@@ -85,7 +91,7 @@ faq deve ter EXATAMENTE 6 perguntas. Nada além do JSON.`
       for (const s of sections) {
         await (supabase as unknown as SupabaseClient)
           .from('sections')
-          .upsert({ page_id: page.id, ...s }, { onConflict: 'page_id,section_type' })
+          .upsert({ page_id: page.id, tenant_id: tenantId, ...s }, { onConflict: 'page_id,section_type' })
       }
     }
   }
