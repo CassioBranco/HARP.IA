@@ -10,6 +10,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { createBrowserClient } from '@/lib/supabase/client'
+import { AiHelp } from '@/components/draft/AiHelp'
 import { saveOnboardingProfile } from '@/lib/onboarding/actions'
 import type {
   Objetivo,
@@ -664,6 +665,9 @@ export default function OnboardingPage() {
                   Pode ser informal. A nossa IA usa o que você escrever aqui pra gerar os textos do
                   seu site e sugerir o segmento.
                 </p>
+                <div style={{ margin: '0 0 .6rem' }}>
+                  <AiHelp>A IA transforma isso nos textos do seu site</AiHelp>
+                </div>
                 <textarea
                   className="field"
                   value={about}
@@ -1279,7 +1283,7 @@ export default function OnboardingPage() {
           </button>
           {isLastScreen ? (
             <button className="btn amber big" onClick={handleGenerate}>
-              Gerar meu site <i className="ph-fill ph-rocket-launch" />
+              <i className="ph-fill ph-sparkle ai-spark" /> Gerar meu site <i className="ph-fill ph-rocket-launch" />
             </button>
           ) : (
             <button className="btn" onClick={() => go(1)}>

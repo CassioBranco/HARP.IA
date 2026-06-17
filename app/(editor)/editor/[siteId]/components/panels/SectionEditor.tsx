@@ -92,7 +92,7 @@ export default function SectionEditor({ siteId, sectionType, niche, onSaved }: P
       <>
         <p className="ed-hint">Conteúdo ainda não gerado.</p>
         <button onClick={() => rewriteWithAI('block')} disabled={aiLoading} className="ed-ai sm">
-          {aiLoading ? 'Gerando…' : '✨ Gerar com IA'}
+          {aiLoading ? 'Gerando…' : <><i className="ph-fill ph-sparkle ai-spark" /> Gerar com IA</>}
         </button>
       </>
     )
@@ -133,7 +133,7 @@ export default function SectionEditor({ siteId, sectionType, niche, onSaved }: P
 
       <div style={{ display: 'flex', gap: '.5rem', borderTop: '1px solid var(--line)', paddingTop: '.7rem' }}>
         <button onClick={() => rewriteWithAI('block')} disabled={aiLoading} className="ed-ai sm" style={{ flex: 1 }}>
-          {aiLoading && aiMode === 'block' ? 'Reescrevendo…' : '✨ Reescrever bloco'}
+          {aiLoading && aiMode === 'block' ? 'Reescrevendo…' : <><i className="ph-fill ph-sparkle ai-spark" /> Reescrever bloco</>}
         </button>
         <button
           onClick={() => rewriteWithAI('page')}
@@ -142,7 +142,7 @@ export default function SectionEditor({ siteId, sectionType, niche, onSaved }: P
           style={{ flex: 1 }}
           title="Regerar a página toda com IA"
         >
-          {aiLoading && aiMode === 'page' ? 'Regerando…' : '⟳ Página toda'}
+          {aiLoading && aiMode === 'page' ? 'Regerando…' : <><i className="ph-fill ph-sparkle ai-spark" /> Página toda</>}
         </button>
       </div>
     </>

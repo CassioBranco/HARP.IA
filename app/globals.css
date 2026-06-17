@@ -105,3 +105,37 @@ html { scroll-behavior: smooth; }
     scroll-behavior: auto !important;
   }
 }
+
+/* ============================================================
+   Selo de IA — estrelinha padronizada em todo ponto com IA.
+   .ai-spark = ícone (dentro de botões/labels)
+   .ai-help  = pill "✨ A IA pode ajudar"
+   ============================================================ */
+.ai-spark {
+  background: linear-gradient(135deg, #7c6df0, #3b82f6 55%, #16a8c0);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+.ai-help {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  font-size: .72rem;
+  font-weight: 700;
+  line-height: 1;
+  padding: .28rem .6rem;
+  border-radius: 999px;
+  color: #6d4ff0;
+  background: linear-gradient(135deg, rgba(124,109,240,.14), rgba(59,130,246,.14));
+  border: 1px solid rgba(124,109,240,.32);
+  white-space: nowrap;
+}
+.ai-help i { font-size: .85em; }
+/* em superfícies escuras (painel/editor/onboarding/landing) o texto clareia */
+.painel-shell .ai-help, .ob-page .ai-help, .lp .ai-help {
+  color: #c9bdff;
+  background: linear-gradient(135deg, rgba(124,109,240,.22), rgba(59,130,246,.18));
+  border-color: rgba(160,150,255,.4);
+}

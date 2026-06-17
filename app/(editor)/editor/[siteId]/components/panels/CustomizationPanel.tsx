@@ -223,7 +223,7 @@ export default function CustomizationPanel({ site, siteId, onSave }: Props) {
         {subTab === 'textos' && (
           <>
             <button onClick={runAiFill} disabled={aiFilling} className="ed-ai">
-              {aiFilling ? 'Escrevendo seu site…' : '✨ Preencher tudo com IA'}
+              {aiFilling ? 'Escrevendo seu site…' : <><i className="ph-fill ph-sparkle ai-spark" /> Preencher tudo com IA</>}
             </button>
             {aiError && <p className="ed-err">{aiError}</p>}
             <p className="ed-hint">Edite cada seção do site. Use a IA para reescrever ou melhorar.</p>

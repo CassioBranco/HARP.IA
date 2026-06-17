@@ -274,7 +274,7 @@ export default function PostEditor({
         {/* sidebar */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.4rem' }}>
           <div className="glass side-card gen-card">
-            <div className="gh"><span className="ic"><i className="ph-fill ph-magic-wand" /></span><b>Escrever com IA</b></div>
+            <div className="gh"><span className="ic"><i className="ph-fill ph-sparkle ai-spark" /></span><b>Escrever com IA</b></div>
             <p>A IA usa o seu conhecimento de especialista pra escrever o artigo, já otimizado.</p>
             <button className="btn" type="button" onClick={() => { setAiErr(null); setAiOpen(true) }}>
               <i className="ph-fill ph-sparkle" /> Gerar artigo
@@ -326,7 +326,7 @@ export default function PostEditor({
         <div className="glass ai-box">
           {!aiGenerating ? (
             <div>
-              <h2><i className="ph-fill ph-magic-wand" /> Gerar artigo com IA</h2>
+              <h2><i className="ph-fill ph-sparkle ai-spark" /> Gerar artigo com IA</h2>
               <p className="sub">Escolha um caminho ou escreva o seu tema.</p>
               {IDEA_TEMPLATES.map((idea, i) => (
                 <button className="idea" type="button" key={i} onClick={() => document.getElementById('aiTheme')?.focus()}>

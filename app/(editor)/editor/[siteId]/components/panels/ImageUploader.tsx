@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { createBrowserClient } from '@/lib/supabase/client'
+import { AiHelp } from '@/components/draft/AiHelp'
 
 type Props = {
   siteId: string
@@ -112,8 +113,11 @@ export default function ImageUploader({ siteId, niche, onAssigned }: Props) {
     <>
       <p className="ed-hint">
         Seu banco de imagens. Envie as fotos do negócio e escolha onde cada uma aparece no site.
-        Geramos WebP, alt text por IA e metadados de SEO automaticamente.
+        Geramos WebP e metadados de SEO automaticamente.
       </p>
+      <div style={{ margin: '0 0 .6rem' }}>
+        <AiHelp>A IA escreve o alt text (SEO) de cada foto</AiHelp>
+      </div>
 
       <button
         onClick={() => inputRef.current?.click()}
