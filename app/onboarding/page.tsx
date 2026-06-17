@@ -129,7 +129,8 @@ export default function OnboardingPage() {
       registro_profissional: regDoc ? registro || null : null,
       porte,
       area_tipo: area,
-      service_radius_km: area === 'local' ? radiusKm : null,
+      // MEI/micro (porte local) atendem num raio máximo de 30 km.
+      service_radius_km: area === 'local' ? Math.min(30, radiusKm) : null,
       coverage_areas:
         area === 'regional' && areaText.trim()
           ? areaText.split(',').map((s) => s.trim()).filter(Boolean)
@@ -839,9 +840,9 @@ export default function OnboardingPage() {
                       className="slider"
                       type="range"
                       min={2}
-                      max={80}
+                      max={30}
                       value={radiusKm}
-                      onChange={(e) => setRadiusKm(Number(e.target.value))}
+                      onChange={(e) => setRadiusKm(Math.min(30, Number(e.target.value)))}
                     />
                   </>
                 ) : porte === 'media' ? (
