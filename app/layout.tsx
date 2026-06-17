@@ -12,7 +12,7 @@ const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ['latin'],
   variable: '--font-heading',
   display: 'swap',
-  weight: ['600', '700'],
+  // fonte variável: sem restrição de peso (o painel usa 500–800).
 })
 
 export const metadata: Metadata = {
