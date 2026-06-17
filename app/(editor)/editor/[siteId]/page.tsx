@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useTransition } from 'react'
+import { useState, useEffect, useRef, useTransition } from 'react'
 import { useParams } from 'next/navigation'
 import { createBrowserClient } from '@/lib/supabase/client'
 import EditorSidebar from './components/EditorSidebar'
@@ -31,6 +31,9 @@ export default function EditorPage() {
   const [, startTransition] = useTransition()
   const [publishing, setPublishing] = useState(false)
   const [publishMsg, setPublishMsg] = useState<{ type: 'ok' | 'err'; text: string } | null>(null)
+  // Geração automática do conteúdo na 1ª abertura (site recém-criado vem vazio).
+  const [gen, setGen] = useState<{ state: 'idle' | 'running' | 'error'; msg?: string }>({ state: 'idle' })
+  const autoGenChecked = useRef(false)
 
   useEffect(() => {
     const supabase = createBrowserClient()
@@ -48,6 +51,60 @@ export default function EditorPage() {
   function refreshPreview() {
     startTransition(() => setPreviewKey(k => k + 1))
   }
+
+  // Dispara a geração de conteúdo (SSE). Usado tanto no auto-gen quanto no retry.
+  async function generateContent() {
+    setGen({ state: 'running' })
+    try {
+      const res = await fetch('/api/generate/site', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ site_id: siteId }),
+      })
+      if (!res.ok || !res.body) {
+        const txt = await res.text().catch(() => '')
+        let msg = txt
+        try { msg = JSON.parse(txt).error ?? txt } catch { /* texto puro */ }
+        setGen({ state: 'error', msg: msg || 'Não consegui gerar o conteúdo agora.' })
+        return
+      }
+      const reader = res.body.getReader()
+      const dec = new TextDecoder()
+      let buf = '', errMsg = ''
+      for (;;) {
+        const { done, value } = await reader.read()
+        if (done) break
+        buf += dec.decode(value, { stream: true })
+        const m = buf.match(/"error":"([^"]*)"/)
+        if (m) errMsg = m[1] ?? ''
+      }
+      if (errMsg) { setGen({ state: 'error', msg: errMsg }); return }
+      setGen({ state: 'idle' })
+      refreshPreview()
+    } catch {
+      setGen({ state: 'error', msg: 'Falha de conexão ao gerar o conteúdo.' })
+    }
+  }
+
+  // Na 1ª abertura: se a home ainda não tem seções, gera automaticamente.
+  // (a geração não dispara mais no onboarding — o gatilho mora aqui agora.)
+  useEffect(() => {
+    if (!site || autoGenChecked.current) return
+    autoGenChecked.current = true
+    const supabase = createBrowserClient()
+    ;(async () => {
+      const { data: page } = await supabase
+        .from('pages').select('id').eq('site_id', siteId).eq('slug', 'home').maybeSingle()
+      let hasContent = false
+      if (page?.id) {
+        const { count } = await supabase
+          .from('sections').select('*', { count: 'exact', head: true }).eq('page_id', page.id)
+        hasContent = (count ?? 0) > 0
+      }
+      if (!hasContent) await generateContent()
+    })()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [site, siteId])
 
   async function handlePublish() {
     setPublishing(true)
@@ -150,7 +207,38 @@ export default function EditorPage() {
             </div>
           </div>
 
-          <div className="ed-canvas">
+          <div className="ed-canvas" style={{ position: 'relative' }}>
+            {gen.state !== 'idle' && (
+              <div style={{
+                position: 'absolute', inset: 0, zIndex: 20, display: 'flex',
+                flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                gap: '.8rem', textAlign: 'center', padding: '2rem',
+                background: 'rgba(11,20,38,.82)', backdropFilter: 'blur(4px)',
+              }}>
+                {gen.state === 'running' ? (
+                  <>
+                    <i className="ph-fill ph-sparkle ai-spark" style={{ fontSize: '2.4rem' }} />
+                    <b style={{ color: '#fff', fontFamily: "'Plus Jakarta Sans'", fontSize: '1.05rem' }}>
+                      A IA está escrevendo seu site…
+                    </b>
+                    <span style={{ color: 'var(--muted)', fontSize: '.85rem', maxWidth: 320 }}>
+                      Isso leva alguns segundos. Não feche esta página.
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <i className="ph-fill ph-warning" style={{ fontSize: '2rem', color: '#fca5a5' }} />
+                    <b style={{ color: '#fff', fontFamily: "'Plus Jakarta Sans'", fontSize: '1rem' }}>
+                      Não consegui gerar o conteúdo
+                    </b>
+                    <span style={{ color: 'var(--muted)', fontSize: '.84rem', maxWidth: 340 }}>{gen.msg}</span>
+                    <button onClick={generateContent} className="btn sm" style={{ marginTop: '.4rem' }}>
+                      Tentar de novo
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
             {viewMode === 'desktop' ? (
               <div className="ed-browser">
                 <div className="ed-chrome">

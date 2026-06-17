@@ -18,6 +18,11 @@ export async function POST(req: NextRequest) {
     return Response.json({ error: 'site_id e keyword são obrigatórios' }, { status: 400 })
   }
 
+  // Posse: a RLS de sites só retorna o site se for do tenant do usuário.
+  // Sem isso, qualquer logado dispararia geração (custo de API) em site alheio.
+  const { data: ownSite } = await supabase.from('sites').select('id').eq('id', site_id).maybeSingle()
+  if (!ownSite) return Response.json({ error: 'Site não encontrado ou sem acesso' }, { status: 403 })
+
   const { data: profile } = await supabase
     .from('onboarding_profiles')
     .select('business_name,city,niche,tone,keywords_primary')
