@@ -3,6 +3,15 @@ const nextConfig = {
   experimental: {
     // Sharp precisa ser externo no bundle do servidor (Next.js 14 + Vercel)
     serverComponentsExternalPackages: ['sharp'],
+    // ...mas externo nao garante que os binarios nativos (@img/sharp-linux-x64
+    // + libvips) entrem no bundle da função na Vercel. Sem eles, o runtime
+    // linux estoura "Could not load the sharp module". Forca a inclusao.
+    outputFileTracingIncludes: {
+      '/api/images/upload': [
+        './node_modules/sharp/**/*',
+        './node_modules/@img/**/*',
+      ],
+    },
   },
   eslint: {
     // Protótipo — ESLint roda separado no CI; não bloqueia o build
