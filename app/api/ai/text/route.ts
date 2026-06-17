@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 import { createServerClient } from '@/lib/supabase/server'
 import { getAnthropicClient, MODELS, cachedSystem, friendlyAIError } from '@/lib/claude/client'
 import { buildSystemPrompt } from '@/lib/prompts/loader'
+import { deepSanitize } from '@/lib/text/sanitize'
 
 export const runtime = 'nodejs'
 export const maxDuration = 30
@@ -83,5 +84,5 @@ Regras: keyword primária nos primeiros 100 chars, cidade 2x por 200 palavras, z
     if (match) content = JSON.parse(match[0])
   } catch { /* ignora */ }
 
-  return Response.json({ content })
+  return Response.json({ content: content ? deepSanitize(content) : content })
 }

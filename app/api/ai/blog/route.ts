@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 import { createServerClient } from '@/lib/supabase/server'
 import { getAnthropicClient, MODELS, cachedSystem, friendlyAIError } from '@/lib/claude/client'
 import { buildSystemPrompt } from '@/lib/prompts/loader'
+import { deepSanitize } from '@/lib/text/sanitize'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -74,5 +75,5 @@ Nada além do JSON.`
     if (match) parsed = JSON.parse(match[0])
   } catch { /* ignora */ }
 
-  return Response.json(parsed ?? { error: 'Falha ao parsear resposta da IA', raw: text })
+  return Response.json(parsed ? deepSanitize(parsed) : { error: 'Falha ao parsear resposta da IA', raw: text })
 }

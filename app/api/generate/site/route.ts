@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 import { createServerClient } from '@/lib/supabase/server'
 import { getAnthropicClient, MODELS, cachedSystem, totalTokens, friendlyAIError } from '@/lib/claude/client'
 import { buildSystemPrompt, serializeProfile } from '@/lib/prompts/loader'
+import { deepSanitize } from '@/lib/text/sanitize'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
 export const runtime = 'nodejs'
@@ -183,6 +184,8 @@ REGRAS:
           const jsonMatch = fullText.match(/\{[\s\S]*\}/)
           if (jsonMatch) parsed = JSON.parse(jsonMatch[0])
         } catch { /* ignora parse error — salva raw */ }
+
+        if (parsed) parsed = deepSanitize(parsed)
 
         const durationMs = Date.now() - startedAt
         const finalMessage = await anthropicStream.finalMessage()

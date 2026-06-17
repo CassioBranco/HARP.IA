@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 import { createServerClient } from '@/lib/supabase/server'
 import { getAnthropicClient, MODELS, cachedSystem, friendlyAIError } from '@/lib/claude/client'
 import { buildSystemPrompt, serializeProfile } from '@/lib/prompts/loader'
+import { deepSanitize } from '@/lib/text/sanitize'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
 export const runtime = 'nodejs'
@@ -70,6 +71,8 @@ faq deve ter EXATAMENTE 6 perguntas. Nada além do JSON.`
     const match = text.match(/\{[\s\S]*\}/)
     if (match) parsed = JSON.parse(match[0])
   } catch { /* ignora */ }
+
+  if (parsed) parsed = deepSanitize(parsed)
 
   if (parsed) {
     // Salva sections atualizadas
