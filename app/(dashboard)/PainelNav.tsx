@@ -9,6 +9,7 @@ const NAV = [
   { href: '/sites',    label: 'Meus sites',    icon: 'ph-globe-hemisphere-west' },
   { href: '/editor',   label: 'Editor',         icon: 'ph-pencil-ruler' },
   { href: '/blog',     label: 'Blog',           icon: 'ph-article' },
+  { href: '/gbp',      label: 'Google',         icon: 'ph-google-logo' },
   { href: '/settings', label: 'Configurações',  icon: 'ph-gear' },
 ]
 
