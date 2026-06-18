@@ -63,6 +63,18 @@ export type SiteContent = {
   solutionStatement?: string
   heroImage?: string
   aboutImage?: string
+  // Identidade visual do cliente
+  logoUrl?: string
+  faviconUrl?: string
+  socials?: {
+    instagram?: string
+    facebook?: string
+    whatsapp?: string
+    tiktok?: string
+    youtube?: string
+    linkedin?: string
+    site_externo?: string
+  }
 }
 
 // Imagens placeholder — picsum com seeds fixos por categoria

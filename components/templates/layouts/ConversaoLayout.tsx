@@ -1,4 +1,5 @@
 import type { SiteContent } from '@/lib/templates/example-content'
+import SiteBrand from '../shared/SiteBrand'
 import type { PaletteColors } from '@/lib/templates/palettes'
 
 function cssVars(p: PaletteColors) {
@@ -192,7 +193,7 @@ export default function ConversaoLayout({ c, p, preview: _preview }: { c: SiteCo
       {/* NAV */}
       <nav className="site">
         <div className="wrap">
-          <a className="brand" href="#">{c.businessName}</a>
+          <a className="brand" href="#"><SiteBrand c={c}>{c.businessName}</SiteBrand></a>
           <a className="phone" href={tel}>{c.ctaPhone}</a>
         </div>
       </nav>

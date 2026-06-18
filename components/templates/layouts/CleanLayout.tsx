@@ -1,4 +1,5 @@
 import type { SiteContent } from '@/lib/templates/example-content'
+import SiteBrand from '../shared/SiteBrand'
 import type { PaletteColors } from '@/lib/templates/palettes'
 
 function cssVars(p: PaletteColors): string {
@@ -184,7 +185,7 @@ export default function CleanLayout({ c, p, preview }: { c: SiteContent; p: Pale
       {/* NAV */}
       <nav className="cl-nav">
         <div className="cl-wrap">
-          <a className="cl-brand" href="#">{c.businessName}</a>
+          <a className="cl-brand" href="#"><SiteBrand c={c}>{c.businessName}</SiteBrand></a>
           <div className="cl-nav-links">
             <a href="#especialidades">Serviços</a>
             {team.length > 0 && <a href="#equipe">Equipe</a>}

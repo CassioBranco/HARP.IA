@@ -1,4 +1,5 @@
 import type { SiteContent } from '@/lib/templates/example-content'
+import SiteBrand from '../shared/SiteBrand'
 import type { PaletteColors } from '@/lib/templates/palettes'
 
 function cssVars(p: PaletteColors): string {
@@ -191,8 +192,8 @@ export default function PortfolioLayout({
       <nav className="f-site">
         <div className="f-wrap">
           <a className="f-brand" href="#">
-            {c.businessName.split(' ')[0]}{' '}
-            <em>{c.businessName.split(' ').slice(1).join(' ')}</em>
+            <SiteBrand c={c}>{c.businessName.split(' ')[0]}{' '}
+            <em>{c.businessName.split(' ').slice(1).join(' ')}</em></SiteBrand>
           </a>
           <div className="f-nav-links">
             <a href="#estrutura">Estrutura</a>

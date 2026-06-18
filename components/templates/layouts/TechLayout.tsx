@@ -1,4 +1,5 @@
 import type { SiteContent } from '@/lib/templates/example-content'
+import SiteBrand from '../shared/SiteBrand'
 import type { PaletteColors } from '@/lib/templates/palettes'
 import SiteFAQ from '../shared/SiteFAQ'
 import SiteBlog from '../shared/SiteBlog'
@@ -82,7 +83,7 @@ export default function TechLayout({ c, p, preview }: { c: SiteContent; p: Palet
         }}>
           <div style={{ ...wrap, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1.3rem 2rem' }}>
             <span style={{ ...heading, fontSize: '1.4rem', letterSpacing: '.02em' }}>
-              {c.businessName.split(' ')[0]}<span style={gradText}>.</span>
+              <SiteBrand c={c}>{c.businessName.split(' ')[0]}<span style={gradText}>.</span></SiteBrand>
             </span>
             <div style={{ display: 'flex', gap: '2rem', alignItems: 'center', fontSize: '.92rem', color: 'var(--sm)' }}>
               {['Serviços', 'Sobre', 'Blog', 'Dúvidas'].map(item => (

@@ -5,6 +5,7 @@ import { createBrowserClient } from '@/lib/supabase/client'
 import type { SiteData } from '../../page'
 import ImageUploader from './ImageUploader'
 import SectionEditor from './SectionEditor'
+import BrandPanel from './BrandPanel'
 import {
   PALETTES,
   PALETTE_GROUPS,
@@ -27,7 +28,7 @@ type Props = {
   onSave: (updated: Partial<SiteData>) => void
 }
 
-type SubTab = 'cores' | 'fontes' | 'imagens' | 'textos'
+type SubTab = 'cores' | 'fontes' | 'imagens' | 'marca' | 'textos'
 
 export default function CustomizationPanel({ site, siteId, onSave }: Props) {
   const [subTab, setSubTab] = useState<SubTab>('cores')
@@ -104,6 +105,7 @@ export default function CustomizationPanel({ site, siteId, onSave }: Props) {
     { id: 'cores',   label: 'Cores' },
     { id: 'fontes',  label: 'Fontes' },
     { id: 'imagens', label: 'Imagens' },
+    { id: 'marca',   label: 'Marca' },
     { id: 'textos',  label: 'Textos' },
   ]
 
@@ -218,6 +220,9 @@ export default function CustomizationPanel({ site, siteId, onSave }: Props) {
 
         {/* ── IMAGENS ── */}
         {subTab === 'imagens' && <ImageUploader siteId={siteId} niche={site.niche} onAssigned={() => onSave({})} />}
+
+        {/* ── MARCA (logo, favicon, redes) ── */}
+        {subTab === 'marca' && <BrandPanel siteId={siteId} />}
 
         {/* ── TEXTOS ── */}
         {subTab === 'textos' && (

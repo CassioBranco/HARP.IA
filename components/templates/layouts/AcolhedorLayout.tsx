@@ -1,4 +1,5 @@
 import type { SiteContent } from '@/lib/templates/example-content'
+import SiteBrand from '../shared/SiteBrand'
 import type { PaletteColors } from '@/lib/templates/palettes'
 
 function cssVars(p: PaletteColors) {
@@ -136,7 +137,7 @@ export default function AcolhedorLayout({ c, p, preview: _preview }: { c: SiteCo
       {/* NAV */}
       <nav className="site">
         <div className="wrap">
-          <a className="brand" href="#">{c.businessName.split(' ')[0]} <em>{c.businessName.split(' ').slice(1).join(' ')}</em></a>
+          <a className="brand" href="#"><SiteBrand c={c}>{c.businessName.split(' ')[0]} <em>{c.businessName.split(' ').slice(1).join(' ')}</em></SiteBrand></a>
           <div className="nav-links">
             <a href="#historia">Nossa história</a>
             <a href="#equipe">Equipe</a>

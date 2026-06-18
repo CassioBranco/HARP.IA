@@ -57,7 +57,7 @@ export async function buildSiteContent(
       .maybeSingle(),
     supabase
       .from('onboarding_profiles')
-      .select('business_name, city, state, credentials, years_experience, services, tone')
+      .select('business_name, city, state, credentials, years_experience, services, tone, logo_url, favicon_url, social_links')
       .eq('site_id', site.id)
       .maybeSingle(),
     supabase
@@ -119,6 +119,9 @@ export async function buildSiteContent(
     blogPosts:       [],
     ...(heroImage ? { heroImage } : {}),
     ...(aboutImage ? { aboutImage } : {}),
+    ...(profile?.logo_url ? { logoUrl: profile.logo_url as string } : {}),
+    ...(profile?.favicon_url ? { faviconUrl: profile.favicon_url as string } : {}),
+    ...(profile?.social_links ? { socials: profile.social_links as SiteContent['socials'] } : {}),
   }
 
   return {

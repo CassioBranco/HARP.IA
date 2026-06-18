@@ -1,4 +1,5 @@
 import type { SiteContent } from '@/lib/templates/example-content'
+import SiteBrand from '../shared/SiteBrand'
 import type { PaletteColors } from '@/lib/templates/palettes'
 
 function cssVars(p: PaletteColors) {
@@ -213,7 +214,7 @@ export default function AcademiaLayout({ c, p, preview }: { c: SiteContent; p: P
       <nav className="ac-nav">
         <div className="ac-wrap">
           <a className="ac-brand" href={href('/')}>
-            {c.businessName.split(' ')[0]}<b>{c.businessName.split(' ').slice(1).join(' ')}</b>
+            <SiteBrand c={c}>{c.businessName.split(' ')[0]}<b>{c.businessName.split(' ').slice(1).join(' ')}</b></SiteBrand>
           </a>
           <div className="ac-nav-links">
             <a href="#idiomas">Idiomas</a>

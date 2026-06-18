@@ -1,4 +1,5 @@
 import type { SiteContent } from '@/lib/templates/example-content'
+import SiteBrand from '../shared/SiteBrand'
 import type { PaletteColors } from '@/lib/templates/palettes'
 
 function cssVars(p: PaletteColors) {
@@ -139,7 +140,7 @@ export default function MagazineLayout({ c, p, preview }: { c: SiteContent; p: P
           <span>{c.ctaPhone}</span>
         </div>
         <div className="mag-title">
-          <a className="mag-title-name" href={href('/')}>{c.businessName}</a>
+          <a className="mag-title-name" href={href('/')}><SiteBrand c={c}>{c.businessName}</SiteBrand></a>
           <p className="mag-tagline">{c.tagline}</p>
         </div>
         <nav className="mag-navbar">

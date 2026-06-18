@@ -1,4 +1,5 @@
 import type { SiteContent } from '@/lib/templates/example-content'
+import SiteBrand from '../shared/SiteBrand'
 import type { PaletteColors } from '@/lib/templates/palettes'
 import SiteFAQ from '../shared/SiteFAQ'
 import SiteBlog from '../shared/SiteBlog'
@@ -42,7 +43,7 @@ export default function JovemLayout({ c, p, preview }: { c: SiteContent; p: Pale
         <nav style={{ borderBottom: '3px solid var(--ink)', backgroundColor: 'var(--paper)', position: 'sticky', top: 0, zIndex: 50 }}>
           <div style={{ ...wrap, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem 2rem' }}>
             <span style={{ ...smash, fontSize: '1.5rem', lineHeight: 1 }}>
-              {c.businessName.split(' ')[0]} <b style={{ color: 'var(--sp)' }}>{c.businessName.split(' ').slice(1).join(' ') || '.'}</b>
+              <SiteBrand c={c}>{c.businessName.split(' ')[0]} <b style={{ color: 'var(--sp)' }}>{c.businessName.split(' ').slice(1).join(' ') || '.'}</b></SiteBrand>
             </span>
             <div style={{ display: 'flex', gap: '1.6rem', alignItems: 'center', ...mono, fontSize: '.85rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.05em' }}>
               {['Serviços', 'Equipe', 'Blog', 'Contato'].map(item => (

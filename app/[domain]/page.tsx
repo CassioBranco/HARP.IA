@@ -95,10 +95,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     .eq('slug', 'home')
     .single()
 
+  // Favicon do cliente (gerado no upload da logo)
+  const { data: prof } = await supabase
+    .from('onboarding_profiles')
+    .select('favicon_url')
+    .eq('site_id', site.id)
+    .maybeSingle()
+  const favicon = (prof as { favicon_url?: string } | null)?.favicon_url
+
   return {
     title: page?.title ?? domain,
     description: page?.meta_description ?? undefined,
     robots: { index: true, follow: true },
+    ...(favicon ? { icons: { icon: favicon, shortcut: favicon, apple: favicon } } : {}),
     alternates: { canonical: `https://${domain}` },
     openGraph: {
       title: page?.title ?? domain,

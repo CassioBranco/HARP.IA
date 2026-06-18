@@ -1,4 +1,5 @@
 import type { SiteContent } from '@/lib/templates/example-content'
+import SiteBrand from '../shared/SiteBrand'
 import type { PaletteColors } from '@/lib/templates/palettes'
 
 function cssVars(p: PaletteColors): string {
@@ -184,8 +185,8 @@ export default function ProfissionalLayout({
       <nav className="p-site">
         <div className="p-wrap">
           <a className="p-brand" href="#">
-            {c.businessName.split(' ')[0]}{' '}
-            <em>{c.businessName.split(' ').slice(1).join(' ')}</em>
+            <SiteBrand c={c}>{c.businessName.split(' ')[0]}{' '}
+            <em>{c.businessName.split(' ').slice(1).join(' ')}</em></SiteBrand>
           </a>
           <div className="p-nav-links">
             <a href="#especialidades">Especialidades</a>

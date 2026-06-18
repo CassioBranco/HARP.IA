@@ -2,6 +2,7 @@ import type { SiteContent } from '@/lib/templates/example-content'
 import type { PaletteColors } from '@/lib/templates/palettes'
 import type { LayoutId } from '@/lib/templates/layouts'
 import { getFontPair } from '@/lib/templates/fonts'
+import SiteSocials from './shared/SiteSocials'
 
 import CleanLayout from './layouts/CleanLayout'
 import BoldLayout from './layouts/BoldLayout'
@@ -46,6 +47,7 @@ export default function LayoutRenderer({ layout, c, p, preview = false, fontPair
   return (
     <>
       <Component c={c} p={p} preview={preview} />
+      <SiteSocials c={c} p={p} />
       {font && (
         <>
           {/* eslint-disable-next-line @next/next/no-page-custom-font */}

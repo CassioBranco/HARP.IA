@@ -1,4 +1,5 @@
 import type { SiteContent } from '@/lib/templates/example-content'
+import SiteBrand from '../shared/SiteBrand'
 import type { PaletteColors } from '@/lib/templates/palettes'
 
 function cssVars(p: PaletteColors): string {
@@ -176,7 +177,7 @@ export default function BoldLayout({ c, p, preview }: { c: SiteContent; p: Palet
       {/* NAV — floating */}
       <nav className="bd-nav">
         <div className="bd-wrap">
-          <a className="bd-brand" href="#">{c.businessName}</a>
+          <a className="bd-brand" href="#"><SiteBrand c={c}>{c.businessName}</SiteBrand></a>
           <div className="bd-nav-links">
             <a href="#especialidades">Serviços</a>
             <a href="#sobre">A empresa</a>
