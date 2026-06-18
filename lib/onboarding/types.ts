@@ -21,7 +21,10 @@ export type AreaTipo = 'local' | 'regional' | 'nacional'
 
 export type GpeModo = 'vincular' | 'criar' | 'sem'
 
-export type DominioModo = 'proprio' | 'subdominio'
+// 'proprio'     = não tem domínio, a plataforma compra e configura
+// 'tenho'       = já tem um domínio próprio, vai apontar o DNS pra cá
+// 'subdominio'  = subdomínio grátis em harpia.site (SEO inferior)
+export type DominioModo = 'proprio' | 'tenho' | 'subdominio'
 
 // Item da seção "Seu conhecimento vale ouro" (E-E-A-T)
 export interface ConhecimentoItem {

@@ -191,3 +191,21 @@ export function slugifyBusiness(name: string): string {
       .slice(0, 30) || 'seunegocio'
   )
 }
+
+// Normaliza o domínio que o cliente digitou: tira http(s)://, "www.", caminho,
+// espaços e deixa minúsculo. Ex.: "https://www.MeuNegocio.com.br/" -> "meunegocio.com.br"
+export function cleanDomain(raw: string): string {
+  return (raw || '')
+    .trim()
+    .toLowerCase()
+    .replace(/^https?:\/\//, '')
+    .replace(/^www\./, '')
+    .replace(/\/.*$/, '')
+    .replace(/\s+/g, '')
+}
+
+// Validação leve de domínio (label.tld, aceita subníveis tipo .com.br)
+export function isValidDomain(raw: string): boolean {
+  const d = cleanDomain(raw)
+  return /^([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/.test(d)
+}

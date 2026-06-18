@@ -28,6 +28,8 @@ import {
   nicheToSlug,
   areaTipoFromPorte,
   slugifyBusiness,
+  cleanDomain,
+  isValidDomain,
   guessNiche,
   catOfNiche,
 } from './data'
@@ -81,6 +83,7 @@ export default function OnboardingPage() {
   const [gpeErr, setGpeErr] = useState(false)
   const [answers, setAnswers] = useState<string[]>(() => KQUESTIONS.map(() => ''))
   const [dominioModo, setDominioModo] = useState<DominioModo>('proprio')
+  const [dominioProprio, setDominioProprio] = useState('') // domínio que o cliente já tem
   const [saving, setSaving] = useState(false)
   const [profileId, setProfileId] = useState<string | null>(null)
   const [overlay, setOverlay] = useState(false)
@@ -144,11 +147,16 @@ export default function OnboardingPage() {
         resposta: answers[i] ?? '',
       })).filter((x) => x.resposta.trim()),
       dominio_modo: dominioModo,
-      dominio: dominioModo === 'proprio' ? `${slug}.com.br` : `${slug}.harpia.site`,
+      dominio:
+        dominioModo === 'tenho'
+          ? cleanDomain(dominioProprio) || null
+          : dominioModo === 'proprio'
+            ? `${slug}.com.br`
+            : `${slug}.harpia.site`,
     }
   }, [
     objetivo, businessName, about, cat, niche, segPick, otherActive, registro,
-    porte, radiusKm, areaText, city, uf, gpeModo, gpeLink, answers, dominioModo,
+    porte, radiusKm, areaText, city, uf, gpeModo, gpeLink, answers, dominioModo, dominioProprio,
   ])
 
   // ── autosave debounced via server action ──────────────────
@@ -182,7 +190,7 @@ export default function OnboardingPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     objetivo, businessName, about, cat, niche, segPick, otherActive, registro,
-    porte, radiusKm, areaText, city, uf, gpeModo, gpeLink, answers, dominioModo,
+    porte, radiusKm, areaText, city, uf, gpeModo, gpeLink, answers, dominioModo, dominioProprio,
   ])
 
   // pré-seleciona categoria + nicho pelo palpite, até o cliente escolher na mão
@@ -223,9 +231,17 @@ export default function OnboardingPage() {
           if (gpeErr) return 'Esse link não parece ser do Google. Confira e cole de novo.'
         }
       }
+      if (s === 6) {
+        if (dominioModo === 'tenho') {
+          if (!dominioProprio.trim())
+            return 'Digite o domínio que você já tem, ou escolha outra opção de endereço.'
+          if (!isValidDomain(dominioProprio))
+            return 'Esse domínio não parece válido. Digite só o endereço, ex.: meunegocio.com.br'
+        }
+      }
       return null
     },
-    [businessName, about, niche, registro, regDoc, porte, city, areaText, gpeModo, gpeLink, gpeErr]
+    [businessName, about, niche, registro, regDoc, porte, city, areaText, gpeModo, gpeLink, gpeErr, dominioModo, dominioProprio]
   )
 
   // ── navegação ─────────────────────────────────────────────
@@ -422,7 +438,7 @@ export default function OnboardingPage() {
         key: 'dom',
         screen: 6,
         label: 'Domínio próprio',
-        got: dominioModo === 'proprio' ? 10 : 4,
+        got: dominioModo === 'subdominio' ? 4 : 10,
         max: 10,
         hint: 'Use domínio próprio (tela 7). A autoridade fica com você, não diluída na plataforma.',
       },
@@ -442,7 +458,7 @@ export default function OnboardingPage() {
       .filter((i) => i.got < i.max)
       .sort((a, b) => b.max - b.got - (a.max - a.got))
     return { items, total, label, color, gaps, ok: total >= MIN_SEO }
-  }, [businessName, about, niche, city, gpeModo, authority.p, dominioModo])
+  }, [businessName, about, niche, city, gpeModo, authority.p, dominioModo, dominioProprio])
 
   // ── tela 7: domínio ───────────────────────────────────────
   const slug = useMemo(() => slugifyBusiness(businessName), [businessName])
@@ -1169,6 +1185,58 @@ export default function OnboardingPage() {
                   Isso afeta diretamente sua força no Google e nas IAs. Você pode mudar depois.
                 </p>
                 <div className="domains">
+                  {/* Já tem um domínio próprio → aponta o DNS pra cá */}
+                  <button
+                    className={`dom${dominioModo === 'tenho' ? ' on' : ''}`}
+                    onClick={() => setDominioModo('tenho')}
+                  >
+                    <span className="dradio" />
+                    <span className="dbody">
+                      <span className="dhead">
+                        <b>Já tenho um domínio</b>
+                        <span className="rec">
+                          <i className="ph-fill ph-trophy" /> Melhor p/ SEO
+                        </span>
+                      </span>
+                      <span className="ddesc">
+                        Você já comprou um endereço (no Registro.br, GoDaddy, etc.). A gente te dá o
+                        passo a passo pra apontar pra cá. A autoridade fica toda com você.
+                      </span>
+                    </span>
+                  </button>
+
+                  {/* Cliente digita o domínio que já tem */}
+                  {dominioModo === 'tenho' && (
+                    <div className="dom-input-wrap">
+                      <label className="lbl" style={{ margin: '0 0 .4rem' }}>
+                        Qual é o seu domínio?
+                      </label>
+                      <input
+                        className="field"
+                        type="text"
+                        inputMode="url"
+                        placeholder="ex.: meunegocio.com.br"
+                        value={dominioProprio}
+                        onChange={(e) => setDominioProprio(e.target.value)}
+                        autoComplete="off"
+                      />
+                      {dominioProprio.trim() && !isValidDomain(dominioProprio) && (
+                        <p className="dom-input-err">
+                          <i className="ph-fill ph-warning-circle" /> Digite só o endereço, sem
+                          "https://" nem barras. Ex.: meunegocio.com.br
+                        </p>
+                      )}
+                      {dominioProprio.trim() && isValidDomain(dominioProprio) && (
+                        <p className="dom-input-ok">
+                          <i className="ph-fill ph-check-circle" /> Perfeito. Depois de gerar o site,
+                          a gente te mostra o registro de DNS pra colar no seu provedor (leva uns
+                          minutos). Se preferir, a gente configura pra você.
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Não tem domínio → a plataforma compra e configura */}
                   <button
                     className={`dom${dominioModo === 'proprio' ? ' on' : ''}`}
                     onClick={() => setDominioModo('proprio')}
@@ -1176,18 +1244,20 @@ export default function OnboardingPage() {
                     <span className="dradio" />
                     <span className="dbody">
                       <span className="dhead">
-                        <b>Domínio próprio</b>
+                        <b>Quero um domínio próprio</b>
                         <span className="rec">
                           <i className="ph-fill ph-trophy" /> Recomendado p/ SEO
                         </span>
                       </span>
                       <span className="durl">{slug}.com.br</span>
                       <span className="ddesc">
-                        Máxima performance no Google e nas buscas por IA. Não tem um? A gente compra e
-                        configura pra você.
+                        Não tem um ainda? A gente compra e configura pra você. Máxima performance no
+                        Google e nas buscas por IA.
                       </span>
                     </span>
                   </button>
+
+                  {/* Subdomínio grátis */}
                   <button
                     className={`dom${dominioModo === 'subdominio' ? ' on' : ''}`}
                     onClick={() => setDominioModo('subdominio')}
@@ -1198,7 +1268,7 @@ export default function OnboardingPage() {
                         <b>Subdomínio grátis do HARPIA</b>
                       </span>
                       <span className="durl">{slug}.harpia.site</span>
-                      <span className="ddesc">Pronto na hora, sem custo.</span>
+                      <span className="ddesc">Pronto na hora, sem custo. Bom pra começar.</span>
                       <span className="dwarn">
                         <i className="ph-fill ph-warning" />{' '}
                         <span>
