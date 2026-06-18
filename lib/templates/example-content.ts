@@ -75,6 +75,9 @@ export type SiteContent = {
     linkedin?: string
     site_externo?: string
   }
+  // Google Perfil de Empresa (Maps / Business Profile) — alimenta schema + botões
+  gbpLink?: string
+  gbpPlaceId?: string
 }
 
 // Imagens placeholder — picsum com seeds fixos por categoria

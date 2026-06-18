@@ -57,6 +57,10 @@ function buildJsonLd(site: {
     } : undefined,
     telephone: profile?.phone ?? undefined,
     areaServed: city ? { '@type': 'City', name: city } : undefined,
+    // Vínculo com o Google Perfil de Empresa: diz ao Google/IAs que este site
+    // é o mesmo negócio verificado no Maps (sinal forte de SEO local).
+    sameAs: content.gbpLink ? [content.gbpLink] : undefined,
+    hasMap: content.gbpLink ?? undefined,
   }
 
   const faqItems = (content.faqs ?? []).slice(0, 6)

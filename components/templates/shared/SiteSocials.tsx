@@ -40,14 +40,18 @@ const PATHS: Record<string, string> = {
   youtube: 'M23.5 6.2a3.02 3.02 0 0 0-2.12-2.14C19.5 3.55 12 3.55 12 3.55s-7.5 0-9.38.51A3.02 3.02 0 0 0 .5 6.2C0 8.07 0 12 0 12s0 3.93.5 5.8a3.02 3.02 0 0 0 2.12 2.14c1.88.51 9.38.51 9.38.51s7.5 0 9.38-.51a3.02 3.02 0 0 0 2.12-2.14C24 15.93 24 12 24 12s0-3.93-.5-5.8zM9.6 15.6V8.4l6.2 3.6-6.2 3.6z',
   linkedin: 'M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.07 2.07 0 1 1 0-4.14 2.07 2.07 0 0 1 0 4.14zm1.78 13.02H3.56V9h3.56v11.45zM22.22 0H1.77C.8 0 0 .77 0 1.73v20.54C0 23.22.8 24 1.77 24h20.45c.98 0 1.78-.78 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z',
   site_externo: 'M12 0a12 12 0 1 0 0 24 12 12 0 0 0 0-24zm6.93 6h-2.95a15.7 15.7 0 0 0-1.38-3.56A8.03 8.03 0 0 1 18.93 6zM12 2.04c.83 1.2 1.48 2.53 1.91 3.96h-3.82c.43-1.43 1.08-2.76 1.91-3.96zM2.26 14a8 8 0 0 1 0-4h3.38a16.5 16.5 0 0 0 0 4H2.26zm.81 2h2.95c.3 1.27.76 2.47 1.38 3.56A8.03 8.03 0 0 1 3.07 16zm2.95-8H3.07a8.03 8.03 0 0 1 4.33-3.56A15.7 15.7 0 0 0 6.02 8zM12 21.96c-.83-1.2-1.48-2.53-1.91-3.96h3.82c-.43 1.43-1.08 2.76-1.91 3.96zM14.34 16H9.66a14.7 14.7 0 0 1 0-4h4.68a14.7 14.7 0 0 1 0 4zm.27 5.56c.62-1.09 1.08-2.29 1.38-3.56h2.95a8.03 8.03 0 0 1-4.33 3.56zM18.36 14a16.5 16.5 0 0 0 0-4h3.38a8 8 0 0 1 0 4h-3.38z',
+  // "G" do Google (Maps / Perfil de Empresa) — leva o visitante a ver e avaliar no Google
+  google: 'M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47a5.4 5.4 0 0 1-2.4 3.58v3h3.86c2.26-2.09 3.56-5.17 3.56-8.82zM12 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-3c-1.08.72-2.45 1.16-4.07 1.16-3.13 0-5.78-2.11-6.73-4.96H1.29v3.09A11.99 11.99 0 0 0 12 24zM5.27 14.29A7.2 7.2 0 0 1 4.89 12c0-.8.14-1.57.38-2.29V6.62H1.29A11.99 11.99 0 0 0 0 12c0 1.94.46 3.77 1.29 5.38l3.98-3.09zM12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42A11.49 11.49 0 0 0 12 0 11.99 11.99 0 0 0 1.29 6.62l3.98 3.09C6.22 6.86 8.87 4.75 12 4.75z',
 }
 const COLORS: Record<string, string> = {
   whatsapp: '#25D366', instagram: '#E4405F', facebook: '#1877F2',
   tiktok: '#000000', youtube: '#FF0000', linkedin: '#0A66C2', site_externo: '#555',
+  google: '#4285F4',
 }
 const LABELS: Record<string, string> = {
   whatsapp: 'WhatsApp', instagram: 'Instagram', facebook: 'Facebook',
   tiktok: 'TikTok', youtube: 'YouTube', linkedin: 'LinkedIn', site_externo: 'Site',
+  google: 'Ver no Google',
 }
 
 export default function SiteSocials({ c }: { c: SiteContent; p?: PaletteColors }) {
@@ -55,11 +59,14 @@ export default function SiteSocials({ c }: { c: SiteContent; p?: PaletteColors }
   // WhatsApp também aceita o telefone do hero (c.whatsapp) como fallback.
   const wa = s.whatsapp || c.whatsapp || ''
   const order: (keyof Socials)[] = ['whatsapp', 'instagram', 'facebook', 'tiktok', 'youtube', 'linkedin', 'site_externo']
-  const items = order
+  const items: { k: string; href: string }[] = order
     .map((k) => ({ k, raw: k === 'whatsapp' ? wa : (s[k] ?? '') }))
     .filter((it) => it.raw && it.raw.trim())
-    .map((it) => ({ k: it.k, href: urlFor(it.k, it.raw) }))
+    .map((it) => ({ k: it.k as string, href: urlFor(it.k, it.raw) }))
     .filter((it) => it.href)
+
+  // Google Perfil de Empresa — botão pra ver/avaliar o negócio no Google.
+  if (c.gbpLink) items.push({ k: 'google', href: c.gbpLink })
 
   if (items.length === 0) return null
 

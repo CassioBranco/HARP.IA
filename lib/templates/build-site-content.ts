@@ -57,7 +57,7 @@ export async function buildSiteContent(
       .maybeSingle(),
     supabase
       .from('onboarding_profiles')
-      .select('business_name, city, state, credentials, years_experience, services, tone, logo_url, favicon_url, social_links')
+      .select('business_name, city, state, credentials, years_experience, services, tone, logo_url, favicon_url, social_links, gpe_modo, gpe_link, gbp_place_id')
       .eq('site_id', site.id)
       .maybeSingle(),
     supabase
@@ -122,6 +122,11 @@ export async function buildSiteContent(
     ...(profile?.logo_url ? { logoUrl: profile.logo_url as string } : {}),
     ...(profile?.favicon_url ? { faviconUrl: profile.favicon_url as string } : {}),
     ...(profile?.social_links ? { socials: profile.social_links as SiteContent['socials'] } : {}),
+    // GBP só conta como "vinculado" quando o cliente escolheu vincular e há link.
+    ...(profile?.gpe_modo === 'vincular' && profile?.gpe_link
+      ? { gbpLink: profile.gpe_link as string }
+      : {}),
+    ...(profile?.gbp_place_id ? { gbpPlaceId: profile.gbp_place_id as string } : {}),
   }
 
   return {
