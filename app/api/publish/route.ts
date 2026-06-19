@@ -1,5 +1,7 @@
 import { NextRequest } from 'next/server'
 import { createServerClient } from '@/lib/supabase/server'
+import { validateSiteForPublish } from '@/lib/seo/validator'
+import { ensureInternalLinks } from '@/lib/seo/internal-links'
 
 export const runtime = 'nodejs'
 
@@ -55,6 +57,15 @@ export async function POST(req: NextRequest) {
     }, { status: 422 })
   }
 
+  // ── Gate do seo-validator (AEO) — erros bloqueiam a publicação ──────────────
+  const validation = await validateSiteForPublish(supabase, site_id)
+  if (!validation.ok) {
+    return Response.json({
+      error: 'O site não passou na validação de SEO/AEO. Corrija os pontos abaixo antes de publicar.',
+      validation,
+    }, { status: 422 })
+  }
+
   // Gera domínio padrão se não tiver
   const domain = site.domain ?? `${site_id.slice(0, 8)}.harp-ia.com`
 
@@ -73,6 +84,19 @@ export async function POST(req: NextRequest) {
   if (siteUpdate.error) {
     return Response.json({ error: siteUpdate.error.message }, { status: 500 })
   }
+  if (pageUpdate.error) {
+    return Response.json({ error: pageUpdate.error.message }, { status: 500 })
+  }
+
+  // AEO Regra 7 — garante o grafo de links internos (nenhuma página órfã).
+  // Não bloqueia a publicação; devolve avisos de órfãos pra mostrar ao cliente.
+  let internalLinks: Awaited<ReturnType<typeof ensureInternalLinks>> | null = null
+  if (userData?.tenant_id) {
+    internalLinks = await ensureInternalLinks(supabase, {
+      tenantId: userData.tenant_id,
+      siteId: site_id,
+    }).catch(() => null)
+  }
 
   // Log de auditoria
   await supabase.from('audit_logs').insert({
@@ -81,8 +105,20 @@ export async function POST(req: NextRequest) {
     action: 'site_published',
     entity_type: 'site',
     entity_id: site_id,
-    metadata: { domain, niche: site.niche, template: site.template },
+    metadata: {
+      domain,
+      niche: site.niche,
+      template: site.template,
+      warnings: validation.warnings,
+      internal_links_created: internalLinks?.created ?? 0,
+      orphans: internalLinks?.orphans?.length ?? 0,
+    },
   })
 
-  return Response.json({ ok: true, domain })
+  return Response.json({
+    ok: true,
+    domain,
+    warnings: validation.warnings,
+    orphans: internalLinks?.orphans ?? [],
+  })
 }

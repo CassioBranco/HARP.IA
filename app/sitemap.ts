@@ -1,66 +1,78 @@
 import { MetadataRoute } from 'next'
+import { headers } from 'next/headers'
 import { createServerClient } from '@/lib/supabase/server'
 import { hasSupabaseEnv } from '@/lib/env'
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://harp-ia.vercel.app'
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const base: MetadataRoute.Sitemap = [
-    { url: APP_URL, lastModified: new Date(), changeFrequency: 'weekly', priority: 1 },
-  ]
+function isAppHost(host: string): boolean {
+  const h = (host.split(':')[0] ?? '').toLowerCase()
+  if (h === 'localhost' || h === '127.0.0.1') return true
+  if (h.endsWith('.vercel.app')) return true
+  try { if (h === new URL(APP_URL).hostname.toLowerCase()) return true } catch { /* ignora */ }
+  return false
+}
 
-  if (!hasSupabaseEnv()) return base
+// sitemap.xml host-aware: site publicado lista só as SUAS páginas/artigos;
+// painel lista só a própria home. (AEO Regra 2 — sitemap por site.)
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const host = (await headers()).get('host') ?? ''
+
+  // ── Painel ou ambiente sem banco ────────────────────────────────────────
+  if (!host || isAppHost(host) || !hasSupabaseEnv()) {
+    return [{ url: APP_URL, lastModified: new Date(), changeFrequency: 'weekly', priority: 1 }]
+  }
+
+  // ── Site publicado: só as páginas/artigos DESTE domínio ──────────────────
+  const hostname = host.split(':')[0] ?? host
+  const baseUrl = `https://${hostname}`
 
   try {
     const supabase = await createServerClient()
 
-    // Páginas de sites publicados
-    const { data: pages } = await supabase
-      .from('pages')
-      .select('slug, updated_at, sites!inner(domain, status)')
-      .eq('sites.status', 'published')
-      .eq('published', true)
-
-    const pageEntries: MetadataRoute.Sitemap = (pages ?? [])
-      .filter((p: { sites: unknown }) => {
-        const site = p.sites as { domain?: string; status?: string } | null
-        return site?.domain
-      })
-      .map((p: { slug: string; updated_at: string; sites: unknown }) => {
-        const site = p.sites as { domain: string }
-        const base_url = `https://${site.domain}`
-        return {
-          url: p.slug === 'home' ? base_url : `${base_url}/${p.slug}`,
-          lastModified: new Date(p.updated_at ?? Date.now()),
-          changeFrequency: 'monthly' as const,
-          priority: p.slug === 'home' ? 0.9 : 0.7,
-        }
-      })
-
-    // Blog posts publicados
-    const { data: posts } = await supabase
-      .from('blog_posts')
-      .select('slug, published_at, sites!inner(domain, status)')
+    const { data: site } = await supabase
+      .from('sites')
+      .select('id')
+      .eq('domain', hostname)
       .eq('status', 'published')
-      .eq('sites.status', 'published')
+      .maybeSingle()
 
-    const postEntries: MetadataRoute.Sitemap = (posts ?? [])
-      .filter((p: { sites: unknown }) => {
-        const site = p.sites as { domain?: string } | null
-        return site?.domain
-      })
-      .map((p: { slug: string; published_at: string; sites: unknown }) => {
-        const site = p.sites as { domain: string }
-        return {
-          url: `https://${site.domain}/blog/${p.slug}`,
-          lastModified: new Date(p.published_at ?? Date.now()),
-          changeFrequency: 'weekly' as const,
-          priority: 0.6,
-        }
-      })
+    if (!site?.id) {
+      return [{ url: baseUrl, lastModified: new Date(), changeFrequency: 'weekly', priority: 1 }]
+    }
 
-    return [...base, ...pageEntries, ...postEntries]
+    const [{ data: pages }, { data: posts }] = await Promise.all([
+      supabase
+        .from('pages')
+        .select('slug, updated_at')
+        .eq('site_id', site.id)
+        .eq('published', true),
+      supabase
+        .from('blog_posts')
+        .select('slug, published_at')
+        .eq('site_id', site.id)
+        .eq('status', 'published'),
+    ])
+
+    const pageEntries: MetadataRoute.Sitemap = (pages ?? []).map(p => ({
+      url: p.slug === 'home' ? baseUrl : `${baseUrl}/${p.slug}`,
+      lastModified: new Date((p.updated_at as string) ?? Date.now()),
+      changeFrequency: 'monthly' as const,
+      priority: p.slug === 'home' ? 1 : 0.7,
+    }))
+
+    const postEntries: MetadataRoute.Sitemap = (posts ?? []).map(p => ({
+      url: `${baseUrl}/blog/${p.slug}`,
+      lastModified: new Date((p.published_at as string) ?? Date.now()),
+      changeFrequency: 'weekly' as const,
+      priority: 0.6,
+    }))
+
+    const all = [...pageEntries, ...postEntries]
+    return all.length > 0
+      ? all
+      : [{ url: baseUrl, lastModified: new Date(), changeFrequency: 'weekly', priority: 1 }]
   } catch {
-    return base
+    return [{ url: baseUrl, lastModified: new Date(), changeFrequency: 'weekly', priority: 1 }]
   }
 }
