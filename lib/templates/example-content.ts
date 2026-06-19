@@ -63,6 +63,11 @@ export type SiteContent = {
   solutionStatement?: string
   heroImage?: string
   aboutImage?: string
+  // Ponto focal da imagem dentro do molde de proporção fixa do template.
+  // String CSS pronta p/ object-position (ex.: "50% 30%"). Default "50% 50%" (centro).
+  // O cliente ajusta só a POSIÇÃO; a proporção do quadro é travada pelo design.
+  heroImagePos?: string
+  aboutImagePos?: string
   // Identidade visual do cliente
   logoUrl?: string
   faviconUrl?: string

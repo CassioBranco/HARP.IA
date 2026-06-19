@@ -80,11 +80,16 @@ export async function buildSiteContent(
     return acc
   }, {})
 
-  const hero  = sectionMap['hero']   as { headline?: string; sub?: string; cta_label?: string; cta_phone?: string; image?: string } | undefined
+  // Ponto focal salvo no editor (percentuais 0-100). Vira string CSS p/ object-position.
+  // Default centro (50% 50%) — compatível com seções antigas que só têm a URL.
+  const posToCss = (p?: { x?: number; y?: number } | null): string =>
+    `${Math.max(0, Math.min(100, p?.x ?? 50))}% ${Math.max(0, Math.min(100, p?.y ?? 50))}%`
+
+  const hero  = sectionMap['hero']   as { headline?: string; sub?: string; cta_label?: string; cta_phone?: string; image?: string; image_pos?: { x?: number; y?: number } } | undefined
   // telefone não é capturado no onboarding hoje; usa o cta_phone do hero se for um
   // número real (a IA escreve "[NÃO INFORMADO]" quando o cliente não informou).
   const heroPhone = hero?.cta_phone && /\d/.test(hero.cta_phone) ? hero.cta_phone : ''
-  const about = sectionMap['about']  as { title?: string; body?: string; credential?: string; image?: string } | undefined
+  const about = sectionMap['about']  as { title?: string; body?: string; credential?: string; image?: string; image_pos?: { x?: number; y?: number } } | undefined
   const svcs  = sectionMap['services'] as { items?: { name: string; description: string; icon?: string }[] } | undefined
   const testi = sectionMap['testimonials'] as { items?: { name: string; text: string; rating?: number }[] } | undefined
   const faqSec = sectionMap['faq']   as { items?: { question: string; answer: string }[] } | undefined
@@ -119,6 +124,8 @@ export async function buildSiteContent(
     blogPosts:       [],
     ...(heroImage ? { heroImage } : {}),
     ...(aboutImage ? { aboutImage } : {}),
+    heroImagePos:  posToCss(hero?.image_pos),
+    aboutImagePos: posToCss(about?.image_pos),
     ...(profile?.logo_url ? { logoUrl: profile.logo_url as string } : {}),
     ...(profile?.favicon_url ? { faviconUrl: profile.favicon_url as string } : {}),
     ...(profile?.social_links ? { socials: profile.social_links as SiteContent['socials'] } : {}),
