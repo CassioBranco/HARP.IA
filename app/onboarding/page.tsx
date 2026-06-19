@@ -92,6 +92,8 @@ export default function OnboardingPage() {
   const [genError, setGenError] = useState('')
   const [screenError, setScreenError] = useState('')
   const [mounted, setMounted] = useState(false)
+  // true quando o tenant já tem ao menos um site (criação de site adicional)
+  const [hasExistingSite, setHasExistingSite] = useState(false)
 
   // palpite de nicho a partir do texto livre (reativo, não fixo)
   const guess = useMemo(() => guessNiche(about), [about])
@@ -111,8 +113,12 @@ export default function OnboardingPage() {
   useEffect(() => {
     setMounted(true)
     const supabase = createBrowserClient()
-    supabase.auth.getUser().then(({ data }) => {
-      if (!data.user) router.push('/login')
+    supabase.auth.getUser().then(async ({ data }) => {
+      if (!data.user) { router.push('/login'); return }
+      // Já tem site? Então é a criação de um site adicional (2º+ onboarding):
+      // o cliente precisa de uma saída de volta ao painel sem perder o que já fez.
+      const { data: sites } = await supabase.from('sites').select('id').limit(1)
+      if (sites && sites.length > 0) setHasExistingSite(true)
     })
   }, [router])
 
@@ -582,6 +588,16 @@ export default function OnboardingPage() {
             HARPIA
           </div>
           <div className="head-right">
+            {hasExistingSite && (
+              <button
+                className="btn ghost sm"
+                onClick={() => router.push('/sites')}
+                title="Voltar ao painel sem criar este site"
+                style={{ marginRight: '.4rem' }}
+              >
+                <i className="ph-duotone ph-arrow-left" /> Painel
+              </button>
+            )}
             <div className="seo-chip" title="Força de SEO do seu site">
               <i className="ph-fill ph-gauge" style={{ color: seo.color }} />
               <span>SEO</span>

@@ -44,11 +44,13 @@ export const REGULATED: Record<string, string> = {
 
 // ── Tela 4 — Porte (adapta o campo de área) ─────────────────
 // [id, título, ícone, descrição]
+// Faixa de funcionários segue o consenso corporativo (base SEBRAE):
+// MEI/autônomo = só você · Micro/pequena = 2 a 49 · Média = 50 a 249 · Grande = 250+.
 export const PORTES: [Porte, string, string, string][] = [
-  ['mei_autonomo', 'MEI ou autônomo', 'ph-user', 'Sou eu que toco. Foco no meu bairro e cidade.'],
-  ['micro_pequena', 'Micro ou pequena', 'ph-users-three', 'Equipe pequena. Atendo minha cidade e a região.'],
-  ['media', 'Média', 'ph-buildings', 'Vários profissionais. Atendo outras cidades e estados.'],
-  ['grande', 'Grande', 'ph-globe-hemisphere-west', 'Operação ampla, atendimento nacional ou B2B.'],
+  ['mei_autonomo', 'MEI ou autônomo', 'ph-user', 'Só você (1 pessoa). Foco no seu bairro e cidade.'],
+  ['micro_pequena', 'Micro ou pequena', 'ph-users-three', '2 a 49 funcionários. Atende a cidade e a região.'],
+  ['media', 'Média', 'ph-buildings', '50 a 249 funcionários. Atende outras cidades e estados.'],
+  ['grande', 'Grande', 'ph-globe-hemisphere-west', '250+ funcionários. Operação nacional ou B2B.'],
 ]
 
 // ── Tela 6 — Conhecimento guiado (E-E-A-T) ──────────────────
