@@ -1,7 +1,6 @@
 # CLAUDE.md — Projeto HARPIA
 > Documento fundacional do projeto. Leia inteiro antes de qualquer ação.
-> **Codinome interno:** Projeto HARPIA
-> **Nome comercial:** Ancoreo
+> **Nome oficial do projeto:** HARPIA
 > Última atualização: 2026-06-19
 > Owner do produto: Anderson Dove (Anderson Marques) — Sorocaba/SP
 > Operador técnico (decisões operacionais + orquestração de agentes de dev): Cássio Branco
