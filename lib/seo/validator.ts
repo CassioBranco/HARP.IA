@@ -86,6 +86,75 @@ export async function validateSiteForPublish(
   return { ok: errors.length === 0, errors, warnings }
 }
 
+// ============================================================
+// Validação de ARTIGO de blog para publicação (AEO Regras 3, 4).
+// Roda sobre o HTML salvo (content) — o mesmo que vai ao ar.
+// Título vazio bloqueia; o resto vira aviso (heurística sobre HTML
+// livre pode ter falso-negativo; não bloqueamos publicação por isso).
+// ============================================================
+const BLOG_WORDS_MIN = 600
+const BLOG_FAQ_MIN = 6
+
+export function validateBlogPostForPublish(args: {
+  title: string
+  content: string
+  metaDescription?: string | null
+}): ValidationResult {
+  const errors: ValidationIssue[] = []
+  const warnings: ValidationIssue[] = []
+  const { title, content } = args
+  const html = content ?? ''
+
+  if (!title?.trim()) {
+    errors.push({ rule: 'titulo', level: 'error', message: 'Dê um título ao artigo antes de publicar.' })
+  }
+
+  // Palavras (texto sem tags)
+  const words = html.replace(/<[^>]+>/g, ' ').replace(/[#>*_]/g, ' ').trim().split(/\s+/).filter(Boolean).length
+  if (words < BLOG_WORDS_MIN) {
+    warnings.push({ rule: 'tamanho', level: 'warning', message: `Artigo com ${words} palavras (recomendado ${BLOG_WORDS_MIN}+). Textos curtos rankeiam e são citados menos.` })
+  }
+
+  // AEO Regra 4 — FAQ >= 6. Conta perguntas em headings (h2/h3) ou markdown (##).
+  const faqCount = countFaqQuestions(html)
+  if (faqCount < BLOG_FAQ_MIN) {
+    warnings.push({ rule: 'faq-minimo', level: 'warning', message: `FAQ com ${faqCount} perguntas (recomendado ${BLOG_FAQ_MIN}+). É o canal mais direto de aparecer em resposta de IA (Regra AEO 4).` })
+  }
+
+  // AEO Regra 3 — H2 autossuficiente: primeira frase após H2 não pode começar
+  // com pronome/referência órfã ("isso", "como vimos", "conforme acima"...).
+  const orphanH2 = findOrphanH2(html)
+  if (orphanH2.length > 0) {
+    warnings.push({ rule: 'h2-autossuficiente', level: 'warning', message: `${orphanH2.length} subtítulo(s) começam com referência órfã ("${orphanH2[0]}"). A IA lê cada bloco isolado — a 1ª frase após o H2 deve responder direto (Regra AEO 3).` })
+  }
+
+  return { ok: errors.length === 0, errors, warnings }
+}
+
+const ORPHAN_STARTS = ['isso', 'isto', 'essa', 'esse', 'esta', 'este', 'como vimos', 'conforme', 'além disso', 'por isso', 'assim']
+
+/** Conta perguntas (terminam em "?") em headings HTML ou markdown. */
+function countFaqQuestions(html: string): number {
+  const headings = [
+    ...Array.from(html.matchAll(/<h[2-4][^>]*>([\s\S]*?)<\/h[2-4]>/gi)),
+    ...Array.from(html.matchAll(/^#{2,4}\s+(.+)$/gim)),
+  ].map(m => (m[1] ?? '').replace(/<[^>]+>/g, '').trim())
+  return headings.filter(h => h.endsWith('?')).length
+}
+
+/** Devolve os primeiros termos órfãos achados logo após um H2. */
+function findOrphanH2(html: string): string[] {
+  const found: string[] = []
+  const blocks = Array.from(html.matchAll(/<h2[^>]*>[\s\S]*?<\/h2>([\s\S]*?)(?=<h2|$)/gi))
+  for (const b of blocks) {
+    const after = (b[1] ?? '').replace(/<[^>]+>/g, ' ').trim().toLowerCase()
+    const firstWords = after.slice(0, 24)
+    const hit = ORPHAN_STARTS.find(o => firstWords.startsWith(o))
+    if (hit) found.push(hit)
+  }
+  return found
+}
+
 /** Lê a meta_description da home direto do banco (não vem no SiteContent). */
 async function hasHomeMeta(supabase: SupabaseClient, siteId: string): Promise<boolean> {
   const { data } = await supabase

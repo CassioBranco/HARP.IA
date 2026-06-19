@@ -133,16 +133,32 @@ export default function PostEditor({
   async function publish() {
     if (!data.title.trim()) { setErr('Dê um título antes de publicar.'); return }
     setPublishing(true)
+    setErr(null)
     // Human-in-the-Loop: publicação é ação explícita do usuário (este clique).
-    const updated = { ...data, status: 'published' as const }
-    setData(updated)
-    const supabase = createBrowserClient()
-    const id = await persist({ status: 'published' })
-    if (id) {
-      await supabase.from('blog_posts').update({ published_at: new Date().toISOString() }).eq('id', id)
+    // Salva o rascunho atual; a publicação real passa pelo gate AEO no servidor
+    // (valida Regras 3/4 e religa os links internos — Regra 7).
+    const id = await persist()
+    if (!id) { setPublishing(false); return }
+    try {
+      const res = await fetch('/api/publish/blog', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ post_id: id }),
+      })
+      const json = await res.json()
+      if (!res.ok || json.error) {
+        const detail = (json.validation?.errors as { message: string }[] | undefined)?.map(e => e.message).join(' ')
+        setErr(detail || json.error || 'Não foi possível publicar agora.')
+        setPublishing(false)
+        return
+      }
+      setData(d => ({ ...d, status: 'published' }))
+      setPublishing(false)
+      router.push('/blog')
+    } catch {
+      setErr('Falha de conexão ao publicar.')
+      setPublishing(false)
     }
-    setPublishing(false)
-    if (id) router.push('/blog')
   }
 
   // ── Toolbar de formatação (markdown leve na seleção) ──────
