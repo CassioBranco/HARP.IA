@@ -1,8 +1,8 @@
 # CLAUDE.md — Projeto HARPIA
 > Documento fundacional do projeto. Leia inteiro antes de qualquer ação.
 > **Codinome interno:** Projeto HARPIA
-> **Nome comercial:** a definir (não usar "HARPIA" em comunicação com cliente)
-> Última atualização: 02/06/2026
+> **Nome comercial:** Ancoreo
+> Última atualização: 2026-06-19
 > Owner do produto: Anderson Dove (Anderson Marques) — Sorocaba/SP
 > Operador técnico (decisões operacionais + orquestração de agentes de dev): Cássio Branco
 > Modelo de execução: Cássio decide e orquestra agentes (Claude Code + Cursor); Dove decide pontos-chave de produto e visão.
