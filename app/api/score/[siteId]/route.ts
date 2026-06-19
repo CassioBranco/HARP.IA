@@ -44,6 +44,12 @@ export async function GET(
 
   if (!site) return Response.json({ error: 'Site não encontrado' }, { status: 404 })
 
+  // AEO Regra 7 — conta links internos reais (não usa nº de páginas como proxy).
+  const { count: internalLinkCount } = await supabase
+    .from('internal_links')
+    .select('id', { count: 'exact', head: true })
+    .eq('site_id', siteId)
+
   const homeSection = (sections ?? []).reduce<Record<string, unknown>>((acc, s) => {
     acc[s.section_type] = s.content
     return acc
@@ -51,7 +57,7 @@ export async function GET(
 
   // Avalia cada regra
   const evaluated = RULES.map(rule => {
-    const passed = evaluateRule(rule.key, { site, pages: pages ?? [], sections: homeSection })
+    const passed = evaluateRule(rule.key, { site, pages: pages ?? [], sections: homeSection, internalLinks: internalLinkCount ?? 0 })
     return {
       rule_key: rule.key,
       description: rule.label,
@@ -104,6 +110,7 @@ type EvalContext = {
   site: { domain: string | null; status: string }
   pages: { title: string | null; meta_description: string | null }[]
   sections: Record<string, unknown>
+  internalLinks: number
 }
 
 function evaluateRule(key: string, ctx: EvalContext): boolean {
@@ -137,7 +144,8 @@ function evaluateRule(key: string, ctx: EvalContext): boolean {
     }
 
     case 'internal_links':
-      return ctx.pages.length >= 2
+      // Grafo real: precisa de pelo menos 2 links internos registrados (Regra 7).
+      return ctx.internalLinks >= 2
 
     case 'cta_verbo_posse': {
       const heroCta = ctx.sections['hero'] as { cta_label?: string } | undefined
