@@ -146,8 +146,9 @@ export default function OnboardingPage() {
           : null,
       city: city || null,
       state: uf || null,
-      gpe_modo: gpeModo,
-      gpe_link: gpeModo === 'vincular' ? gpeLink || null : null,
+      // Link válido (em vincular ou criar) = perfil confirmado → salva como vinculado.
+      gpe_modo: ((gpeModo === 'vincular' || gpeModo === 'criar') && gpeLink.trim() && !gpeErr) ? 'vincular' : gpeModo,
+      gpe_link: ((gpeModo === 'vincular' || gpeModo === 'criar') && gpeLink.trim() && !gpeErr) ? gpeLink.trim() : null,
       conhecimento: KQUESTIONS.map((q, i) => ({
         pergunta: q[0],
         resposta: answers[i] ?? '',
@@ -162,7 +163,7 @@ export default function OnboardingPage() {
     }
   }, [
     objetivo, businessName, about, cat, niche, segPick, otherActive, registro,
-    porte, radiusKm, areaText, city, uf, gpeModo, gpeLink, answers, dominioModo, dominioProprio,
+    porte, radiusKm, areaText, city, uf, gpeModo, gpeLink, gpeErr, answers, dominioModo, dominioProprio,
   ])
 
   // ── autosave debounced via server action ──────────────────
@@ -196,7 +197,7 @@ export default function OnboardingPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     objetivo, businessName, about, cat, niche, segPick, otherActive, registro,
-    porte, radiusKm, areaText, city, uf, gpeModo, gpeLink, answers, dominioModo, dominioProprio,
+    porte, radiusKm, areaText, city, uf, gpeModo, gpeLink, gpeErr, answers, dominioModo, dominioProprio,
   ])
 
   // pré-seleciona categoria + nicho pelo palpite, até o cliente escolher na mão
@@ -231,9 +232,14 @@ export default function OnboardingPage() {
           return 'Informe as regiões ou estados que você atende.'
       }
       if (s === 4) {
-        if (gpeModo === 'vincular') {
+        // Vincular OU Criar exigem o link de verdade pra prosseguir. Clicar em
+        // "vou criar" e seguir sem colar o link é o erro que deixava o cliente
+        // sem o sinal nº 1 de busca local. Quem não tem perfil escolhe "sem".
+        if (gpeModo === 'vincular' || gpeModo === 'criar') {
           if (!gpeLink.trim())
-            return 'Cole o link do seu Perfil de Empresa, ou escolha “Criar agora” / “Continuar sem perfil”.'
+            return gpeModo === 'criar'
+              ? 'Crie o perfil no Google e cole o link aqui pra confirmar — ou escolha “Continuar sem perfil”.'
+              : 'Cole o link do seu Perfil de Empresa, ou escolha “Criar agora” / “Continuar sem perfil”.'
           if (gpeErr) return 'Esse link não parece ser do Google. Confira e cole de novo.'
         }
       }
@@ -398,13 +404,16 @@ export default function OnboardingPage() {
   // ── score real de SEO (pesos por impacto em busca local/GEO) ──
   const seo = useMemo(() => {
     const aboutLen = about.trim().length
+    // Só conta como "vinculado de verdade" quando há um link válido — clicar em
+    // "vou criar" sem colar o link NÃO conta como perfil pronto.
+    const gpeLinked = (gpeModo === 'vincular' || gpeModo === 'criar') && gpeLink.trim().length > 0 && !gpeErr
     const items = [
       {
         key: 'gpe',
         screen: 4,
         label: 'Perfil de Empresa no Google',
-        // vincular (conectado) = cheio; criar (intenção) = parcial; sem = mínimo
-        got: gpeModo === 'vincular' ? 25 : gpeModo === 'criar' ? 15 : 5,
+        // vinculado (com link) = cheio; intenção sem link = parcial; sem perfil = mínimo
+        got: gpeLinked ? 25 : gpeModo === 'sem' ? 5 : 15,
         max: 25,
         hint: 'Vincule ou crie seu Perfil do Google (tela 5). É o que mais traz cliente da sua região.',
       },
@@ -464,7 +473,7 @@ export default function OnboardingPage() {
       .filter((i) => i.got < i.max)
       .sort((a, b) => b.max - b.got - (a.max - a.got))
     return { items, total, label, color, gaps, ok: total >= MIN_SEO }
-  }, [businessName, about, niche, city, gpeModo, authority.p, dominioModo, dominioProprio])
+  }, [businessName, about, niche, city, gpeModo, gpeLink, gpeErr, authority.p, dominioModo, dominioProprio])
 
   // ── tela 7: domínio ───────────────────────────────────────
   const slug = useMemo(() => slugifyBusiness(businessName), [businessName])
@@ -598,10 +607,13 @@ export default function OnboardingPage() {
                 <i className="ph-duotone ph-arrow-left" /> Painel
               </button>
             )}
-            <div className="seo-chip" title="Força de SEO do seu site">
+            <div className="seo-chip" title="Força de SEO do seu site — sobe conforme você preenche">
               <i className="ph-fill ph-gauge" style={{ color: seo.color }} />
               <span>SEO</span>
               <b style={{ color: seo.color }}>{seo.total}%</b>
+              <span className="seo-chip-bar" aria-hidden>
+                <i style={{ width: `${seo.total}%`, background: seo.color }} />
+              </span>
               <span className="seo-chip-lbl" style={{ color: seo.color }}>
                 {seo.label}
               </span>
@@ -984,21 +996,40 @@ export default function OnboardingPage() {
                     </>
                   )}
                   {gpeModo === 'criar' && (
-                    <div className="gnote">
-                      <i className="ph-fill ph-arrow-square-out" />
-                      <span>
-                        <b>Vamos abrir o Google pra você criar o perfil.</b> Depois é só voltar aqui
-                        e colar o link.
-                      </span>
-                      <a
-                        className="btn sm"
-                        href="https://business.google.com/create"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        Abrir o Google
-                      </a>
-                    </div>
+                    <>
+                      <div className="gnote">
+                        <i className="ph-fill ph-arrow-square-out" />
+                        <span>
+                          <b>Vamos abrir o Google pra você criar o perfil.</b> Depois volte aqui e
+                          cole o link pra <b>confirmar</b> — sem o link, não dá pra continuar por aqui.
+                        </span>
+                        <a
+                          className="btn sm"
+                          href="https://business.google.com/create"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Abrir o Google
+                        </a>
+                      </div>
+                      <input
+                        className="field"
+                        value={gpeLink}
+                        onChange={(e) => gValidate(e.target.value)}
+                        placeholder="Cole aqui o link do perfil que você criou"
+                        autoComplete="off"
+                        style={{ marginTop: '.6rem' }}
+                      />
+                      {gpeErr && (
+                        <div className="err">
+                          <i className="ph-fill ph-warning-circle" /> Esse link não parece ser do
+                          Google. Confira e cole de novo.
+                        </div>
+                      )}
+                      <p className="ed-cap" style={{ marginTop: '.4rem', opacity: .85 }}>
+                        Ainda não criou? Você pode escolher “Continuar sem perfil” e fazer isso depois no painel.
+                      </p>
+                    </>
                   )}
                   {gpeModo === 'sem' && (
                     <div className="gwarn">

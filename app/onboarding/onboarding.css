@@ -229,12 +229,16 @@
 
 /* recap (tela 7) */
 .ob-page .ready { display: flex; align-items: center; gap: .6rem; font-family: var(--font-heading),'Plus Jakarta Sans'; font-weight: 700; color: #22c55e; margin: .4rem 0 1rem; font-size: .92rem; }
-.ob-page .recap { display: grid; gap: .6rem; margin: 1.2rem 0 .4rem; }
-.ob-page .rrow { display: flex; align-items: center; gap: .8rem; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.13); border-radius: 13px; padding: .8rem 1rem; }
-.ob-page .rrow .ic { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; font-size: 1.1rem; background: linear-gradient(160deg, #4a86f5, #1450c4); color: #fff; flex-shrink: 0; box-shadow: inset 0 1px 1px rgba(255,255,255,.4); }
+/* Recap em grade 2x2 — corta a altura da última tela quase pela metade,
+   pra caber sem rolar. Cai pra 1 coluna só em telas bem estreitas. */
+.ob-page .recap { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; margin: .9rem 0 .4rem; }
+@media (max-width: 520px) { .ob-page .recap { grid-template-columns: 1fr; } }
+.ob-page .rrow { display: flex; align-items: center; gap: .6rem; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.13); border-radius: 13px; padding: .6rem .75rem; min-width: 0; }
+.ob-page .rrow > div { min-width: 0; }
+.ob-page .rrow .ic { width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; font-size: 1rem; background: linear-gradient(160deg, #4a86f5, #1450c4); color: #fff; flex-shrink: 0; box-shadow: inset 0 1px 1px rgba(255,255,255,.4); }
 .ob-page .rrow .k { font-size: .72rem; color: #8aa0b6; text-transform: uppercase; letter-spacing: .04em; }
-.ob-page .rrow .v { font-family: var(--font-heading),'Plus Jakarta Sans'; font-weight: 700; font-size: .95rem; }
-.ob-page .rrow .edit { margin-left: auto; font-size: .78rem; color: #7fb0f5; background: none; border: 0; }
+.ob-page .rrow .v { font-family: var(--font-heading),'Plus Jakarta Sans'; font-weight: 700; font-size: .95rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ob-page .rrow .edit { margin-left: auto; font-size: .78rem; color: #7fb0f5; background: none; border: 0; flex-shrink: 0; }
 
 /* goal cards (tela 1) */
 .ob-page .goals { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; }
@@ -305,6 +309,9 @@
 .ob-page .seo-chip { display: flex; align-items: center; gap: .4rem; font-size: .8rem; font-weight: 600; color: #bcd0ea; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); border-radius: 999px; padding: .32rem .7rem; }
 .ob-page .seo-chip i { font-size: 1rem; }
 .ob-page .seo-chip b { font-weight: 800; }
+.ob-page .seo-chip-bar { width: 52px; height: 6px; border-radius: 999px; background: rgba(255,255,255,.16); overflow: hidden; flex-shrink: 0; }
+.ob-page .seo-chip-bar i { display: block; height: 100%; border-radius: 999px; transition: width .35s ease; }
+@media (max-width: 440px) { .ob-page .seo-chip-bar { display: none; } }
 .ob-page .seo-chip-lbl { font-weight: 700; }
 @media (max-width: 560px) { .ob-page .seo-chip-lbl { display: none; } }
 
