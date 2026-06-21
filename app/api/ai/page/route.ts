@@ -6,7 +6,8 @@ import { deepSanitize } from '@/lib/text/sanitize'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
 export const runtime = 'nodejs'
-export const maxDuration = 60
+// Regenerar uma página inteira pode passar de 60s. Requer Fluid Compute (ver generate/site).
+export const maxDuration = 180
 
 export async function POST(req: NextRequest) {
   const supabase = await createServerClient()

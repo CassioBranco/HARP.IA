@@ -6,7 +6,10 @@ import { deepSanitize } from '@/lib/text/sanitize'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
 export const runtime = 'nodejs'
-export const maxDuration = 60
+// Geração de site completo dura ~90s — acima do timeout antigo de 60s (cliente
+// via erro). 300s cobre a folga. Requer Vercel Pro + Fluid Compute LIGADO no
+// dashboard do projeto (sem Fluid, o teto do plano corta antes). Ação: Cássio.
+export const maxDuration = 300
 
 export async function POST(req: NextRequest) {
   const supabase = await createServerClient()
