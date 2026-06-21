@@ -3,6 +3,7 @@ import { createServerClient } from '@/lib/supabase/server'
 import { hasSupabaseEnv } from '@/lib/env'
 import { buildSiteContent } from '@/lib/templates/build-site-content'
 import LayoutRenderer from '@/components/templates/LayoutRenderer'
+import PreviewBridge from './PreviewBridge'
 import Link from 'next/link'
 
 type Props = {
@@ -65,6 +66,9 @@ export default async function PreviewPage({ params, searchParams }: Props) {
         fontPair={built.fontPair}
         preview
       />
+
+      {/* Modo editor (sem chrome): clicar no preview abre a aba certa de edição */}
+      {!showChrome && <PreviewBridge />}
     </>
   )
 }

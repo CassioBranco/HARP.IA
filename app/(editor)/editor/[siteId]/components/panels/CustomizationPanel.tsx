@@ -1,12 +1,13 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useEffect, useTransition } from 'react'
 import { createBrowserClient } from '@/lib/supabase/client'
 import type { SiteData } from '../../page'
 import ImageUploader from './ImageUploader'
 import SectionEditor from './SectionEditor'
 import BrandPanel from './BrandPanel'
 import {
+  MODELS,
   PALETTES,
   PALETTE_GROUPS,
   CUSTOM_DEFAULT,
@@ -28,7 +29,7 @@ type Props = {
   onSave: (updated: Partial<SiteData>) => void
 }
 
-type SubTab = 'cores' | 'fontes' | 'imagens' | 'marca' | 'textos'
+type SubTab = 'modelo' | 'cores' | 'fontes' | 'imagens' | 'marca' | 'textos'
 
 export default function CustomizationPanel({ site, siteId, onSave }: Props) {
   const [subTab, setSubTab] = useState<SubTab>('cores')
@@ -39,8 +40,21 @@ export default function CustomizationPanel({ site, siteId, onSave }: Props) {
       : CUSTOM_DEFAULT,
   )
   const [selectedFont, setSelectedFont] = useState(site.font_pair ?? 'classico')
+  const [selectedTemplate, setSelectedTemplate] = useState(site.template ?? 'clean')
   const [expandedSection, setExpandedSection] = useState<string | null>('hero')
   const [saving, setSaving] = useState(false)
+
+  // Clique no preview (iframe) → abre a aba certa. A ponte vive no PreviewBridge.
+  useEffect(() => {
+    const onMsg = (e: MessageEvent) => {
+      const d = e.data as { source?: string; kind?: string } | null
+      if (!d || d.source !== 'harpia-preview') return
+      if (d.kind === 'image') setSubTab('imagens')
+      else if (d.kind === 'text') setSubTab('textos')
+    }
+    window.addEventListener('message', onMsg)
+    return () => window.removeEventListener('message', onMsg)
+  }, [])
   const [aiFilling, setAiFilling] = useState(false)
   const [aiError, setAiError] = useState('')
   const [, startTransition] = useTransition()
@@ -92,6 +106,18 @@ export default function CustomizationPanel({ site, siteId, onSave }: Props) {
     void savePaletteByName('Personalizada', built, 'custom')
   }
 
+  // Troca o template do site. Só muda qual layout renderiza — textos, imagens
+  // e seções continuam os mesmos. onSave atualiza o estado e recarrega o preview.
+  async function saveTemplate(templateId: string) {
+    if (templateId === selectedTemplate) return
+    setSelectedTemplate(templateId)
+    setSaving(true)
+    const supabase = createBrowserClient()
+    await supabase.from('sites').update({ template: templateId }).eq('id', siteId)
+    setSaving(false)
+    onSave({ template: templateId })
+  }
+
   async function saveFont(fontId: string) {
     setSelectedFont(fontId)
     setSaving(true)
@@ -102,6 +128,7 @@ export default function CustomizationPanel({ site, siteId, onSave }: Props) {
   }
 
   const SUB_TABS: { id: SubTab; label: string }[] = [
+    { id: 'modelo',  label: 'Modelo' },
     { id: 'cores',   label: 'Cores' },
     { id: 'fontes',  label: 'Fontes' },
     { id: 'imagens', label: 'Imagens' },
@@ -126,6 +153,31 @@ export default function CustomizationPanel({ site, siteId, onSave }: Props) {
       </div>
 
       <div className="ed-scroll">
+
+        {/* ── MODELO (troca o layout do site) ── */}
+        {subTab === 'modelo' && (
+          <>
+            <p className="ed-hint">Troque o modelo do site. Seus textos, imagens e seções continuam — só muda o visual.</p>
+            <div className="ed-pal-grid">
+              {MODELS.map(m => (
+                <button
+                  key={m.id}
+                  onClick={() => saveTemplate(m.id)}
+                  title={m.desc}
+                  className={`ed-pal ${selectedTemplate === m.id ? 'on' : ''}`}
+                >
+                  <span className="sw">
+                    <i style={{ background: m.swatch[0], flex: 2 }} />
+                    <i style={{ background: m.swatch[1], flex: 1 }} />
+                    <i style={{ background: m.swatch[2], flex: 1 }} />
+                  </span>
+                  <span className="nm">{m.name}</span>
+                </button>
+              ))}
+            </div>
+            {saving && <p className="ed-saving">Salvando…</p>}
+          </>
+        )}
 
         {/* ── CORES ── */}
         {subTab === 'cores' && (
