@@ -84,7 +84,21 @@ Palestras presenciais gratuitas do Anderson Dove → demo ao vivo da plataforma 
 | Componentes | Storybook | Documentação e isolamento — proteção contra alteração por IA |
 | Orquestração IA | LangGraph | Grafos de estado cíclicos, streaming de estado, checkpointing |
 
-### ADRs — Decisões que não reabrir
+### ⚠️ STACK REAL IMPLEMENTADO (atualizado 2026-06-21) — LEIA ANTES DOS ADRs
+Os ADRs abaixo descreviam a INTENÇÃO inicial. O que o **código realmente faz hoje** (decisão: manter simples pro MVP/beta — ver decisão 2026-06-21 no log):
+
+| Área | ADR original | Realidade no código | Por quê |
+|------|--------------|---------------------|---------|
+| Orquestração IA | LangGraph | **Chamada direta à Claude API** (sem grafo/estado/reflexão) | Geração é single-shot; grafo é overkill pro MVP |
+| Geração longa | Fila Inngest (assíncrona) | **SSE síncrono** com `maxDuration` alto + Fluid Compute | Mais simples; fila fica p/ escala |
+| Provider IA | Vercel AI SDK (abstração) | **`@anthropic-ai/sdk` direto** | Sem necessidade de trocar provider no MVP |
+| Hospedagem dos sites | Cloudflare Pages | **Servido do próprio Next.js (Vercel)** via rota `/[domain]` | Um só runtime; migra p/ Cloudflare se o custo/escala exigir |
+| Imagens | Cloudflare R2 | **Supabase Storage** (+ Sharp WebP) | Já está no Supabase; R2 fica p/ escala |
+| Componentes | Storybook | **Não usado ainda** | Backlog |
+
+Regra: **se o código divergir do ADR, o código manda** — e este bloco deve ser atualizado. Não tomar decisão baseada nos ADRs originais sem conferir aqui.
+
+### ADRs — Decisões que não reabrir (INTENÇÃO inicial — ver bloco "STACK REAL" acima)
 - **LangGraph sobre CrewAI/AutoGen**: suporte a loops de reflexão controlados, streaming nativo, integração com pgvector
 - **Prompts no banco (não no código)**: `prompt_templates` editável via painel admin sem deploy
 - **Multi-tenant via RLS**: cada cliente é um tenant isolado via `tenant_id` + políticas RLS do Supabase
