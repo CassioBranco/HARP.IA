@@ -86,9 +86,13 @@ export async function buildSiteContent(
     `${Math.max(0, Math.min(100, p?.x ?? 50))}% ${Math.max(0, Math.min(100, p?.y ?? 50))}%`
 
   const hero  = sectionMap['hero']   as { headline?: string; sub?: string; cta_label?: string; cta_phone?: string; image?: string; image_pos?: { x?: number; y?: number } } | undefined
-  // telefone não é capturado no onboarding hoje; usa o cta_phone do hero se for um
-  // número real (a IA escreve "[NÃO INFORMADO]" quando o cliente não informou).
+  // Telefone de conversão: o WhatsApp REAL que o cliente cadastrou (aba Marca)
+  // vence o cta_phone que a IA escreveu no hero. É o que dispara o CTA de contato —
+  // foco em conversão: o botão tem que cair no WhatsApp verdadeiro, não num número fictício.
   const heroPhone = hero?.cta_phone && /\d/.test(hero.cta_phone) ? hero.cta_phone : ''
+  const socialLinks = (profile?.social_links ?? {}) as { whatsapp?: string }
+  const clientWhats = (socialLinks.whatsapp ?? '').replace(/\D/g, '')
+  const contactPhone = clientWhats || heroPhone
   const about = sectionMap['about']  as { title?: string; body?: string; credential?: string; image?: string; image_pos?: { x?: number; y?: number } } | undefined
   const svcs  = sectionMap['services'] as { items?: { name: string; description: string; icon?: string }[] } | undefined
   const testi = sectionMap['testimonials'] as { items?: { name: string; text: string; rating?: number }[] } | undefined
@@ -108,7 +112,7 @@ export async function buildSiteContent(
     heroHeadline:    hero?.headline ?? '',
     heroSub:         hero?.sub ?? '',
     ctaLabel:        hero?.cta_label ?? 'Falar conosco',
-    ctaPhone:        heroPhone,
+    ctaPhone:        contactPhone,
     about:           about?.body ?? '',
     credential:      about?.credential ?? (profile?.credentials ?? []).join(', '),
     services:        rawServices.map(s => ({ name: s.name, description: s.description, icon: s.icon ?? '⭐' })),
@@ -117,7 +121,7 @@ export async function buildSiteContent(
     city:            profile?.city ?? '',
     state:           profile?.state ?? '',
     address:         '',
-    whatsapp:        heroPhone,
+    whatsapp:        contactPhone,
     email:           '',
     schemaType:      site.niche ?? 'servicos',
     yearsExperience: profile?.years_experience ?? 0,

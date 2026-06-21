@@ -114,13 +114,14 @@ export async function POST(req: NextRequest) {
           },
           {
             type: 'text',
-            text: `Escreva um alt text SEO para esta imagem de um negócio do tipo "${niche ?? 'serviços'}" localizado em ${cityName}.
+            text: `Escreva um alt text de SEO/GEO/AEO com foco em CONVERSÃO para esta imagem de um negócio do tipo "${niche ?? 'serviços'}" localizado em ${cityName}.
 Regras:
 - 80 a 140 caracteres
 - Sem prefixo "Foto de" ou "Imagem de"
-- Inclua a cidade ${cityName}
 - Descreva o que está na imagem de forma específica
-- Tom: profissional
+- Inclua a cidade ${cityName} (sinal de busca local)
+- Use UM termo transacional natural — o serviço associado à intenção de contratar/agendar/comprar (ex.: "agendamento de", "atendimento de", "${niche ?? 'serviço'} em ${cityName}") — para casar com quem já quer fechar, sem soar forçado nem empilhar palavra-chave
+- Tom: natural, como um humano descreveria; nunca robótico
 Responda APENAS o alt text, sem aspas, sem explicações.`,
           },
         ],
