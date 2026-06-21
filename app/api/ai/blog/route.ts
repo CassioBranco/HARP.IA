@@ -3,9 +3,12 @@ import { createServerClient } from '@/lib/supabase/server'
 import { getAnthropicClient, MODELS, cachedSystem, friendlyAIError } from '@/lib/claude/client'
 import { buildSystemPrompt } from '@/lib/prompts/loader'
 import { deepSanitize } from '@/lib/text/sanitize'
+import { createAdminClient } from '@/lib/supabase/admin'
+import { ingestKnowledge, retrieveKnowledge, knowledgeBlock } from '@/lib/rag/knowledge'
 
 export const runtime = 'nodejs'
-export const maxDuration = 60
+// Artigo de 800-1200 palavras pode passar de 60s. Requer Fluid Compute (ver generate/site).
+export const maxDuration = 180
 
 export async function POST(req: NextRequest) {
   const supabase = await createServerClient()
@@ -25,7 +28,7 @@ export async function POST(req: NextRequest) {
 
   const { data: profile } = await supabase
     .from('onboarding_profiles')
-    .select('business_name,city,niche,tone,keywords_primary')
+    .select('tenant_id,business_name,city,niche,tone,keywords_primary,conhecimento,differentials,cases')
     .eq('site_id', site_id)
     .single()
 
@@ -34,6 +37,26 @@ export async function POST(req: NextRequest) {
   const businessName = profile?.business_name ?? ''
   const tone = profile?.tone ?? 'profissional e acolhedor'
 
+  // ── RAG: usa o conhecimento REAL do cliente (E-E-A-T do onboarding) ──────────
+  // Ingere (idempotente) e recupera os trechos mais relevantes pro tema do artigo.
+  // Falha graciosa: se faltar OPENAI_API_KEY ou der erro, segue sem RAG.
+  let knowledge = ''
+  const tenantId = profile?.tenant_id as string | undefined
+  if (tenantId) {
+    try {
+      const admin = createAdminClient()
+      const conhecimento = Array.isArray(profile?.conhecimento)
+        ? (profile!.conhecimento as { resposta?: string }[]).map(c => c?.resposta ?? '')
+        : []
+      const items = [...conhecimento, profile?.differentials ?? '', profile?.cases ?? '']
+        .map(s => (s ?? '').trim())
+        .filter(Boolean)
+      if (items.length) await ingestKnowledge(admin, { tenantId, items, source: 'onboarding' })
+      const chunks = await retrieveKnowledge(admin, { tenantId, query: keyword, k: 5 })
+      knowledge = knowledgeBlock(chunks)
+    } catch { /* RAG é melhoria, não bloqueia a geração */ }
+  }
+
   const systemPrompt = await buildSystemPrompt('blog', niche).catch(() => `
 Você é um especialista em SEO/GEO/AEO. Escreva artigos de blog em português brasileiro, sem gerundismo, sem em-dash, com H2 autossuficiente, FAQ de 6 perguntas obrigatórias, e keywords locais.
 `.trim())
@@ -41,6 +64,7 @@ Você é um especialista em SEO/GEO/AEO. Escreva artigos de blog em português b
   const userPrompt = `Escreva um artigo de blog completo sobre: "${keyword}"
 
 Negócio: ${businessName} | Nicho: ${niche} | Cidade: ${city} | Tom: ${tone}
+${knowledge}
 
 Estrutura obrigatória:
 1. H1: keyword + cidade (máx 60 chars)
