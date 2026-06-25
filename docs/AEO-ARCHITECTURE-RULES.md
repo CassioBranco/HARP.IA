@@ -1,4 +1,4 @@
-# REGRAS DE ARQUITETURA AEO/GEO/SEO — Projeto HARPIA
+# REGRAS DE ARQUITETURA AEO/GEO/SEO — Projeto ANCOREO
 > **Mandato de arquitetura.** Estas 8 regras vêm de pesquisa de mercado validada (webinar AEO 2026) e têm impacto DIRETO no que o produto constrói. Não são dicas de conteúdo — são especificações.
 > Servem ao `NORTH-STAR.md`. Ler junto com ele.
 > Fechado: 2026-06-02

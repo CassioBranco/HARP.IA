@@ -1,4 +1,4 @@
-# HANDOFF — Projeto ANCOREO (ex-HARPIA)
+# HANDOFF — Projeto ANCOREO
 
 > Documento de passagem entre sessões. Lê isto primeiro ao retomar.
 > Última atualização: 2026-06-23 · Operador: Cássio · Owner produto: Anderson Dove
@@ -28,9 +28,9 @@ O front **NÃO tem tokens centralizados** — são **6 CSS com cores escritas na
 
 ## 2. Nome / Marca
 
-- **Nome comercial final = ANCOREO** (âncora + SEO). HARPIA virou codinome interno/legado.
-- Ainda como legado: repo HARP.IA, deploy `harp-ia.vercel.app`, CLAUDE.md fala "HARPIA", skill `harpia-status`.
-- Logo: **não existe ainda** — Cássio desenha depois. No mockup usei âncora ⚓ + cor teal como placeholder.
+- **Nome comercial e final = ANCOREO** (âncora + SEO). O nome antigo do projeto foi aposentado; toda a copy/docs do código já estão em ANCOREO (rename 2026-06-24).
+- **Identificadores técnicos que AINDA usam o nome antigo** (não é a marca, é infra — trocar exige ação externa ou quebra referência, fica pra depois): repo `HARP.IA`, deploy `harp-ia.vercel.app`, subdomínio grátis `*.harpia.site`, skill interna `harpia-status`, slugs de memória `project_harpia_*`.
+- Logo: **não existe ainda** — Cássio desenha depois.
 
 ---
 
@@ -41,7 +41,7 @@ O front **NÃO tem tokens centralizados** — são **6 CSS com cores escritas na
 **Gates de pré-lançamento público** (detalhe na memória `project_harpia_pre-launch`):
 1. **RAG / `OPENAI_API_KEY`** — ADIADO de propósito. Código já deployado, falha graciosa sem a chave. TEM que estar em pé antes do lançamento público (pôr chave no `.env.local` + Vercel → redeploy → testar blog ingerir/recuperar `knowledge_vault`).
 2. **Ligar Fluid Compute na Vercel** (Settings → Functions; precisa Vercel Pro) — pro `maxDuration` valer.
-3. **Rotacionar `service_role` do Supabase** (vazou em chat antigo) — reset + atualizar `.env.local` e Vercel.
+3. ~~Rotacionar `service_role`~~ ✅ FEITO 2026-06-24 — migrado p/ chaves novas do Supabase (publishable em `NEXT_PUBLIC_SUPABASE_ANON_KEY`, secret em `SUPABASE_SERVICE_ROLE_KEY`, em .env.local + Vercel); legacy JWT desativado; chave vazada morta. Gotcha: secret nova é bloqueada no browser — nunca em var `NEXT_PUBLIC_`.
 4. **Domínio / DNS** (wildcard p/ sites publicados) — ação do Cássio, Claude guia campo a campo.
 
 Não bloqueia beta grátis: Stripe, Inngest, GBP nível 3.

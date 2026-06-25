@@ -1,4 +1,4 @@
-# ARCHITECTURE.md — Projeto HARPIA
+# ARCHITECTURE.md — Projeto ANCOREO
 > Mapa de arquitetura navegável. Compila o North Star, as 35 ADRs (CLAUDE.md §13) e as 8 regras AEO (`AEO-ARCHITECTURE-RULES.md`) numa visão única.
 > Público: Cássio + agentes de dev (Claude Code / Cursor). Ler depois de `NORTH-STAR.md` e antes de qualquer sprint da Fase C.
 > Última atualização: 2026-06-02

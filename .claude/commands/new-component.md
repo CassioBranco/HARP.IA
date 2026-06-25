@@ -1,6 +1,6 @@
 # /new-component [nome] [tipo?]
 
-Cria um novo componente React para o Projeto HARPIA seguindo Design Atômico e convenções do projeto.
+Cria um novo componente React para o Projeto ANCOREO seguindo Design Atômico e convenções do projeto.
 
 ## Uso
 ```

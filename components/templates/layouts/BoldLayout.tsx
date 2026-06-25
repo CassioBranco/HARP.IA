@@ -372,7 +372,7 @@ export default function BoldLayout({ c, p, preview }: { c: SiteContent; p: Palet
           </div>
           <div className="bd-foot-bottom">
             <span>© {new Date().getFullYear()} {c.businessName}</span>
-            <span>Site criado com HARPIA</span>
+            <span>Site criado com ANCOREO</span>
           </div>
         </div>
       </footer>

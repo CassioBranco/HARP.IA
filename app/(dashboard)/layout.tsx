@@ -1,6 +1,6 @@
 // ============================================================
-// HARPIA — Shell do painel (liquid-glass). Portado de
-// design_handoff_harpia/painel/painel.css. Visual é o protótipo;
+// ANCOREO — Shell do painel (liquid-glass). Portado de
+// design_handoff_ancoreo/painel/painel.css. Visual é o protótipo;
 // aqui mora só a fiação (auth, nome do tenant, plano, nav ativa).
 // ============================================================
 import Link from 'next/link'
@@ -68,7 +68,7 @@ export default async function DashboardLayout({
       <div className="app">
         <aside className="side">
           <div className="brand">
-            <span className="mk"><i className="ph-fill ph-bird" /></span> HARPIA
+            <span className="mk"><i className="ph-fill ph-bird" /></span> ANCOREO
           </div>
           <PainelNav />
           <Link href="/onboarding" className="nav-item">

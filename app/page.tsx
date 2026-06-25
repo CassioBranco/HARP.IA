@@ -1,5 +1,5 @@
 // ============================================================
-// HARPIA — Landing pública (Fase 6). Visual = protótipo landing.html
+// ANCOREO — Landing pública (Fase 6). Visual = protótipo landing.html
 // (liquid-glass dark). Fiação: CTAs → /signup e /login.
 // Stats e seção "o que muda" usam só fatos reais do produto — sem número
 // fabricado nem depoimento inventado (produto em beta fechado). Quando houver
@@ -14,9 +14,9 @@ import '@phosphor-icons/web/duotone'
 import './landing.css'
 
 export const metadata: Metadata = {
-  title: 'HARPIA — seu site pronto pra aparecer no Google e nas IAs',
+  title: 'ANCOREO — seu site pronto pra aparecer no Google e nas IAs',
   description:
-    'A HARPIA cria o site do seu negócio com IA, já otimizado para SEO, GEO e AEO. Você responde poucas perguntas e o site entra no ar pronto pra aparecer na busca. Comece grátis.',
+    'A ANCOREO cria o site do seu negócio com IA, já otimizado para SEO, GEO e AEO. Você responde poucas perguntas e o site entra no ar pronto pra aparecer na busca. Comece grátis.',
 }
 
 const MODELS = [
@@ -28,7 +28,7 @@ const MODELS = [
 
 const FAQ = [
   ['Preciso saber de tecnologia pra usar?', 'Não. Você responde poucas perguntas em português comum e a IA cuida de todo o resto: textos, estrutura e otimização pra busca.'],
-  ['O que são SEO, GEO e AEO?', 'SEO é aparecer no Google. GEO é ser citado pelas IAs como ChatGPT e Gemini. AEO é virar a resposta direta da busca e por voz. A HARPIA cuida dos três de uma vez.'],
+  ['O que são SEO, GEO e AEO?', 'SEO é aparecer no Google. GEO é ser citado pelas IAs como ChatGPT e Gemini. AEO é virar a resposta direta da busca e por voz. A ANCOREO cuida dos três de uma vez.'],
   ['Posso usar meu próprio domínio?', 'Sim, e é o recomendado pra força de SEO. Se não tiver um, a gente compra e configura pra você. Também dá pra começar com um subdomínio grátis.'],
   ['O site é meu de verdade?', 'Sim. O conteúdo e o domínio são seus. Você edita tudo quando quiser e a autoridade de busca fica com o seu negócio.'],
   ['Como funcionam os 7 dias grátis?', 'Você cria seu site e testa tudo sem cartão de crédito. Só decide assinar depois de ver o resultado pronto.'],
@@ -43,7 +43,7 @@ export default function HomePage() {
 
       <nav className="site">
         <div className="navbar">
-          <div className="brand"><span className="mk"><i className="ph-fill ph-bird" /></span> HARPIA</div>
+          <div className="brand"><span className="mk"><i className="ph-fill ph-bird" /></span> ANCOREO</div>
           <div className="nav-links">
             <a href="#como">Como funciona</a>
             <a href="#pilares">SEO, GEO, AEO</a>
@@ -67,7 +67,7 @@ export default function HomePage() {
             </span>{' '}e nas IAs
           </h1>
           <p className="sub">
-            A HARPIA escreve cada texto do seu site com IA, já otimizado pra busca. Você responde poucas
+            A ANCOREO escreve cada texto do seu site com IA, já otimizado pra busca. Você responde poucas
             perguntas e o site entra no ar pronto pra ser encontrado, no Google e em respostas do ChatGPT,
             Gemini e Perplexity.
           </p>
@@ -218,9 +218,9 @@ export default function HomePage() {
 
       <footer className="site">
         <div className="wrap foot">
-          <div className="brand"><span className="mk"><i className="ph-fill ph-bird" /></span> HARPIA</div>
+          <div className="brand"><span className="mk"><i className="ph-fill ph-bird" /></span> ANCOREO</div>
           <span>SEO + GEO + AEO pra negócios locais · feito no Brasil</span>
-          <span>© 2026 HARPIA</span>
+          <span>© 2026 ANCOREO</span>
         </div>
       </footer>
     </div>

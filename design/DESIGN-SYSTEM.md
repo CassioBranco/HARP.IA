@@ -1,4 +1,4 @@
-# SISTEMA VISUAL — Projeto HARPIA
+# SISTEMA VISUAL — Projeto ANCOREO
 > Fundação de design. Define a identidade da plataforma (painel) e a arquitetura de paletas por nicho (sites gerados).
 > A identidade visual é calibrável (vive em tokens/CSS variables — troca sem reescrever código). O que importa agora é a ESTRUTURA.
 > Última atualização: 2026-06-04
@@ -12,18 +12,18 @@
 | **Plataforma (painel)** | App que o assinante usa (dashboard, onboarding, editor) | Variáveis shadcn (`--background`, `--primary`...) em `globals.css` |
 | **Sites gerados (nichos)** | Os sites que a IA cria pros clientes | Variáveis `--color-*` por nicho em `design/paletas/{niche}-{0\|1\|2}.css` |
 
-A plataforma tem **uma** identidade (a marca HARPIA). Cada nicho tem **3 paletas** (cliente escolhe no onboarding).
+A plataforma tem **uma** identidade (a marca ANCOREO). Cada nicho tem **3 paletas** (cliente escolhe no onboarding).
 
 ---
 
-## 2. IDENTIDADE DA PLATAFORMA (marca HARPIA — v1)
+## 2. IDENTIDADE DA PLATAFORMA (marca ANCOREO — v1)
 
-**Conceito:** autoridade orgânica. HARPIA é o predador de topo da busca — visão aguçada, presença confiável. Para um público B2B local, precisa transmitir **confiança + modernidade + competência**, sem ser frio nem genérico.
+**Conceito:** autoridade orgânica. ANCOREO é o predador de topo da busca — visão aguçada, presença confiável. Para um público B2B local, precisa transmitir **confiança + modernidade + competência**, sem ser frio nem genérico.
 
 **Direção visual:**
 - **Base:** verde-floresta profundo (quase preto esverdeado) — autoridade, "orgânico"
 - **Primária:** esmeralda — crescimento, posicionamento orgânico (o que o produto entrega)
-- **Acento:** dourado/âmbar — o olho da harpia, calor brasileiro, o "pop" de destaque (CTAs, badges)
+- **Acento:** dourado/âmbar — o olho da ancoreo, calor brasileiro, o "pop" de destaque (CTAs, badges)
 - **Neutros:** cinzas levemente esverdeados (não cinza morto)
 
 Por que não azul: todo SaaS é azul. Esmeralda + dourado sobre floresta é distinto, on-brand (orgânico + predador) e memorável.

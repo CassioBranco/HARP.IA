@@ -45,7 +45,7 @@ export async function GET(req: NextRequest) {
   try {
     const res = await fetch(url, {
       headers: {
-        'User-Agent': 'HARPIA/1.0 (onboarding city search)',
+        'User-Agent': 'ANCOREO/1.0 (onboarding city search)',
         'Accept-Language': 'pt-BR',
       },
       next: { revalidate: 86400 },

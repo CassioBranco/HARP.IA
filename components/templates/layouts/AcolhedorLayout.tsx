@@ -359,7 +359,7 @@ export default function AcolhedorLayout({ c, p, preview: _preview }: { c: SiteCo
           </div>
           <div className="foot-bottom">
             <span>© {new Date().getFullYear()} {c.businessName} · {c.city}/{c.state}</span>
-            <span>Site criado com HARPIA</span>
+            <span>Site criado com ANCOREO</span>
           </div>
         </div>
       </footer>

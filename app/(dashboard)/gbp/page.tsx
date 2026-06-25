@@ -1,5 +1,5 @@
 // ============================================================
-// HARPIA — /gbp · Posts do Google Perfil de Empresa (Nível 2).
+// ANCOREO — /gbp · Posts do Google Perfil de Empresa (Nível 2).
 // A IA escreve o rascunho; o cliente copia e cola no perfil dele.
 // Server component: carrega o site do tenant + posts já gerados.
 // ============================================================

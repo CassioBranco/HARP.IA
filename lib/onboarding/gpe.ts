@@ -1,5 +1,5 @@
 // ============================================================
-// HARPIA — Google Perfil de Empresa (GPE / Google Business Profile)
+// ANCOREO — Google Perfil de Empresa (GPE / Google Business Profile)
 // Helpers de validação do link e dos 3 modos da Tela 5.
 // Lógica pura — sem UI. O front só consome.
 // ============================================================

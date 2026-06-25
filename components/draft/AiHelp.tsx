@@ -1,5 +1,5 @@
 // ============================================================
-// HARPIA — Selo de IA reutilizável.
+// ANCOREO — Selo de IA reutilizável.
 // Padroniza a "estrelinha de IA" em TODO ponto com função de IA:
 //   <AiSpark />            → só o ícone (pra dentro de botões/labels)
 //   <AiHelp />             → pill "✨ A IA pode ajudar"

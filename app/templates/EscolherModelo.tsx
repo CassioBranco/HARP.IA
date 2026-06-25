@@ -1,7 +1,7 @@
 'use client'
 
 // ============================================================
-// HARPIA — Escolher modelo (v2) — grade de templates
+// ANCOREO — Escolher modelo (v2) — grade de templates
 // O cliente vê uma grade com a thumbnail (prévia ao vivo) de TODOS os
 // modelos e escolhe um pra customizar. A customização (paleta, cores,
 // textos) acontece no editor. Aqui mora só a fiação (preview + criação).
@@ -82,7 +82,7 @@ export default function EscolherModelo({ businessName, preset, domain, objetivo 
       <div className="app">
         <header className="top">
           <div className="brand">
-            <span className="mk"><i className="ph-fill ph-bird" /></span> HARPIA
+            <span className="mk"><i className="ph-fill ph-bird" /></span> ANCOREO
           </div>
           <div className="mid">
             <i className="ph-duotone ph-squares-four" /> {businessName || 'Seu site'}

@@ -1,7 +1,7 @@
 'use client'
 
 // ============================================================
-// HARPIA — Configurações (Fase 5). Visual = protótipo settings.html.
+// ANCOREO — Configurações (Fase 5). Visual = protótipo settings.html.
 // Fiação real: Conta (saveAccount), senha (Supabase auth). Plano/uso reais.
 // Pagamento e Notificações: visual portado, sem dados fabricados.
 // ============================================================
@@ -219,7 +219,7 @@ export default function SettingsClient({ data }: { data: SettingsData }) {
         <div className="cols">
           <div className="glass card">
             <h3><i className="ph-duotone ph-bell" /> Emails que você recebe</h3>
-            <p className="ph">Escolha sobre o que a HARPIA te avisa.</p>
+            <p className="ph">Escolha sobre o que a ANCOREO te avisa.</p>
             {[
               ['ph-chart-line-up', 'Relatório semanal de desempenho', 'Resumo de visitas, posições no Google e score do seu site.', true],
               ['ph-magnifying-glass', 'Alertas de SEO e score', 'Quando algo derruba ou melhora seu score de busca.', true],

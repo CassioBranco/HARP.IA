@@ -1,5 +1,5 @@
 // ============================================================
-// HARPIA — /templates = tela "Escolher modelo" (v2)
+// ANCOREO — /templates = tela "Escolher modelo" (v2)
 // Server component: carrega o perfil de onboarding do usuário e passa
 // nome/nicho/domínio/objetivo pro componente client (preview real).
 // ============================================================

@@ -1,6 +1,6 @@
 # /new-migration [descrição]
 
-Cria uma migration SQL para o Projeto HARPIA com RLS, rollback e versionamento corretos.
+Cria uma migration SQL para o Projeto ANCOREO com RLS, rollback e versionamento corretos.
 
 ## Uso
 ```

@@ -1,5 +1,5 @@
 // ============================================================
-// HARPIA — /metrics. Visual = protótipo painel/metrics.html (port honesto).
+// ANCOREO — /metrics. Visual = protótipo painel/metrics.html (port honesto).
 // Anéis SEO/GEO/AEO + "o que melhorar" = dados REAIS (/api/score).
 // Visitas e ranking de keywords = "em breve" (sem GA4/Search Console no beta).
 // ============================================================

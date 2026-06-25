@@ -1,6 +1,6 @@
 # /new-prompt [agente] [nicho?]
 
-Cria ou refatora um prompt para os agentes IA do Produto HARPIA, seguindo a arquitetura de 3 camadas (global + agente + nicho).
+Cria ou refatora um prompt para os agentes IA do Produto ANCOREO, seguindo a arquitetura de 3 camadas (global + agente + nicho).
 
 ## Uso
 ```

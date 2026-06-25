@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 @layer base {
-  /* ── HARPIA Platform Theme — azul ── */
+  /* ── ANCOREO Platform Theme — azul ── */
   :root {
     --background: 214 30% 99%;
     --foreground: 222 30% 12%;

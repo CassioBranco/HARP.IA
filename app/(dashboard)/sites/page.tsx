@@ -1,5 +1,5 @@
 // ============================================================
-// HARPIA — /sites = "Meus sites" (Fase 5). Visual = protótipo dashboard.html.
+// ANCOREO — /sites = "Meus sites" (Fase 5). Visual = protótipo dashboard.html.
 // Server component: dados reais (sites do tenant + onboarding).
 // ============================================================
 import Link from 'next/link'

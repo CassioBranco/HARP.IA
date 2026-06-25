@@ -1,5 +1,5 @@
 /* ============================================================
-   HARPIA — Onboarding v2 (Liquid Glass)
+   ANCOREO — Onboarding v2 (Liquid Glass)
    CSS portado 1:1 do protótipo aprovado. NÃO redesenhar.
    Escopo: a página de onboarding é uma rota de tela cheia (root layout),
    então as classes não colidem com o painel.
@@ -43,7 +43,7 @@
 }
 @media (prefers-reduced-motion: reduce) { .ob-page .aura { animation: none; } }
 
-/* ===== atmosfera de ar (filosofia harpia) ===== */
+/* ===== atmosfera de ar (filosofia ancoreo) ===== */
 .ob-page .floaters { position: fixed; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
 .ob-page .skyveil { position: fixed; left: 0; right: 0; height: 140px; z-index: 1; pointer-events: none; }
 .ob-page .skyveil.top { top: 0; background: linear-gradient(180deg, rgba(11,20,38,.95), rgba(11,20,38,.45) 48%, transparent); }

@@ -3,7 +3,7 @@
 **Última atualização:** [DATA_PUBLICACAO]
 **Versão:** 1.0
 **Operadora:** Dicas do Dove (Anderson Marques), CNPJ [CNPJ]
-**URL canônica:** https://[DOMINIO]/harpia/cookies
+**URL canônica:** https://[DOMINIO]/ancoreo/cookies
 
 ---
 
@@ -54,9 +54,9 @@ Melhoram a experiência mas não são essenciais.
 
 | Cookie | Finalidade | Duração | Provedor |
 |--------|------------|---------|----------|
-| `harpia-theme` | Lembra preferência claro/escuro | 1 ano | Plataforma |
-| `harpia-locale` | Lembra idioma escolhido | 1 ano | Plataforma |
-| `harpia-tour-done` | Lembra que tour de boas-vindas foi visto | 1 ano | Plataforma |
+| `ancoreo-theme` | Lembra preferência claro/escuro | 1 ano | Plataforma |
+| `ancoreo-locale` | Lembra idioma escolhido | 1 ano | Plataforma |
+| `ancoreo-tour-done` | Lembra que tour de boas-vindas foi visto | 1 ano | Plataforma |
 
 **Base legal**: consentimento (LGPD Art. 7º, I).
 

@@ -1,4 +1,4 @@
-# Configuração do Supabase — Projeto HARPIA (beta)
+# Configuração do Supabase — Projeto ANCOREO (beta)
 > Referência das configs feitas no painel do Supabase. NÃO guardar chaves secretas aqui.
 > Última atualização: 2026-06-03
 

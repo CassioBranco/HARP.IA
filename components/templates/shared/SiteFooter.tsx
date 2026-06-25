@@ -7,7 +7,7 @@ export default function SiteFooter({ c, mini = false }: { c: SiteContent; mini?:
         <div style={{ maxWidth: '900px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
           <span style={{ fontWeight: 700, color: '#fff', fontSize: '0.9rem' }}>{c.businessName}</span>
           <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.75rem' }}>
-            © {new Date().getFullYear()} · {c.city}/{c.state} · Site criado com HARPIA
+            © {new Date().getFullYear()} · {c.city}/{c.state} · Site criado com ANCOREO
           </span>
         </div>
       </footer>
@@ -45,7 +45,7 @@ export default function SiteFooter({ c, mini = false }: { c: SiteContent; mini?:
           <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.75rem' }}>{c.credential}</span>
         )}
         <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.75rem' }}>
-          © {new Date().getFullYear()} {c.businessName} · Site criado com HARPIA
+          © {new Date().getFullYear()} {c.businessName} · Site criado com ANCOREO
         </span>
       </div>
     </footer>

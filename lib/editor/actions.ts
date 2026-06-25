@@ -1,7 +1,7 @@
 'use server'
 
 // ============================================================
-// HARPIA — Server actions do editor
+// ANCOREO — Server actions do editor
 // Reordenação de seções (coluna reordenável do editor v2).
 // RLS garante posse (sections → pages → sites → tenant do usuário).
 // ============================================================

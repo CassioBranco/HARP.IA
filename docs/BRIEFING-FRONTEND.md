@@ -1,6 +1,6 @@
-# Briefing de Front-end — HARPIA (para o Claude Design)
+# Briefing de Front-end — ANCOREO (para o Claude Design)
 
-> Objetivo: melhorar o front-end do **onboarding** e do **HARPIA** em geral.
+> Objetivo: melhorar o front-end do **onboarding** e do **ANCOREO** em geral.
 > Última atualização: 2026-06-12. Leia junto com `CLAUDE.md` (regras de produto) e este arquivo (regras de UI).
 
 ---
@@ -70,7 +70,7 @@ Mexa no visual à vontade, mas preserve o comportamento:
 
 ---
 
-## 4. Resto do app (HARPIA) — mapa rápido
+## 4. Resto do app (ANCOREO) — mapa rápido
 
 ```
 app/
@@ -128,4 +128,4 @@ components/templates/layouts/   ← 10 layouts de site dos clientes:
 
 ## 8. North Star (não esquecer)
 
-O HARPIA existe pra fazer o site do cliente **aparecer quando o cliente dele busca no Google e nas IAs** (SEO + GEO + AEO). Qualquer melhoria de UI deve respeitar: conteúdo no HTML inicial (Server Components), performance alta (Core Web Vitals), semântica limpa. Beleza não pode custar SEO.
+O ANCOREO existe pra fazer o site do cliente **aparecer quando o cliente dele busca no Google e nas IAs** (SEO + GEO + AEO). Qualquer melhoria de UI deve respeitar: conteúdo no HTML inicial (Server Components), performance alta (Core Web Vitals), semântica limpa. Beleza não pode custar SEO.

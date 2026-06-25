@@ -1,5 +1,5 @@
 /* ============================================================
-   PALETA DA PLATAFORMA HARPIA (painel admin) — v1
+   PALETA DA PLATAFORMA ANCOREO (painel admin) — v1
    Variáveis no formato shadcn/ui (HSL sem vírgula).
    O frontend-dev cola estes blocos em app/globals.css
    (dentro de @layer base { :root {...} .dark {...} }).

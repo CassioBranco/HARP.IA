@@ -3,13 +3,13 @@
 **Última atualização:** [DATA_PUBLICACAO]
 **Versão:** 1.0
 **Operadora (DPO):** Dicas do Dove (Anderson Marques), CNPJ [CNPJ], com sede em Sorocaba/SP
-**URL canônica:** https://[DOMINIO]/harpia/dpa
+**URL canônica:** https://[DOMINIO]/ancoreo/dpa
 
 ---
 
 ## Preâmbulo
 
-Este Acordo de Processamento de Dados ("DPA") complementa os [Termos de Uso](https://[DOMINIO]/harpia/termos) e a [Política de Privacidade](https://[DOMINIO]/harpia/privacy) da [NOME_COMERCIAL] e disciplina o tratamento de **dados pessoais de terceiros** (visitantes, leads, contatos) coletados pelo Cliente através da Plataforma.
+Este Acordo de Processamento de Dados ("DPA") complementa os [Termos de Uso](https://[DOMINIO]/ancoreo/termos) e a [Política de Privacidade](https://[DOMINIO]/ancoreo/privacy) da [NOME_COMERCIAL] e disciplina o tratamento de **dados pessoais de terceiros** (visitantes, leads, contatos) coletados pelo Cliente através da Plataforma.
 
 Este DPA é especialmente relevante para clientes dos planos **Pro** e **Agency**, que usam a Plataforma para criar e operar sites e canais de captação de dados de terceiros. Ele é firmado nos termos do **Art. 39 da Lei nº 13.709/2018 (LGPD)**.
 
@@ -266,7 +266,7 @@ A [NOME_COMERCIAL] responde nos termos do Art. 42 da LGPD em caso de descumprime
 O Cliente responde diretamente perante titulares e ANPD pelas finalidades, bases legais e instruções que define.
 
 ### 11.3. Limitação contratual
-Sem prejuízo das responsabilidades legais e LGPD, as limitações de responsabilidade dos [Termos de Uso](https://[DOMINIO]/harpia/termos) se aplicam também a este DPA.
+Sem prejuízo das responsabilidades legais e LGPD, as limitações de responsabilidade dos [Termos de Uso](https://[DOMINIO]/ancoreo/termos) se aplicam também a este DPA.
 
 ---
 

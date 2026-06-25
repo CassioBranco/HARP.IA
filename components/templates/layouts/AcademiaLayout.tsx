@@ -496,7 +496,7 @@ export default function AcademiaLayout({ c, p, preview }: { c: SiteContent; p: P
           </div>
           <div className="ac-foot-bottom">
             <span>© {new Date().getFullYear()} {c.businessName}</span>
-            <span>Site criado com HARPIA</span>
+            <span>Site criado com ANCOREO</span>
           </div>
         </div>
       </footer>

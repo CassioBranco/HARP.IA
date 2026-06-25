@@ -16,7 +16,7 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 })
 
 export const metadata: Metadata = {
-  title: 'HARPIA',
+  title: 'ANCOREO',
   description: 'Plataforma de sites com SEO, GEO e AEO para negócios locais',
 }
 

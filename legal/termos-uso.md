@@ -3,7 +3,7 @@
 **Última atualização:** [DATA_PUBLICACAO]
 **Versão:** 1.0
 **Operadora:** Dicas do Dove (Anderson Marques), CNPJ [CNPJ], com sede em Sorocaba/SP
-**URL canônica:** https://[DOMINIO]/harpia/termos
+**URL canônica:** https://[DOMINIO]/ancoreo/termos
 
 ---
 
@@ -14,7 +14,7 @@ Ao se cadastrar, acessar ou usar a plataforma **[NOME_COMERCIAL]** (operada por 
 1. Leu, compreendeu e aceitou integralmente estes Termos de Uso
 2. É maior de 18 anos e capaz civilmente
 3. Tem poderes para representar a pessoa jurídica que cadastra (se aplicável)
-4. Aceitou também a [Política de Privacidade](https://[DOMINIO]/harpia/privacy) e a [Política de Cookies](https://[DOMINIO]/harpia/cookies)
+4. Aceitou também a [Política de Privacidade](https://[DOMINIO]/ancoreo/privacy) e a [Política de Cookies](https://[DOMINIO]/ancoreo/cookies)
 
 **Se você não concorda com qualquer disposição destes Termos, não utilize a plataforma.**
 
@@ -368,7 +368,7 @@ O Cliente concorda em isentar, defender e indenizar a [NOME_COMERCIAL], seus só
 
 ## 19. Privacidade e LGPD
 
-O tratamento de dados pessoais é regido pela [Política de Privacidade](https://[DOMINIO]/harpia/privacy) e, para clientes Pro/Agency com tratamento de dados de terceiros, pelo [DPA — Acordo de Processamento de Dados](https://[DOMINIO]/harpia/dpa).
+O tratamento de dados pessoais é regido pela [Política de Privacidade](https://[DOMINIO]/ancoreo/privacy) e, para clientes Pro/Agency com tratamento de dados de terceiros, pelo [DPA — Acordo de Processamento de Dados](https://[DOMINIO]/ancoreo/dpa).
 
 ---
 

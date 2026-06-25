@@ -1,4 +1,4 @@
-# HARPIA — Status do Projeto
+# ANCOREO — Status do Projeto
 
 > Atualizado: 2026-06-07 | Branch: master | Deploy: harp-ia.vercel.app
 
@@ -6,7 +6,7 @@
 
 ## RESUMO EXECUTIVO
 
-HARPIA é uma plataforma SaaS brasileira que gera sites com SEO+GEO+AEO para PMEs locais.
+ANCOREO é uma plataforma SaaS brasileira que gera sites com SEO+GEO+AEO para PMEs locais.
 Stack: Next.js 14 (App Router) + Supabase + Claude API (Sonnet) + Stripe + Vercel.
 Design: esmeralda (`--primary: 160 84% 30%`) + dourado (`--accent: 38 92% 50%`).
 Metodologia de conteúdo: Método CPF (C=Conhecimento, P=Posicionamento, F=Faturamento).
@@ -30,7 +30,7 @@ Metodologia de conteúdo: Método CPF (C=Conhecimento, P=Posicionamento, F=Fatur
 - **SEO meter** — tela "Seu conhecimento vale ouro" com score em tempo real (5 sinais)
 - **CPFMini** — barras de sinal C/P/F no header, score total visível
 - **Auto-save** — localStorage por tela + Supabase debounce 1.5s
-- **Design tokens** — HARPIA esmeralda+dourado aplicado em globals.css
+- **Design tokens** — ANCOREO esmeralda+dourado aplicado em globals.css
 - **Redirect** — signup → /onboarding → /templates (limpa localStorage ao finalizar)
 
 ### Páginas existentes

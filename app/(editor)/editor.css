@@ -1,5 +1,5 @@
 /* ============================================================
-   HARPIA — Editor (liquid-glass). Reaproveita os primitivos de
+   ANCOREO — Editor (liquid-glass). Reaproveita os primitivos de
    painel.css (.glass .btn .field .lbl .badge .pill .note) e adiciona
    só o layout de 3 colunas (rail + painel + palco) e os blocos do editor.
    Tudo escopado em .painel-shell pra herdar os tokens da marca.

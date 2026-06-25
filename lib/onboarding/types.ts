@@ -1,5 +1,5 @@
 // ============================================================
-// HARPIA — Contrato de dados do onboarding v2 (7 telas)
+// ANCOREO — Contrato de dados do onboarding v2 (7 telas)
 // Fonte da verdade dos campos que o front (protótipo) liga ao banco.
 // Os nomes batem 1:1 com as colunas de onboarding_profiles.
 // ============================================================

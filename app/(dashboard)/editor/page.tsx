@@ -1,5 +1,5 @@
 // ============================================================
-// HARPIA — /editor (sem id): atalho do menu. Redireciona pro editor do
+// ANCOREO — /editor (sem id): atalho do menu. Redireciona pro editor do
 // site mais recente do usuário, ou pra /sites se ainda não houver site.
 // O editor de verdade mora em /editor/[siteId].
 // ============================================================

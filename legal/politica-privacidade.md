@@ -4,7 +4,7 @@
 **Versão:** 1.0
 **Operadora:** Dicas do Dove (Anderson Marques), CNPJ [CNPJ], com sede em Sorocaba/SP
 **Encarregado de Dados (DPO):** [NOME_DPO], contato: dicasdodove@gmail.com
-**URL canônica:** https://[DOMINIO]/harpia/privacy
+**URL canônica:** https://[DOMINIO]/ancoreo/privacy
 
 ---
 
@@ -87,7 +87,7 @@ Para dados pessoais coletados pelo SITE DO CLIENTE final através da plataforma,
 - Tempo de carregamento das páginas
 
 ### 3.7. Cookies e tecnologias similares
-Detalhes na nossa [Política de Cookies](https://[DOMINIO]/harpia/cookies).
+Detalhes na nossa [Política de Cookies](https://[DOMINIO]/ancoreo/cookies).
 
 ---
 
@@ -258,7 +258,7 @@ Pais ou responsáveis que identifiquem coleta indevida podem solicitar exclusão
 
 ## 13. Cookies
 
-Usamos cookies e tecnologias similares conforme detalhado na nossa [Política de Cookies](https://[DOMINIO]/harpia/cookies).
+Usamos cookies e tecnologias similares conforme detalhado na nossa [Política de Cookies](https://[DOMINIO]/ancoreo/cookies).
 
 ---
 

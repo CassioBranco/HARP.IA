@@ -44,7 +44,7 @@ export default async function PreviewPage({ params, searchParams }: Props) {
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <span style={{ fontWeight: 700, color: '#10b981' }}>HARPIA</span>
+              <span style={{ fontWeight: 700, color: '#10b981' }}>ANCOREO</span>
               <span style={{ color: 'rgba(255,255,255,0.5)' }}>·</span>
               <span style={{ color: 'rgba(255,255,255,0.7)' }}>Pré-visualização do site</span>
             </div>

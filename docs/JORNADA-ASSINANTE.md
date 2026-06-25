@@ -1,4 +1,4 @@
-# JORNADA DO ASSINANTE — Projeto HARPIA
+# JORNADA DO ASSINANTE — Projeto ANCOREO
 > O caminho que o assinante percorre na plataforma. Serve também como ORDEM DE CONSTRUÇÃO das telas (build na sequência que o usuário vivencia).
 > Última atualização: 2026-06-04
 
@@ -8,7 +8,7 @@
 
 ```
 1. APRESENTAÇÃO + LOGIN/CADASTRO
-   Landing que explica o HARPIA → convence → cria conta / entra
+   Landing que explica o ANCOREO → convence → cria conta / entra
 
 2. ONBOARDING (6 passos)
    Coleta dados do negócio: nome, nicho, área de atuação (cidade-base + raio),

@@ -1,5 +1,5 @@
 // ============================================================
-// HARPIA — /settings (Fase 5). Visual = protótipo settings.html.
+// ANCOREO — /settings (Fase 5). Visual = protótipo settings.html.
 // Server component: carrega dados reais (conta, plano, uso) e injeta no client.
 // ============================================================
 import { redirect } from 'next/navigation'

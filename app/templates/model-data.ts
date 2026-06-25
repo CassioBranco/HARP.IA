@@ -1,6 +1,6 @@
 // ============================================================
-// HARPIA — Dados da tela "escolher-modelo" (v2)
-// Portado 1:1 do protótipo design_handoff_harpia/onboarding/escolher-modelo.html.
+// ANCOREO — Dados da tela "escolher-modelo" (v2)
+// Portado 1:1 do protótipo design_handoff_ancoreo/onboarding/escolher-modelo.html.
 // Visual e textos NÃO devem ser alterados aqui sem aprovação (Claude Design).
 // ============================================================
 

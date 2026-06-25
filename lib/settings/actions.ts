@@ -1,7 +1,7 @@
 'use server'
 
 // ============================================================
-// HARPIA — Server actions de Configurações (aba Conta).
+// ANCOREO — Server actions de Configurações (aba Conta).
 // Salva dados do perfil no onboarding_profiles do tenant (RLS protege).
 // ============================================================
 

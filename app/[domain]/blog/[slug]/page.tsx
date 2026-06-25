@@ -1,5 +1,5 @@
 // ============================================================
-// HARPIA — artigo de blog PUBLICADO no site do cliente.
+// ANCOREO — artigo de blog PUBLICADO no site do cliente.
 // Rota: /[domain]/blog/[slug] — exatamente a URL que o sitemap
 // já anuncia ao Google (antes caía em 404).
 // Renderiza o HTML do artigo + JSON-LD Article + FAQPage (AEO
@@ -182,7 +182,7 @@ export default async function PublishedBlogPostPage({ params }: Props) {
 
           {/* Conteúdo do artigo — HTML gerado pela IA e já validado no gate de publicação */}
           <div
-            className="harpia-article-body"
+            className="ancoreo-article-body"
             dangerouslySetInnerHTML={{ __html: post.content ?? '' }}
           />
 

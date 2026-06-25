@@ -134,7 +134,7 @@ export default function SignupPage() {
       {/* Cabeçalho */}
       <div className="mb-8 text-center">
         <Link href="/" className="font-heading text-2xl font-bold text-primary">
-          HARPIA
+          ANCOREO
         </Link>
         <h1 className="font-heading mt-5 text-2xl font-bold text-foreground">
           Criar conta grátis

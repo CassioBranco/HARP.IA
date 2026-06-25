@@ -1,4 +1,4 @@
-# NICHOS — Projeto HARPIA
+# NICHOS — Projeto ANCOREO
 > Fonte de verdade de todos os presets de nicho. Define schema JSON-LD, seções obrigatórias, CTA, paleta, restrições de conteúdo e keywords padrão.
 > A IA de geração (Agente Onboarding + Agente Blog) DEVE consultar este documento antes de gerar qualquer texto — especialmente as restrições de conteúdo por nicho.
 > Última atualização: 2026-06-04

@@ -1,6 +1,6 @@
-# CLAUDE.md — Projeto HARPIA
+# CLAUDE.md — Projeto ANCOREO
 > Documento fundacional do projeto. Leia inteiro antes de qualquer ação.
-> **Nome oficial do projeto:** HARPIA
+> **Nome oficial do projeto:** ANCOREO
 > Última atualização: 2026-06-19
 > Owner do produto: Anderson Dove (Anderson Marques) — Sorocaba/SP
 > Operador técnico (decisões operacionais + orquestração de agentes de dev): Cássio Branco
@@ -59,7 +59,7 @@ Regras universais (detalhadas no Bloco 0):
 - Keyword research e tom de voz se adaptam
 
 ### Tipo de site gerado — escopo ATUAL
-O HARPIA é um **serviço de criação de sites cujo foco principal é o melhor SEO/GEO/AEO do mercado mundial** (ver `NORTH-STAR.md`). No escopo atual, a plataforma gera **landing pages, sites institucionais e catálogos** (listagem de serviços ou produtos para exibição). Por ora não tem checkout, carrinho, pagamento online integrado, gestão de estoque ou frete — a conversão é por **contato** (WhatsApp, telefone, formulário, agendamento, visita presencial).
+O ANCOREO é um **serviço de criação de sites cujo foco principal é o melhor SEO/GEO/AEO do mercado mundial** (ver `NORTH-STAR.md`). No escopo atual, a plataforma gera **landing pages, sites institucionais e catálogos** (listagem de serviços ou produtos para exibição). Por ora não tem checkout, carrinho, pagamento online integrado, gestão de estoque ou frete — a conversão é por **contato** (WhatsApp, telefone, formulário, agendamento, visita presencial).
 
 **E-commerce é uma feature FUTURA possível — não descartada, apenas fora do MVP atual.** Não tratar e-commerce como proibido; tratar como evolução no horizonte. A arquitetura é mantida aberta a isso (abstração de `Product`, `PaymentProvider` planejado). O que não muda nunca é o foco em SEO/GEO/AEO.
 
@@ -689,7 +689,7 @@ POST /api/images/process      — processa imagem com Sharp
 | Mai/2026 | Trial 7 dias com Pro completo + cartão no Day 6 | Reduz fricção na palestra, mantém qualificação |
 | Mai/2026 | Chave Anthropic única da plataforma (BYO descartado) | Público B2B local não opera API key — fricção fatal no funil |
 | Mai/2026 | Quotas fair-use com soft caps (Starter 4/Pro 20/Agency ∞) | Cliente nunca encara "limite de IA" — quota natural é o tempo dele |
-| Mai/2026 | Codinome interno "Projeto HARPIA" (substituiu "Evergreen"), nome comercial a definir | Permite trabalhar sem travar na marca; HARPIA reflete predador de topo, visão aguçada, brasilidade — encaixa com dominância em busca local |
+| Mai/2026 (rev. Jun/2026) | Codinome interno do projeto (substituiu "Evergreen"); nome comercial final depois definido = **ANCOREO** (âncora + SEO) | Permitia trabalhar sem travar na marca; nome comercial final fechado em jun/2026 |
 | Mai/2026 | UX cocktail: Shopify (estrutura) + Ghost (editor) + Beehiiv (métricas) + Cal.com (settings) + Stripe (billing) | Cada parte segue o gold standard do mercado pro público leigo — descartado WordPress como referência única |
 | Mai/2026 | Sites publicados no Cloudflare Pages, app admin no Vercel | Escala global rápida com custo controlado; Vercel cobraria ~$2k/mês com 100 sites onde Cloudflare cobra $20 |
 | Mai/2026 | Storage de imagens no Cloudflare R2 + pipeline Sharp + Claude Vision pra alt text | Zero egress fee, escala barato; pipeline universal: WebP + recorte + SEO automático no upload |
@@ -702,7 +702,7 @@ POST /api/images/process      — processa imagem com Sharp
 | Mai/2026 | Roteamento de modelos por agente — Sonnet pra geração criativa, Haiku pra análise/score | Otimiza custo sem comprometer qualidade do texto SEO que é o produto |
 | Mai/2026 (rev. Jun/2026) | **Escopo atual: landing pages, institucionais, catálogos** — e-commerce (checkout/carrinho) é feature FUTURA possível, fora do MVP atual (não um "nunca", um "ainda não") | Foco principal é o melhor SEO/GEO/AEO do mundo. MVP atende negócios locais que convertem por contato. Arquitetura mantida aberta a e-commerce futuro. Shopify = inspiração de UX do painel, não features de loja. |
 | Mai/2026 | Política de inadimplência: 14d retries + 30d modo leitura + 60d pausa + arquiva (90d total) | Preserva dados/domínio do cliente, dá múltiplas chances de retomada, respeita LGPD com cold storage |
-| Mai/2026 | MVP A inclui blog + GBP + score + admin completo (não apenas onboarding+site) | Blog é filosofia nuclear do produto; sem ele o HARPIA não cumpre a promessa de SEO orgânico |
+| Mai/2026 | MVP A inclui blog + GBP + score + admin completo (não apenas onboarding+site) | Blog é filosofia nuclear do produto; sem ele o ANCOREO não cumpre a promessa de SEO orgânico |
 | Mai/2026 | Modelo de execução: agentes de dev (Claude Code + Cursor) orquestrados, não dev humano tradicional | Reduz prazo de MVP de 16-24 semanas pra 10-13 semanas; exige preparação de skills, templates de prompt e conventions |
 | Mai/2026 | Admins dia 1: Anderson Dove (owner/produto) + Cássio (dev/arquitetura). 2 super_admins. Role `support` fica pra depois | Time enxuto pra MVP |
 | Mai/2026 | Stripe Brasil agora + abstração `PaymentProvider` pra Paypal/internacional na fase B | Foco no Brasil sem fechar porta pra expansão futura |

@@ -288,7 +288,7 @@ export default function SiteTemplate({ content: c, palette: p, preview = false }
               <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.8rem' }}>{c.credential}</span>
             )}
             <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.75rem', marginTop: '0.5rem' }}>
-              © {new Date().getFullYear()} {c.businessName} · Site criado com HARPIA
+              © {new Date().getFullYear()} {c.businessName} · Site criado com ANCOREO
             </span>
           </div>
         </footer>

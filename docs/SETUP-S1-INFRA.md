@@ -1,5 +1,5 @@
 # GUIA S1 — Montar a Fundação Técnica (passo a passo pra iniciante)
-> Este documento ensina, em linguagem simples, como levantar a base do HARPIA.
+> Este documento ensina, em linguagem simples, como levantar a base do ANCOREO.
 > Você não precisa saber programar. Você cria contas, copia chaves e aprova; os agentes de dev escrevem o código.
 > Última atualização: 2026-06-02
 
@@ -7,7 +7,7 @@
 
 ## ANTES DE TUDO — a ideia em 1 parágrafo
 
-Pensa no HARPIA como uma casa. O **S1 é a fundação + encanamento + luz**: nada visível ainda, mas sem isso nada funciona. A gente vai (1) preparar suas ferramentas, (2) criar as contas dos serviços, (3) levantar o projeto, (4) ligar o banco de dados, (5) colocar no ar. Cada serviço tem um papel; explico cada um quando chegar nele.
+Pensa no ANCOREO como uma casa. O **S1 é a fundação + encanamento + luz**: nada visível ainda, mas sem isso nada funciona. A gente vai (1) preparar suas ferramentas, (2) criar as contas dos serviços, (3) levantar o projeto, (4) ligar o banco de dados, (5) colocar no ar. Cada serviço tem um papel; explico cada um quando chegar nele.
 
 > ## 🧪 ESTRATÉGIA DE BETA (decisão Jun/2026, importante)
 > A gente constrói **direto na stack final** (Cloudflare + Supabase + Vercel), mas no **plano GRÁTIS** de cada uma. O free tier aguenta tranquilo o teto de **10 clientes da beta** (Cloudflare dá 100 domínios grátis; Supabase, 50 mil usuários). Quando a beta validar e os clientes pagantes chegarem, a gente **NÃO migra de plataforma** — só clica em "upgrade" do plano. Zero retrabalho.
@@ -64,7 +64,7 @@ Cada serviço é uma peça da casa. Cria as 3 essenciais do S1 primeiro; as outr
 |---------|------------------|-------------|
 | **GitHub** | O cofre do código | Já criada na Parte 0 |
 | **Supabase** | O banco de dados + login dos usuários (a "memória" da casa) | supabase.com → sign up com GitHub |
-| **Vercel** | Onde o painel do HARPIA fica no ar | vercel.com → sign up com GitHub |
+| **Vercel** | Onde o painel do ANCOREO fica no ar | vercel.com → sign up com GitHub |
 
 ### Pra depois (não precisa agora — só anota que existem)
 Cloudflare (hospeda os sites dos clientes), Stripe (cobrança), Resend (e-mails), Inngest (fila), Sentry + PostHog (monitoramento), Cloudflare R2 (imagens). Cada uma entra na sua sprint.
@@ -78,7 +78,7 @@ Cloudflare (hospeda os sites dos clientes), Stripe (cobrança), Resend (e-mails)
 **Você não escreve isso.** O agente `backend-dev` (ou `frontend-dev`) cria pra você. Seu papel é:
 1. Criar uma pasta pro projeto no seu computador
 2. Abrir ela no Cursor
-3. Pedir pro agente: *"Crie o projeto Next.js 14 base do HARPIA seguindo o CLAUDE.md — App Router, TypeScript estrito, Tailwind, estrutura de pastas do §10"*
+3. Pedir pro agente: *"Crie o projeto Next.js 14 base do ANCOREO seguindo o CLAUDE.md — App Router, TypeScript estrito, Tailwind, estrutura de pastas do §10"*
 4. O agente roda os comandos e cria os arquivos. Ele para e te pede aprovação antes de qualquer coisa importante (essa é a regra "semi-autônoma" que configuramos).
 
 **Como saber que deu certo:** o agente roda `npm run dev`, te dá um link tipo `http://localhost:3000`, você abre no navegador e vê uma página inicial. Está vivo na sua máquina.
@@ -91,7 +91,7 @@ Cloudflare (hospeda os sites dos clientes), Stripe (cobrança), Resend (e-mails)
 
 ### 4a. Criar o projeto no Supabase
 1. No painel do Supabase → **New Project**
-2. Dá um nome (ex: `harpia-dev`), escolhe uma senha forte pro banco (anota num lugar seguro), região **South America (São Paulo)**
+2. Dá um nome (ex: `ancoreo-dev`), escolhe uma senha forte pro banco (anota num lugar seguro), região **South America (São Paulo)**
 3. Espera ~2 minutos enquanto ele cria
 
 ### 4b. Copiar as 3 chaves (o agente precisa delas)
@@ -138,7 +138,7 @@ O agente `backend-dev` conecta o login às telas. Você pede:
 3. Em **Environment Variables**, cola as mesmas chaves do Supabase (URL, anon, service_role)
 4. Clica **Deploy** e espera ~2 minutos
 
-**Como saber que deu certo:** a Vercel te dá um link tipo `harpia-dev.vercel.app`. Você abre e o app está no ar, na internet, com login funcionando.
+**Como saber que deu certo:** a Vercel te dá um link tipo `ancoreo-dev.vercel.app`. Você abre e o app está no ar, na internet, com login funcionando.
 
 ---
 

@@ -1,5 +1,5 @@
 // ============================================================
-// HARPIA — Layout do editor (tela cheia, sem o shell do painel).
+// ANCOREO — Layout do editor (tela cheia, sem o shell do painel).
 // Fica num route group próprio pra NÃO herdar a sidebar do (dashboard)
 // (evita o "chrome dobrado"). Faz o guard de auth no servidor.
 // ============================================================

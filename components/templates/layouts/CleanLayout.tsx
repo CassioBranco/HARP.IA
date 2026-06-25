@@ -399,7 +399,7 @@ export default function CleanLayout({ c, p, preview }: { c: SiteContent; p: Pale
           </div>
           <div className="cl-foot-bottom">
             <span>© {new Date().getFullYear()} {c.businessName}</span>
-            <span>Site criado com HARPIA</span>
+            <span>Site criado com ANCOREO</span>
           </div>
         </div>
       </footer>

@@ -45,7 +45,7 @@
     ]
   },
   "env": {
-    "PROJECT_CODENAME": "HARPIA",
+    "PROJECT_CODENAME": "ANCOREO",
     "PROJECT_PHASE": "Fase A — Orquestramento",
     "AUTONOMY_LEVEL": "semi-autonomous",
     "REQUIRE_HUMAN_APPROVAL": "commit,push,deploy,migration_apply"

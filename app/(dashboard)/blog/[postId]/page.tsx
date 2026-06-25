@@ -1,5 +1,5 @@
 // ============================================================
-// HARPIA — /blog/[postId] (post-editor página cheia).
+// ANCOREO — /blog/[postId] (post-editor página cheia).
 // Visual = protótipo painel/post-editor.html.
 // postId === 'new' → criar artigo novo.
 // Persiste só campos com lastro no banco (title/slug/content/

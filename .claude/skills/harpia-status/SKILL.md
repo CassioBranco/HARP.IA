@@ -1,11 +1,11 @@
 ---
 name: harpia-status
-description: Verificador de estado do Projeto HARPIA — a fonte da verdade sobre "em que ponto estamos". Use SEMPRE ao RETOMAR o projeto, ANTES de começar qualquer tarefa nova, ANTES de pedir algo ao Cássio, e ANTES de afirmar que algo está pronto/pendente. Cruza git + banco ao vivo + build com a lista de pendências pra impedir retrabalho e impedir pedir/refazer o que já foi concluído. NÃO use pra escrever código (use os agentes específicos); esta skill só LÊ e RELATA o estado.
+description: Verificador de estado do Projeto ANCOREO — a fonte da verdade sobre "em que ponto estamos". Use SEMPRE ao RETOMAR o projeto, ANTES de começar qualquer tarefa nova, ANTES de pedir algo ao Cássio, e ANTES de afirmar que algo está pronto/pendente. Cruza git + banco ao vivo + build com a lista de pendências pra impedir retrabalho e impedir pedir/refazer o que já foi concluído. NÃO use pra escrever código (use os agentes específicos); esta skill só LÊ e RELATA o estado.
 model: sonnet
 tools: Read, Glob, Grep, Bash
 ---
 
-# HARPIA — Verificador de Estado ("em que ponto estamos")
+# ANCOREO — Verificador de Estado ("em que ponto estamos")
 
 ## Por que esta skill existe
 O Cássio já foi obrigado a repetir coisas porque eu (Claude) afirmei pendência/conclusão a partir de **memória velha** em vez de checar a realidade. Esta skill existe pra uma regra única:
@@ -15,7 +15,7 @@ O Cássio já foi obrigado a repetir coisas porque eu (Claude) afirmei pendênci
 ## Fatos fixos (não re-perguntar)
 - **Pasta:** `dove-site-builder/` · **Repo:** github.com/CassioBranco/HARP.IA · **Deploy:** Vercel (branch `master`)
 - **Supabase project_id:** `yejjeiveqgkgrtcettkl`
-- **Nome oficial:** HARPIA (codinome = marca = identidade). NÃO é Ancoreo.
+- **Nome oficial:** ANCOREO (codinome = marca = identidade). NÃO é Ancoreo.
 - **`ANTHROPIC_API_KEY`** já existe no `.env.local`. NÃO dizer que falta. (Confirmar só se está no Vercel de produção.)
 - **Fronteira:** front-end (templates, painéis visuais) = Claude Design; back-end/lógica = Claude Code. Se o Cássio mandar mexer no front, integrar a lógica sem reescrever o design.
 - **Migrations no banco ao vivo:** só aplicar com OK explícito do Cássio.
@@ -25,7 +25,7 @@ O Cássio já foi obrigado a repetir coisas porque eu (Claude) afirmei pendênci
 ### 1. Ler a intenção do projeto
 - `CLAUDE.md` (raiz do dove-site-builder) — visão, roadmap, regras.
 - `docs/STATUS-PROJETO.md` e `docs/trello-*.txt` — **podem estar DESATUALIZADOS**; tratar como pista, não verdade. A verdade é git + banco.
-- A memória do projeto (`project_harpia*.md`) — contexto, mas idem: confirmar antes de usar.
+- A memória do projeto (`project_ancoreo*.md`) — contexto, mas idem: confirmar antes de usar.
 
 ### 2. Git — o que existe, o que subiu
 ```bash

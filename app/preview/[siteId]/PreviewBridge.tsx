@@ -26,7 +26,7 @@ export default function PreviewBridge() {
       // No editor, clicar é pra EDITAR, não seguir link/CTA.
       e.preventDefault()
       e.stopPropagation()
-      window.parent?.postMessage({ source: 'harpia-preview', kind }, '*')
+      window.parent?.postMessage({ source: 'ancoreo-preview', kind }, '*')
     }
 
     const onOver = (e: MouseEvent) => {
@@ -38,7 +38,7 @@ export default function PreviewBridge() {
 
     // Realce de "editável" ao passar o mouse.
     const style = document.createElement('style')
-    style.setAttribute('data-harpia-edit', '')
+    style.setAttribute('data-ancoreo-edit', '')
     style.textContent = `
       img:hover, h1:hover, h2:hover, h3:hover, h4:hover, p:hover {
         outline: 2px solid #3b82f6 !important;

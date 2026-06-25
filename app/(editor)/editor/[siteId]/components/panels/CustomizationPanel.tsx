@@ -48,7 +48,7 @@ export default function CustomizationPanel({ site, siteId, onSave }: Props) {
   useEffect(() => {
     const onMsg = (e: MessageEvent) => {
       const d = e.data as { source?: string; kind?: string } | null
-      if (!d || d.source !== 'harpia-preview') return
+      if (!d || d.source !== 'ancoreo-preview') return
       if (d.kind === 'image') setSubTab('imagens')
       else if (d.kind === 'text') setSubTab('textos')
     }

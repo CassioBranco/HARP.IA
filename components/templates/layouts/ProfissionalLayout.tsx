@@ -387,7 +387,7 @@ export default function ProfissionalLayout({
           </div>
           <div className="p-foot-bottom">
             <span>© {new Date().getFullYear()} {c.businessName}</span>
-            <span>Site criado com HARPIA</span>
+            <span>Site criado com ANCOREO</span>
           </div>
         </div>
       </footer>

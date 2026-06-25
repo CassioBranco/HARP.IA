@@ -414,7 +414,7 @@ export default function ConversaoLayout({ c, p, preview: _preview }: { c: SiteCo
           </div>
           <div className="meta" style={{ textAlign: 'right' }}>
             {c.ctaPhone}<br />
-            Site criado com HARPIA
+            Site criado com ANCOREO
           </div>
         </div>
       </footer>

@@ -1,7 +1,7 @@
 'use server'
 
 // ============================================================
-// HARPIA — Server actions do onboarding v2
+// ANCOREO — Server actions do onboarding v2
 // O front (protótipo) chama saveOnboardingProfile() debounced a cada
 // mudança. A persistência, auth e cálculo de completude vivem aqui.
 // ============================================================

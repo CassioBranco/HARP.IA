@@ -35,7 +35,7 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
     }
   }
 
-  // ── Painel HARPIA ──────────────────────────────────────────────────────────
+  // ── Painel ANCOREO ──────────────────────────────────────────────────────────
   return {
     rules: [
       ...AI_BOTS.map(userAgent => ({ userAgent, allow: '/' })),

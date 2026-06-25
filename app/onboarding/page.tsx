@@ -1,7 +1,7 @@
 'use client'
 
 // ============================================================
-// HARPIA — Onboarding v2 (7 telas, Liquid Glass)
+// ANCOREO — Onboarding v2 (7 telas, Liquid Glass)
 // Markup/visual portado 1:1 do protótipo aprovado.
 // A lógica (autosave, navegação, cidades) liga nas server actions.
 // Não redesenhar o visual aqui; mudanças de estilo vêm do Claude Design.
@@ -39,7 +39,7 @@ import './onboarding.css'
 
 const TOTAL = 7
 // SEO mínimo pra liberar a geração — abaixo disso o site nasce sem chance real de aparecer
-const MIN_SEO = 55
+const MIN_SEO = 75
 
 type CityResult = { name: string; state: string; lat?: number; lng?: number }
 type SegRow = {
@@ -472,7 +472,7 @@ export default function OnboardingPage() {
     const gaps = items
       .filter((i) => i.got < i.max)
       .sort((a, b) => b.max - b.got - (a.max - a.got))
-    return { items, total, label, color, gaps, ok: total >= MIN_SEO }
+    return { items, total, label, color, gaps, ok: total >= MIN_SEO, gpeLinked }
   }, [businessName, about, niche, city, gpeModo, gpeLink, gpeErr, authority.p, dominioModo, dominioProprio])
 
   // ── tela 7: domínio ───────────────────────────────────────
@@ -492,8 +492,12 @@ export default function OnboardingPage() {
     }
     // barra a geração se o SEO não passa do mínimo pra aparecer no Google
     if (!seo.ok) {
+      // sem o Perfil de Empresa vinculado o teto não chega aos 75% — é o que mais pesa.
+      // por isso, quando ele não vinculou, a mensagem aponta direto pra isso.
       setGenError(
-        `Seu SEO está em ${seo.total}% — o mínimo pra começar a aparecer no Google é ${MIN_SEO}%. Reforce os pontos indicados acima.`
+        !seo.gpeLinked
+          ? `Seu SEO está em ${seo.total}% — o mínimo pra aparecer no Google é ${MIN_SEO}%. O peso maior é o Perfil de Empresa no Google (Google Meu Negócio): sem vincular o seu, o site não tem como funcionar de verdade. Volte à tela 5 e vincule o seu perfil pra continuar.`
+          : `Seu SEO está em ${seo.total}% — o mínimo pra começar a aparecer no Google é ${MIN_SEO}%. Reforce os pontos indicados acima.`
       )
       return
     }
@@ -594,7 +598,7 @@ export default function OnboardingPage() {
             <span className="mk">
               <i className="ph-fill ph-bird" />
             </span>{' '}
-            HARPIA
+            ANCOREO
           </div>
           <div className="head-right">
             {hasExistingSite && (
@@ -1312,7 +1316,7 @@ export default function OnboardingPage() {
                     <span className="radio" />
                     <span className="dbody">
                       <span className="dhead">
-                        <b>Subdomínio grátis do HARPIA</b>
+                        <b>Subdomínio grátis do ANCOREO</b>
                       </span>
                       <span className="durl">{slug}.harpia.site</span>
                       <span className="ddesc">Pronto na hora, sem custo. Bom pra começar.</span>
@@ -1487,7 +1491,7 @@ export default function OnboardingPage() {
               </div>
             </div>
             <p style={{ textAlign: 'left', fontSize: '.84rem', color: '#9fb2cc', margin: '0 0 1.3rem' }}>
-              A HARPIA preenche o que falta, cria o conteúdo e estrutura tudo pra você aparecer.
+              A ANCOREO preenche o que falta, cria o conteúdo e estrutura tudo pra você aparecer.
               Disponível na plataforma após assinar.
             </p>
             <button

@@ -1,4 +1,4 @@
-# Brief de Design — Simplificar o painel HARPIA pro público leigo
+# Brief de Design — Simplificar o painel ANCOREO pro público leigo
 
 > Para: Claude Design
 > De: Cássio (via Claude Code)

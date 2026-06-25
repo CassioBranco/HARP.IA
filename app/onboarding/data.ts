@@ -1,6 +1,6 @@
 // ============================================================
-// HARPIA — Dados do onboarding v2 (7 telas)
-// Portado 1:1 do protótipo aprovado (design_handoff_harpia/onboarding/onboarding.html).
+// ANCOREO — Dados do onboarding v2 (7 telas)
+// Portado 1:1 do protótipo aprovado (design_handoff_ancoreo/onboarding/onboarding.html).
 // Visual e textos NÃO devem ser alterados aqui sem aprovação.
 // ============================================================
 

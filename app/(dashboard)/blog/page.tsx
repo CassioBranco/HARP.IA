@@ -1,5 +1,5 @@
 // ============================================================
-// HARPIA — /blog (Fase 4). Visual = protótipo painel/blog.html.
+// ANCOREO — /blog (Fase 4). Visual = protótipo painel/blog.html.
 // Server component: carrega o site do tenant + artigos reais + cota do plano.
 // ============================================================
 import { redirect } from 'next/navigation'

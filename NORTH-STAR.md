@@ -1,4 +1,4 @@
-# NORTH STAR — Projeto HARPIA
+# NORTH STAR — Projeto ANCOREO
 > **Documento imutável.** Não reabrir, não relativizar, não diluir.
 > Toda decisão de produto, arquitetura, prompt e código serve a este foco. Se uma feature não serve a isto, ela não entra.
 > Última revisão do princípio: 2026-06-02
@@ -17,7 +17,7 @@ Quando alguém — em qualquer canal de busca — procura o que o assinante vend
 
 O cliente potencial busca de muitas formas. O site do assinante precisa aparecer em todas:
 
-| Onde o cliente busca | Exemplo real | Pilar | O que o HARPIA garante |
+| Onde o cliente busca | Exemplo real | Pilar | O que o ANCOREO garante |
 |----------------------|--------------|-------|------------------------|
 | **Google — busca local** | "onde trocar pneu perto de mim" | SEO local | Cidade-base + raio de atuação + LocalBusiness schema |
 | **Google — informacional** | "quais as melhores plantas pra jardim com sol" | SEO/AEO | Blog com FAQ + Article schema, resposta direta no topo |
@@ -26,7 +26,7 @@ O cliente potencial busca de muitas formas. O site do assinante precisa aparecer
 | **Google AI Overviews / SGE** | resumo gerado pela IA do Google | GEO/AEO | Conteúdo estruturado pra ser extraído e citado |
 | **Busca por voz** | "ok Google, jardineiro perto de mim" | AEO | Resposta direta extraível + schema + GBP conectado |
 
-O assinante não precisa entender nada disso. O HARPIA faz por ele, automaticamente, em todo conteúdo gerado.
+O assinante não precisa entender nada disso. O ANCOREO faz por ele, automaticamente, em todo conteúdo gerado.
 
 ---
 
@@ -65,7 +65,7 @@ O assinante não precisa entender nada disso. O HARPIA faz por ele, automaticame
 
 Não é "ter um site". É **cercar a intenção de busca do cliente potencial**.
 
-O cliente do assinante busca de 10 jeitos diferentes, em 5 plataformas diferentes, em 3 momentos diferentes da decisão (informacional → comercial → transacional). O HARPIA cobre todos esses pontos com:
+O cliente do assinante busca de 10 jeitos diferentes, em 5 plataformas diferentes, em 3 momentos diferentes da decisão (informacional → comercial → transacional). O ANCOREO cobre todos esses pontos com:
 - Páginas do site cobrindo intents transacionais e navegacionais
 - Artigos de blog cobrindo intents informacionais e comerciais
 - Posts de GBP cobrindo a busca local imediata
@@ -117,13 +117,13 @@ Exemplos de aplicação do filtro:
 - Não é "ter presença digital" genérica. É aparecer na **busca com intenção de compra/contratação**.
 - Não é vaidade de design. Site bonito que não aparece na busca é fracasso do produto.
 
-**Sobre e-commerce:** por ora o HARPIA gera landing/institucional/catálogo e a conversão é por contato (WhatsApp, telefone, agendamento, visita). E-commerce (checkout, carrinho) é uma **feature futura possível** — não está descartada, apenas está fora do MVP atual. A arquitetura é mantida aberta pra essa evolução (abstração de `Product`, `PaymentProvider` planejado). O que **não** muda nunca é o foco em SEO/GEO/AEO — mesmo um site de e-commerce no futuro só faz sentido no HARPIA se for o e-commerce que mais aparece na busca.
+**Sobre e-commerce:** por ora o ANCOREO gera landing/institucional/catálogo e a conversão é por contato (WhatsApp, telefone, agendamento, visita). E-commerce (checkout, carrinho) é uma **feature futura possível** — não está descartada, apenas está fora do MVP atual. A arquitetura é mantida aberta pra essa evolução (abstração de `Product`, `PaymentProvider` planejado). O que **não** muda nunca é o foco em SEO/GEO/AEO — mesmo um site de e-commerce no futuro só faz sentido no ANCOREO se for o e-commerce que mais aparece na busca.
 
 ---
 
 ## POR QUE ISSO É IMUTÁVEL
 
-O mercado de site builder é saturado (Wix, Squarespace, WordPress). O HARPIA não compete em "fazer site". Compete em **fazer o site aparecer quando o cliente busca** — no Google e, cada vez mais, nas LLMs que estão virando o novo ponto de partida da busca.
+O mercado de site builder é saturado (Wix, Squarespace, WordPress). O ANCOREO não compete em "fazer site". Compete em **fazer o site aparecer quando o cliente busca** — no Google e, cada vez mais, nas LLMs que estão virando o novo ponto de partida da busca.
 
 Esse é o único diferencial defensável. Tudo no produto orbita em torno dele. Mudar esse foco é virar mais um site builder genérico — e morrer.
 
