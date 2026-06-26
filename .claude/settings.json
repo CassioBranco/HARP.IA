@@ -46,8 +46,17 @@
   },
   "env": {
     "PROJECT_CODENAME": "ANCOREO",
-    "PROJECT_PHASE": "Fase A — Orquestramento",
+    "PROJECT_PHASE": "Fase C — Build (núcleo pronto, pré-beta; gate nº1 = DNS/S13)",
     "AUTONOMY_LEVEL": "semi-autonomous",
     "REQUIRE_HUMAN_APPROVAL": "commit,push,deploy,migration_apply"
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          { "type": "command", "command": "bash .claude/hooks/session-start.sh" }
+        ]
+      }
+    ]
   }
 }

@@ -1,5 +1,5 @@
 // ============================================================
-// Teste A/B CEGO de modelos de IA para a geração de conteúdo do HARPIA.
+// Teste A/B CEGO de modelos de IA para a geração de conteúdo do ANCOREO.
 // Gera o MESMO tema com 2 provedores, usando o MESMO prompt, e grava
 // arquivos anonimizados (Modelo A / Modelo B) pro Dove pontuar sem
 // saber qual é qual. O gabarito (qual modelo é A/B por tema) fica num
@@ -50,7 +50,7 @@ const TEMAS_PADRAO = [
 ]
 
 // O MESMO prompt para os dois modelos — mesma régua, comparação justa.
-// (Espelha o contrato da rota /api/ai/blog do HARPIA.)
+// (Espelha o contrato da rota /api/ai/blog do ANCOREO.)
 function buildPrompt(tema) {
   const system = `Você é um especialista em SEO/GEO/AEO. Escreve artigos de blog em português brasileiro com voz humana (anti-IA), sem gerundismo, sem em-dash, sem "no mundo atual" nem "jornada". Cada H2 é autossuficiente: a primeira frase responde a pergunta de forma citável isolada. FAQ com no mínimo 6 perguntas. Keyword principal nos primeiros 100 caracteres. Cite a cidade ao menos 2x por seção. 800 a 1200 palavras. Nunca invente dado.`
   const user = `Escreva um artigo de blog completo sobre: "${tema}"

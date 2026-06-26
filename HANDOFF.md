@@ -1,8 +1,8 @@
 # HANDOFF — Projeto ANCOREO
 
 > Documento de passagem entre sessões. Lê isto primeiro ao retomar.
-> Última atualização: 2026-06-23 · Operador: Cássio · Owner produto: Anderson Dove
-> **Antes de afirmar "está pronto/pendente", rode a skill `harpia-status`** (cruza git + banco ao vivo + build). Este arquivo é um resumo humano, não a fonte da verdade do estado técnico.
+> Última atualização: 2026-06-26 · Operador: Cássio · Owner produto: Anderson Dove
+> **Antes de afirmar "está pronto/pendente", rode a skill `ancoreo-status`** (cruza git + banco ao vivo + build). Este arquivo é um resumo humano, não a fonte da verdade do estado técnico.
 
 ---
 
@@ -29,16 +29,16 @@ O front **NÃO tem tokens centralizados** — são **6 CSS com cores escritas na
 ## 2. Nome / Marca
 
 - **Nome comercial e final = ANCOREO** (âncora + SEO). O nome antigo do projeto foi aposentado; toda a copy/docs do código já estão em ANCOREO (rename 2026-06-24).
-- **Identificadores técnicos que AINDA usam o nome antigo** (não é a marca, é infra — trocar exige ação externa ou quebra referência, fica pra depois): repo `HARP.IA`, deploy `harp-ia.vercel.app`, subdomínio grátis `*.harpia.site`, skill interna `harpia-status`, slugs de memória `project_harpia_*`.
+- **Identificadores técnicos que AINDA usam o nome antigo** (não é a marca, é infra — trocar exige ação externa, fica pro gate S13 do DNS): repo `HARP.IA`, deploy `harp-ia.vercel.app`, subdomínio grátis `*.harpia.site`. (Skill interna e slugs de memória já renomeados pra `ancoreo-status` / `project_ancoreo_*` em 2026-06-26.)
 - Logo: **não existe ainda** — Cássio desenha depois.
 
 ---
 
-## 3. Estado do produto (resumo — confirmar com `harpia-status`)
+## 3. Estado do produto (resumo — confirmar com `ancoreo-status`)
 
 **Funciona:** geração de site em produção (Claude API), deploy na Vercel a partir de `master`, migration `match_knowledge` aplicada no banco, `ANTHROPIC_API_KEY` confirmada.
 
-**Gates de pré-lançamento público** (detalhe na memória `project_harpia_pre-launch`):
+**Gates de pré-lançamento público** (detalhe na memória `project_ancoreo_pre-launch`):
 1. **RAG / `OPENAI_API_KEY`** — ADIADO de propósito. Código já deployado, falha graciosa sem a chave. TEM que estar em pé antes do lançamento público (pôr chave no `.env.local` + Vercel → redeploy → testar blog ingerir/recuperar `knowledge_vault`).
 2. **Ligar Fluid Compute na Vercel** (Settings → Functions; precisa Vercel Pro) — pro `maxDuration` valer.
 3. ~~Rotacionar `service_role`~~ ✅ FEITO 2026-06-24 — migrado p/ chaves novas do Supabase (publishable em `NEXT_PUBLIC_SUPABASE_ANON_KEY`, secret em `SUPABASE_SERVICE_ROLE_KEY`, em .env.local + Vercel); legacy JWT desativado; chave vazada morta. Gotcha: secret nova é bloqueada no browser — nunca em var `NEXT_PUBLIC_`.
@@ -50,8 +50,8 @@ Não bloqueia beta grátis: Stripe, Inngest, GBP nível 3.
 
 ## 4. Decisões registradas nesta sessão
 
-- **Modelo de IA = manter Claude** (Sonnet gera, Haiku mecânico; OpenAI só embeddings/RAG). Ver `project_harpia_modelo-ia`. Harness A/B cego em `scripts/ab-test.mjs` pra revisitar com dado.
-- **Feature futura nova:** Gerador de Release / Nota à Imprensa Local (add-on de autoridade/E-E-A-T) — registrado em `project_harpia_features_futuras` (item 3). Origem: análise do blog da Knewin. Fora do MVP.
+- **Modelo de IA = manter Claude** (Sonnet gera, Haiku mecânico; OpenAI só embeddings/RAG). Ver `project_ancoreo_modelo-ia`. Harness A/B cego em `scripts/ab-test.mjs` pra revisitar com dado.
+- **Feature futura nova:** Gerador de Release / Nota à Imprensa Local (add-on de autoridade/E-E-A-T) — registrado em `project_ancoreo_features_futuras` (item 3). Origem: análise do blog da Knewin. Fora do MVP.
 - **Redesign clean ANCOREO** em andamento (seção 1 acima).
 
 ---
@@ -69,12 +69,12 @@ Não bloqueia beta grátis: Stripe, Inngest, GBP nível 3.
 
 - `_mockups/ancoreo-landing.html` — NOVO. Protótipo de landing clean, toggle Escuro/Claro, marca ANCOREO. (mockup, fora do build do app)
 - `HANDOFF.md` — este arquivo.
-- Memórias atualizadas: `project_harpia_features_futuras.md` (item 3) + `MEMORY.md`.
+- Memórias atualizadas: `project_ancoreo_features_futuras.md` (item 3) + `MEMORY.md`.
 
 ---
 
 ## 7. Como retomar (cole isto no início da próxima sessão)
 
-> "Retomando o ANCOREO. Leia `dove-site-builder/HANDOFF.md` e rode a skill `harpia-status`. A tarefa em aberto é o redesign clean do front: já existe o mockup `_mockups/ancoreo-landing.html` com as duas direções (escuro/claro). Eu escolhi a direção: **[ESCURO ou CLARO]**. Aplique na landing real como piloto, depois propaga pro resto."
+> "Retomando o ANCOREO. Leia `HANDOFF.md` e rode a skill `ancoreo-status`. A tarefa em aberto é o redesign clean do front: já existe o mockup `_mockups/ancoreo-landing.html` com as duas direções (escuro/claro). Eu escolhi a direção: **[ESCURO ou CLARO]**. Aplique na landing real como piloto, depois propaga pro resto."
 
 (Troque **[ESCURO ou CLARO]** pela sua escolha depois de ver o mockup.)

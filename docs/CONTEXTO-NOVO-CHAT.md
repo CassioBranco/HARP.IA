@@ -19,7 +19,7 @@ O site do assinante tem que ser a **resposta** que o Google E as LLMs entregam q
 2. **git** — o que foi construído (89 commits, 04/06→hoje).
 3. **`CLAUDE.md`** — documento fundacional + log de decisões (não reabrir decisões de lá).
 4. **Banco ao vivo** (Supabase MCP, project `yejjeiveqgkgrtcettkl`) — confirma o que roda de verdade.
-5. **Skills:** `cronograma` (jornada/onde estamos) e `harpia-status` (verificação técnica pontual).
+5. **Skills:** `cronograma` (jornada/onde estamos) e `ancoreo-status` (verificação técnica pontual).
 
 ## Estado real (2026-06-26)
 - **Pronto:** Fase A (planejamento), Fase B (protótipos base), e a maior parte da Fase C — S1 infra, S2 onboarding (gate 75%), S3 templates, S4 motor IA, S5 pipeline de publicação, S6 blog, S7 GBP níveis 1–2, S8 score, S11 landing, S12 quotas.

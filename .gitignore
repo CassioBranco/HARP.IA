@@ -41,6 +41,9 @@ storybook-static/
 supabase/.branches/
 supabase/.temp/
 
+# memoria viva do projeto (notas privadas — fonte do harness via junction)
+/memoria/
+
 # playwright
 playwright-report/
 test-results/
