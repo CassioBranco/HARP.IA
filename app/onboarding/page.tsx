@@ -1287,6 +1287,34 @@ export default function OnboardingPage() {
                     </div>
                   )}
 
+                  {/* Guia: como pegar e vincular o domínio (quando "já tenho") */}
+                  {dominioModo === 'tenho' && (
+                    <div className="dom-guide">
+                      <div className="dom-guide-h">
+                        <i className="ph-fill ph-list-checks" /> Como vincular seu domínio
+                      </div>
+                      <ol className="dom-guide-steps">
+                        <li>
+                          <b>Não tem domínio ainda?</b> Compre num registrador — Registro.br (.com.br)
+                          ou GoDaddy/Hostinger/Namecheap. Custa por volta de R$40/ano.
+                        </li>
+                        <li>
+                          <b>Aponte o DNS pra cá.</b> No painel do seu registrador você cria 2
+                          registros que a gente entrega: um <b>A</b> (domínio raiz) e um <b>CNAME</b>{' '}
+                          (www). É copiar e colar.
+                        </li>
+                        <li>
+                          <b>A gente ativa.</b> Validamos o apontamento e ligamos o HTTPS (cadeado)
+                          automaticamente. A propagação leva de minutos a poucas horas.
+                        </li>
+                      </ol>
+                      <p className="dom-guide-foot">
+                        <i className="ph-fill ph-info" /> Os valores exatos dos registros aparecem
+                        depois que você gera o site — e, se preferir, a gente configura pra você.
+                      </p>
+                    </div>
+                  )}
+
                   {/* Não tem domínio → a plataforma compra e configura */}
                   <button
                     className={`dom${dominioModo === 'proprio' ? ' on' : ''}`}

@@ -278,6 +278,16 @@
 .ob-page .dom-input-ok { display: flex; gap: .45rem; align-items: flex-start; margin: .5rem 0 0; font-size: .82rem; line-height: 1.45; color: #a7d8b4; }
 .ob-page .dom-input-ok i { color: #22c55e; flex-shrink: 0; margin-top: .05rem; }
 
+/* guia "como vincular o domínio" */
+.ob-page .dom-guide { margin: .1rem .2rem .3rem; background: rgba(61,139,238,.08); border: 1px solid rgba(61,139,238,.25); border-radius: 12px; padding: .85rem 1rem; }
+.ob-page .dom-guide-h { display: flex; align-items: center; gap: .45rem; font-family: var(--font-heading),'Plus Jakarta Sans'; font-weight: 700; font-size: .92rem; color: #cfe0fb; margin-bottom: .55rem; }
+.ob-page .dom-guide-h i { color: var(--blue); font-size: 1.05rem; }
+.ob-page .dom-guide-steps { margin: 0; padding-left: 1.15rem; display: grid; gap: .5rem; }
+.ob-page .dom-guide-steps li { font-size: .83rem; line-height: 1.5; color: #aebed6; }
+.ob-page .dom-guide-steps b { color: #e8eefb; font-weight: 600; }
+.ob-page .dom-guide-foot { display: flex; gap: .45rem; align-items: flex-start; margin: .7rem 0 0; font-size: .8rem; line-height: 1.45; color: #9fb2cc; }
+.ob-page .dom-guide-foot i { color: #8fc0ff; flex-shrink: 0; margin-top: .1rem; }
+
 /* footer */
 .ob-page .foot { display: flex; align-items: center; justify-content: space-between; padding: .65rem 1.7rem; gap: 1rem; }
 .ob-page .btn { border: 0; font-family: var(--font-heading),'Plus Jakarta Sans'; font-weight: 700; font-size: .98rem; color: #fff; display: inline-flex; align-items: center; gap: .55rem; padding: .92rem 1.7rem; border-radius: 14px; background: linear-gradient(180deg, #4a86f5, #1d5fd4 50%, #1450c4); box-shadow: inset 0 1px 0 rgba(255,255,255,.55), inset 0 -2px 3px rgba(8,40,110,.55), 0 12px 22px -7px rgba(20,80,196,.6), 0 3px 6px rgba(20,33,58,.2); transition: transform .08s, filter .12s, opacity .2s; }
