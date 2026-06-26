@@ -103,18 +103,18 @@ Endpoint `/api/feed/[siteId]` (ou por domínio) gerando **JSONL** com 1 produto 
 - **E2:** camada `PaymentProvider` (abstração) + **Mercado Pago Checkout Pro** + carrinho + pedidos + webhook + e-mail. Variantes entram aqui.
 - **E3:** reviews/`AggregateRating` com foto + submissão do feed ao ChatGPT/Merchant Center + (Stripe) ACP/Instant Checkout = vender dentro do ChatGPT.
 
-## 10. Status do build (2026-06-26) — backend E1 construído
-✅ **Feito e com `tsc --noEmit` verde:**
-- Migrations (NÃO aplicadas no banco ao vivo — aguardam OK): `20260626130000_ecommerce_catalog.sql` (products, collections, product_images + RLS + grants), `20260626140000_seed_product_prompt.sql` (agente `product`).
+## 10. Status do build — backend E1 CONCLUÍDO E NO AR (2026-06-26)
+✅ **Feito, com `tsc --noEmit` verde, e migrations APLICADAS no banco ao vivo (verificado: 3 tabelas + RLS ativa + prompt `product` ativo):**
+- Migrations aplicadas: `20260626130000_ecommerce_catalog.sql` (products, collections, product_images + RLS + grants), `20260626140000_seed_product_prompt.sql` (agente `product`).
 - Tipos: `lib/ecommerce/types.ts`.
 - Dados da vitrine (leitura pública via admin client, filtrada a `published`): `lib/ecommerce/products.ts`.
+- **CRUD do dono (server actions): `lib/ecommerce/actions.ts`** — produtos create/update/setStatus/delete/list, imagens add/remove, coleções create/delete/list.
 - JSON-LD `Product`/`Offer`/`FAQPage`: `lib/ecommerce/product-jsonld.ts`.
 - Geração por IA: `app/api/ai/product/route.ts`.
 - Páginas públicas: `app/[domain]/loja/page.tsx` (catálogo), `app/[domain]/produto/[slug]/page.tsx` (PDP + JSON-LD), `app/[domain]/feed/route.ts` (feed JSONL).
 
-⏳ **Falta na E1 (fora do meu alcance agora ou território Design):**
-- Aplicar as 2 migrations no banco ao vivo (ação Cássio: OK explícito).
-- UI do painel pra o lojista cadastrar/editar produtos e disparar a geração por IA (front = Claude Design + integração Code).
+⏳ **Falta na E1 (território Design):**
+- UI do painel pra o lojista cadastrar/editar produtos e disparar a geração por IA — o backend (actions acima) já está pronto pra essa UI chamar.
 - Visual de marca das páginas de loja (hoje funcional/sem estilo — Claude Design).
 - Wiring do tipo "loja" no seletor de templates (model-data.ts/layouts.ts) — território Design; deixei intocado de propósito.
 - Quota de geração de produto: hoje só registra em `ia_generations` (agent='product'); cap diário fica pra E2.
