@@ -8,7 +8,10 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import type { Metadata } from 'next'
-import { createServerClient } from '@/lib/supabase/server'
+// Leitura PÚBLICA (visitante anônimo): admin client filtrando status='published'.
+// A RLS tenant_isolation só libera o dono logado — sem isto o artigo publicado
+// não renderiza pro público. Só conteúdo publicado é lido (filtro nas queries).
+import { createAdminClient } from '@/lib/supabase/admin'
 import { hasSupabaseEnv } from '@/lib/env'
 import { buildSiteContent } from '@/lib/templates/build-site-content'
 
@@ -29,7 +32,7 @@ type PublishedPost = {
 
 // Resolve o site publicado + o artigo publicado pelo slug.
 async function loadPost(
-  supabase: Awaited<ReturnType<typeof createServerClient>>,
+  supabase: ReturnType<typeof createAdminClient>,
   domain: string,
   slug: string,
 ): Promise<{ post: PublishedPost; siteId: string } | null> {
@@ -58,7 +61,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { domain, slug } = await params
   if (!hasSupabaseEnv() || RESERVED.some(r => domain.includes(r))) return {}
 
-  const supabase = await createServerClient()
+  const supabase = createAdminClient()
   const loaded = await loadPost(supabase, domain, slug)
   if (!loaded) return {}
 
@@ -86,7 +89,7 @@ export default async function PublishedBlogPostPage({ params }: Props) {
   if (RESERVED.some(r => domain.includes(r))) notFound()
   if (!hasSupabaseEnv()) notFound()
 
-  const supabase = await createServerClient()
+  const supabase = createAdminClient()
 
   const loaded = await loadPost(supabase, domain, slug)
   if (!loaded) notFound()

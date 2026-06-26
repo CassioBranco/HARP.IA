@@ -1,5 +1,8 @@
 import { notFound } from 'next/navigation'
-import { createServerClient } from '@/lib/supabase/server'
+// Leitura PÚBLICA (visitante anônimo): usa admin client filtrando status='published'.
+// A RLS tenant_isolation só libera o dono logado — sem isto o site publicado não
+// renderiza pro público. Só conteúdo publicado é lido (filtro explícito nas queries).
+import { createAdminClient } from '@/lib/supabase/admin'
 import { hasSupabaseEnv } from '@/lib/env'
 import { buildSiteContent } from '@/lib/templates/build-site-content'
 import LayoutRenderer from '@/components/templates/LayoutRenderer'
@@ -82,7 +85,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { domain } = await params
   if (!hasSupabaseEnv() || RESERVED.some(r => domain.includes(r))) return {}
 
-  const supabase = await createServerClient()
+  const supabase = createAdminClient()
   const { data: site } = await supabase
     .from('sites')
     .select('id, niche, status')
@@ -129,7 +132,7 @@ export default async function PublishedSitePage({ params }: Props) {
   if (RESERVED.some(r => domain.includes(r))) notFound()
   if (!hasSupabaseEnv()) notFound()
 
-  const supabase = await createServerClient()
+  const supabase = createAdminClient()
 
   const built = await buildSiteContent(supabase, { domain })
   if (!built) notFound()
