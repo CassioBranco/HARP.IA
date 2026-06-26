@@ -119,4 +119,4 @@ Endpoint `/api/feed/[siteId]` (ou por domínio) gerando **JSONL** com 1 produto 
 - Wiring do tipo "loja" no seletor de templates (model-data.ts/layouts.ts) — território Design; deixei intocado de propósito.
 - Quota de geração de produto: hoje só registra em `ia_generations` (agent='product'); cap diário fica pra E2.
 
-⚠️ **Achado de segurança (fora do e-commerce):** nenhum site publicado é legível por visitante anônimo hoje (RLS `tenant_isolation` só libera o dono). A vitrine de e-commerce escapa porque lê via admin client, mas os sites de conteúdo não renderizam pro público até isso ser corrigido. Registrado como tarefa separada.
+✅ **RLS de leitura pública — RESOLVIDO (2026-06-26, commit 208e3b9):** as páginas públicas (home `app/[domain]/page.tsx`, blog `app/[domain]/blog/[slug]`, e a vitrine de e-commerce) leem via admin client filtrando `status='published'`. Site/artigo em draft segue invisível ao público. Antes, a RLS `tenant_isolation` só liberava o dono logado e nenhum site publicado renderizava pro anônimo.
