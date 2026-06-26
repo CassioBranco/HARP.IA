@@ -40,6 +40,13 @@
 
 **Resultado:** produto funciona ponta a ponta em produção (cadastro → onboarding → geração IA → editor → blog → score → publicação). Banco vivo com dados reais.
 
+### Linha de sessões de trabalho (a jornada humana)
+`0 INÍCIO` (29/05) → `1 ARQUITETURA` (04/06) → `2 DEPLOY VERCEL` (05/06) → `3 PROTÓTIPO` (07/06) → `4 CORREÇÃO ESTRUTURA` (08/06) → `5 / 5.1 LAYOUTS` (12-14/06) → `6 BETA FECHADA` (19/06) → sessão atual (24-25/06: service_role, rename ANCOREO, gate 75%, fix apagar conta, pesquisa SEO geográfico).
+
+### Estado vivo do banco (snapshot 2026-06-25)
+9 tenants · 1 user · 9 onboarding_profiles · 6 sites · 5 pages · 30 sections · 16 ia_generations · 5 images · 21 prompt_templates · 15 plan_quotas.
+**Leitura:** o pipeline roda de verdade (sites/sections/gerações > 0). **Vazios:** blog_posts, gbp_posts, internal_links, knowledge_vault — ou seja, essas features existem em código mas **ainda não foram exercitadas com dado real** (blog/gbp não usados; internal_links só populam na publicação; knowledge_vault vazio pq RAG/OpenAI está desligado). **Alerta:** 9 tenants para 1 user = **tenants órfãos** de contas de teste apagadas (confirma a pendência do "apagar conta completa" — item 8 da Etapa 3).
+
 ---
 
 ## PARTE 2 — O QUE FALTA
