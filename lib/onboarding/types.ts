@@ -11,6 +11,10 @@ export type Objetivo =
   | 'portfolio'
   | 'loja'
 
+// Sub-modo quando objetivo='loja': 'checkout' = vende no site (E2);
+// 'catalogo' = vitrine, cliente fecha pelo WhatsApp (E1).
+export type LojaModo = 'checkout' | 'catalogo'
+
 export type Porte =
   | 'mei_autonomo'
   | 'micro_pequena'
@@ -44,6 +48,7 @@ export interface Paleta {
 export interface OnboardingProfileInput {
   // Tela 1 — Objetivo
   objetivo?: Objetivo | null
+  loja_modo?: LojaModo | null   // só quando objetivo='loja'
   // Tela 2 — Nome
   business_name?: string | null
   // Tela 3 — Segmento

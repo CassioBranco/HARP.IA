@@ -14,6 +14,7 @@ import { AiHelp } from '@/components/draft/AiHelp'
 import { saveOnboardingProfile } from '@/lib/onboarding/actions'
 import type {
   Objetivo,
+  LojaModo,
   Porte,
   GpeModo,
   DominioModo,
@@ -60,6 +61,7 @@ export default function OnboardingPage() {
   // ── estado das telas ──────────────────────────────────────
   const [screen, setScreen] = useState(0)
   const [objetivo, setObjetivo] = useState<Objetivo>('servico_agendamento')
+  const [lojaModo, setLojaModo] = useState<LojaModo>('catalogo') // sub-modo quando objetivo='loja'
   const [businessName, setBusinessName] = useState('')
   const [about, setAbout] = useState('')
   const [cat, setCat] = useState('saude')
@@ -129,6 +131,7 @@ export default function OnboardingPage() {
     const area = areaTipoFromPorte(porte)
     return {
       objetivo,
+      loja_modo: objetivo === 'loja' ? lojaModo : null,
       business_name: businessName || null,
       differentials: about || null,
       setor: segPick ? segPick.setor : catLabel,
@@ -162,7 +165,7 @@ export default function OnboardingPage() {
             : `${slug}.harpia.site`,
     }
   }, [
-    objetivo, businessName, about, cat, niche, segPick, otherActive, registro,
+    objetivo, lojaModo, businessName, about, cat, niche, segPick, otherActive, registro,
     porte, radiusKm, areaText, city, uf, gpeModo, gpeLink, gpeErr, answers, dominioModo, dominioProprio,
   ])
 
@@ -296,9 +299,14 @@ export default function OnboardingPage() {
     [auraBurst]
   )
 
-  // ── tela 1: objetivo (avança sozinho) ─────────────────────
+  // ── tela 1: objetivo (avança sozinho; 'loja' revela sub-escolha antes) ──
   function pickGoal(id: Objetivo) {
     setObjetivo(id)
+    if (id === 'loja') return // mostra "como vai vender?" e só avança após a escolha
+    setTimeout(() => go(1), 260)
+  }
+  function pickLojaModo(m: LojaModo) {
+    setLojaModo(m)
     setTimeout(() => go(1), 260)
   }
 
@@ -670,6 +678,37 @@ export default function OnboardingPage() {
                     </button>
                   ))}
                 </div>
+
+                {/* Sub-escolha do modo de loja — só quando o objetivo é "loja". */}
+                {objetivo === 'loja' && (
+                  <div style={{ marginTop: '1.3rem' }}>
+                    <p className="hint" style={{ margin: '0 0 .6rem' }}>Como você vai vender?</p>
+                    <div className="goals">
+                      <button
+                        className={`goal${lojaModo === 'checkout' ? ' on' : ''}`}
+                        onClick={() => pickLojaModo('checkout')}
+                      >
+                        <span className="gic"><i className="ph-duotone ph-credit-card" /></span>
+                        <span className="gt">
+                          <b>Loja com checkout</b>
+                          <span>Recebe o pagamento no próprio site (Pix, cartão, boleto).</span>
+                        </span>
+                        <i className="ph-fill ph-check-circle gck" />
+                      </button>
+                      <button
+                        className={`goal${lojaModo === 'catalogo' ? ' on' : ''}`}
+                        onClick={() => pickLojaModo('catalogo')}
+                      >
+                        <span className="gic"><i className="ph-duotone ph-shopping-bag-open" /></span>
+                        <span className="gt">
+                          <b>Catálogo</b>
+                          <span>Mostra os produtos; o cliente fecha a compra pelo WhatsApp.</span>
+                        </span>
+                        <i className="ph-fill ph-check-circle gck" />
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </section>
