@@ -11,6 +11,9 @@
 > Quando alguém busca "onde trocar pneu perto de mim" no Google, ou pergunta pro ChatGPT "melhor borracharia em Sorocaba", o site do assinante tem que estar lá — cercando a intenção, antes do concorrente. Tríade inegociável: **SEO** (Search Engine Optimization — busca tradicional Google) + **GEO** (Generative Engine Optimization — citação em IAs generativas: ChatGPT, Gemini, Perplexity) + **AEO** (Answer Engine Optimization — resposta direta/snippet/voz). Busca local (cidade-base + raio de atuação) é feature transversal do SEO local. 100% orgânico, sempre.
 > **Filtro de toda feature:** "Isso ajuda o site do assinante a aparecer quando o cliente dele busca no Google ou numa LLM?" Se a resposta é não, a feature não entra.
 
+> ## 🧹 ESTILO DE CÓDIGO (ponytail — detalhe em `AGENTS.md` na raiz)
+> Antes de escrever código, pare na primeira regra que se aplica: **1)** precisa existir? (YAGNI) · **2)** já existe no projeto? → reusar · **3)** a stdlib resolve? · **4)** recurso nativo cobre? · **5)** dependência já instalada faz? · **6)** dá em uma linha? · **7)** só então: o mínimo que funciona. Deletar > adicionar, menos arquivos, diff mais curto vence — **mas só depois de entender o problema** (diff pequeno no lugar errado é um segundo bug). Bug = corrigir a causa-raiz na função compartilhada, não o sintoma de um caller. **NÃO** ser preguiçoso com: entender o problema, validação em fronteiras de confiança, tratamento de erro que evita perda de dado, segurança, acessibilidade. Lógica não-trivial deixa **uma** checagem executável.
+
 ---
 
 ## 1. VISÃO DO PRODUTO
