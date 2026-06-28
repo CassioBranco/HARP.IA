@@ -7,7 +7,7 @@
 // textos) acontece no editor. Aqui mora só a fiação (preview + criação).
 // ============================================================
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import type { LayoutId } from '@/lib/templates/layouts'
 import { createSiteWithModel } from '@/lib/onboarding/actions'
@@ -23,6 +23,32 @@ export interface EscolherModeloProps {
   preset: string
   domain: string
   objetivo: Objetivo | null
+}
+
+// Carrega a prévia (iframe pesado) só quando o card entra na tela; antes mostra
+// um placeholder com a cor do template. Evita 10 iframes carregando de uma vez —
+// a causa da lentidão. ponytail: IntersectionObserver nativo, sem dependência.
+function LazyThumb({ src, title, swatch }: { src: string; title: string; swatch: [string, string, string] }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [show, setShow] = useState(false)
+  useEffect(() => {
+    const el = ref.current
+    if (!el || show) return
+    const io = new IntersectionObserver(
+      entries => { if (entries.some(e => e.isIntersecting)) { setShow(true); io.disconnect() } },
+      { rootMargin: '250px' },
+    )
+    io.observe(el)
+    return () => io.disconnect()
+  }, [show])
+  return (
+    <div className="thumb" ref={ref}>
+      {show
+        ? <iframe src={src} title={title} loading="lazy" tabIndex={-1} />
+        : <div className="thumb-ph" style={{ background: `linear-gradient(135deg, ${swatch[0]}, ${swatch[1]})` }} aria-hidden="true" />}
+      <div className="thumb-veil" />
+    </div>
+  )
 }
 
 export default function EscolherModelo({ businessName, preset, domain, objetivo }: EscolherModeloProps) {
@@ -110,15 +136,7 @@ export default function EscolherModelo({ businessName, preset, domain, objetivo 
                   {m.id === suggested && (
                     <span className="tpl-badge"><i className="ph-fill ph-sparkle" /> Sugerido pra você</span>
                   )}
-                  <div className="thumb">
-                    <iframe
-                      src={previewSrc(m.id)}
-                      title={`Prévia — ${m.name}`}
-                      loading="lazy"
-                      tabIndex={-1}
-                    />
-                    <div className="thumb-veil" />
-                  </div>
+                  <LazyThumb src={previewSrc(m.id)} title={`Prévia — ${m.name}`} swatch={m.swatch} />
                   <div className="tpl-foot">
                     <div className="tpl-meta">
                       <span className="tpl-name">
