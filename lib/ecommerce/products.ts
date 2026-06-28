@@ -84,3 +84,16 @@ export async function getCollectionsByDomain(domain: string): Promise<Collection
 
   return (data ?? []) as Collection[]
 }
+
+// Modo da loja (checkout vs catálogo) do site publicado, lido do onboarding.
+export async function getLojaModo(domain: string): Promise<'checkout' | 'catalogo'> {
+  const siteId = await publishedSiteId(domain)
+  if (!siteId) return 'catalogo'
+  const admin = createAdminClient()
+  const { data } = await admin
+    .from('onboarding_profiles')
+    .select('loja_modo')
+    .eq('site_id', siteId)
+    .maybeSingle()
+  return (data as { loja_modo?: string } | null)?.loja_modo === 'checkout' ? 'checkout' : 'catalogo'
+}
