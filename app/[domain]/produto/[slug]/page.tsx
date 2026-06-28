@@ -5,7 +5,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { buildSiteContent } from '@/lib/templates/build-site-content'
 import { getPublishedProductBySlug, getLojaModo } from '@/lib/ecommerce/products'
 import { buildProductJsonLd, buildProductFaqJsonLd } from '@/lib/ecommerce/product-jsonld'
-import StoreShell from '@/components/store/StoreShell'
+import SiteShell from '@/components/site/SiteShell'
 import ProductDetail from '@/components/store/ProductDetail'
 
 // Página de produto (PDP) pública. Esqueleto de loja (StoreShell) + JSON-LD
@@ -63,14 +63,15 @@ export default async function ProductPage({ params }: Props) {
       {faqJsonLd && (
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
       )}
-      <StoreShell
+      <SiteShell
         palette={built.palette}
         businessName={built.content.businessName}
         logoUrl={built.content.logoUrl}
         fontPair={built.fontPair}
+        nav={{ label: 'Loja', href: '/loja' }}
       >
         <ProductDetail product={product} mode={mode} whatsapp={built.content.whatsapp} />
-      </StoreShell>
+      </SiteShell>
     </>
   )
 }

@@ -3,18 +3,21 @@ import Link from 'next/link'
 import type { PaletteColors } from '@/lib/templates/palettes'
 import { getFontPair } from '@/lib/templates/fonts'
 
-// ── Esqueleto de loja ────────────────────────────────────────────────────────
-// Estrutura ÚNICA que "veste" qualquer template: adota a paleta, a fonte e a
-// marca do site do cliente via CSS vars (--st-*). Mesma filosofia do esqueleto
-// de blog (app/[domain]/blog). O Design pode sobrepor variações por template
-// depois; a base já se adapta sozinha — inclusive aos templates repaginados.
-export default function StoreShell({
-  palette, businessName, logoUrl, fontPair, children,
+// ── Casca pública do site (loja + blog) ──────────────────────────────────────
+// Esqueleto FIXO: cabeçalho/rodapé + estrutura únicos que vestem QUALQUER
+// template adotando paleta/fonte/marca do cliente via CSS vars `--st-*`
+// (= "site theme"). Por que fixo e não um por template: o Google e as IAs leem
+// a ESTRUTURA, não o visual — estrutura única = SEO correto e consistente em
+// todos os templates; só a "roupa" (cores/fonte) muda. `nav` = link secundário
+// opcional (ex.: "Loja" ou "Blog").
+export default function SiteShell({
+  palette, businessName, logoUrl, fontPair, nav, children,
 }: {
   palette: PaletteColors
   businessName: string
   logoUrl?: string | null
   fontPair?: string | null
+  nav?: { label: string; href: string }
   children: ReactNode
 }) {
   const font = getFontPair(fontPair)
@@ -52,9 +55,11 @@ export default function StoreShell({
               : null}
             <span>{businessName}</span>
           </Link>
-          <Link href="/loja" style={{ color: 'var(--st-primary)', textDecoration: 'none', fontSize: 14, fontWeight: 600 }}>
-            Loja
-          </Link>
+          {nav && (
+            <Link href={nav.href} style={{ color: 'var(--st-primary)', textDecoration: 'none', fontSize: 14, fontWeight: 600 }}>
+              {nav.label}
+            </Link>
+          )}
         </header>
 
         {children}

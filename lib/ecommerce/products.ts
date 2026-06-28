@@ -22,7 +22,7 @@ function sortImages(p: ProductWithImages): ProductWithImages {
 }
 
 // site_id de um domínio publicado (ou null se não existe/não publicado).
-async function publishedSiteId(domain: string): Promise<string | null> {
+export async function publishedSiteId(domain: string): Promise<string | null> {
   const admin = createAdminClient()
   const { data } = await admin
     .from('sites')
