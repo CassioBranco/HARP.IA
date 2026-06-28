@@ -15,7 +15,7 @@ Cada linha: o que os líderes fazem → onde estamos → ação → quem faz.
 |---|---|---|---|
 | **RSC server-render do PDP**, hidratar só o interativo (carrinho/variante) | ✅ vitrine e PDP são server components | manter; carrinho/variante como ilhas client | Code |
 | **Mobile-first, thumb-zone, LCP < 2s** (60%+ tráfego mobile) | parcial (layout funcional) | layout mobile-first, ação primária na "zona do polegar" | Design |
-| **Imagens responsivas** (AVIF/WebP + `srcset`, tamanho certo por tela) | hoje `<img>` + pipeline WebP (S5) | **decisão de tooling** (seção 3) | Code |
+| **Imagens responsivas** (AVIF/WebP + `srcset`, tamanho certo por tela) | já pré-otimiza WebP via Sharp + `<img>` (grátis) | falta `srcset` por tamanho (seção 3) | Code |
 | **Sticky add-to-cart** no mobile (alto impacto, baixo esforço) | não existe | barra fixa de "Comprar" no rodapé mobile | Design |
 | **Galeria com swipe horizontal + indicador** | 1 imagem + thumbs | galeria deslizável | Design |
 | **Acordeões** p/ specs, frete, trocas | ✅ specs em tabela + FAQ em accordion | manter | Code/Design |
@@ -38,7 +38,7 @@ O que nos separa de um Shopify genérico — o site é a **resposta** que Google
 |---|---|---|
 | Framework + hosting | **Next.js App Router + Vercel** (já) | mesmo stack do Next.js Commerce; free tier escala na borda |
 | Banco/catálogo | **Supabase Postgres** (já) | free tier; RLS multi-tenant pronto |
-| **Imagens responsivas** | **`next/image`** (otimização da Vercel) | grátis, gera `srcset`+AVIF/WebP automático. *Supabase Image Transform exige plano Pro — evitar por ora.* ([next/image](https://strapi.io/blog/nextjs-image-optimization-developers-guide), [Supabase transform = Pro](https://supabase.com/docs/guides/storage/serving/image-transformations)) |
+| **Imagens responsivas** | **estender o pipeline Sharp (já existe) p/ emitir 2–3 tamanhos + `<img srcset>`** | o app já pré-otimiza WebP via Sharp no upload e serve com `<img>` — grátis, sem config (`next.config.mjs` não usa `next/image` de propósito). Falta só o `srcset` por tamanho de tela. `next/image` é alternativa, mas adiciona o custo de otimização da Vercel (free-tier limitado) e diverge do padrão atual — não trocar à toa. *(Supabase Image Transform exige Pro — descartado.)* |
 | Busca de produto | **Postgres full-text (Supabase)** | grátis; suficiente p/ loja local. Algolia só se escalar muito |
 | Pagamento | **Mercado Pago** (já decidido) | sem custo fixo, só taxa por venda; Pix nativo |
 | CWV/analytics | **Vercel Speed Insights + Google Search Console** | grátis |
