@@ -19,7 +19,7 @@ function token(): string | null {
 }
 
 function appUrl(): string {
-  return process.env.NEXT_PUBLIC_APP_URL || 'https://harp-ia.vercel.app'
+  return process.env.NEXT_PUBLIC_APP_URL || 'https://ancoreo.com.br'
 }
 
 // status do pagamento no MP → nosso status de pedido

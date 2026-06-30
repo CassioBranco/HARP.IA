@@ -11,6 +11,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import type { LayoutId } from '@/lib/templates/layouts'
 import { createSiteWithModel } from '@/lib/onboarding/actions'
+import { track } from '@/lib/analytics/client'
 import { MODELS, OBJETIVO_TO_LAYOUT, ORIGINAL_PALETTES } from './model-data'
 import type { Objetivo } from '@/lib/onboarding/types'
 
@@ -69,6 +70,7 @@ export default function EscolherModelo({ businessName, preset, domain, objetivo 
     if (creatingId) return
     setCreatingId(layout)
     setError('')
+    track('template_choose', { layout })
     try {
       const res = await createSiteWithModel({
         layout,
@@ -77,6 +79,7 @@ export default function EscolherModelo({ businessName, preset, domain, objetivo 
         group: 'base',
       })
       if (res.ok && res.site_id) {
+        track('site_created', { layout })
         router.push(`/editor/${res.site_id}`)
         return
       }

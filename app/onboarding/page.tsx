@@ -12,6 +12,7 @@ import { useRouter } from 'next/navigation'
 import { createBrowserClient } from '@/lib/supabase/client'
 import { AiHelp } from '@/components/draft/AiHelp'
 import { saveOnboardingProfile } from '@/lib/onboarding/actions'
+import { track } from '@/lib/analytics/client'
 import type {
   Objetivo,
   LojaModo,
@@ -123,6 +124,14 @@ export default function OnboardingPage() {
       if (sites && sites.length > 0) setHasExistingSite(true)
     })
   }, [router])
+
+  // ── telemetria de funil (pseudônima, LGPD-safe) ───────────
+  useEffect(() => {
+    track('onboarding_start')
+  }, [])
+  useEffect(() => {
+    if (mounted) track('onboarding_step_view', { step: screen + 1 })
+  }, [screen, mounted])
 
   // ── monta o input a partir do estado ──────────────────────
   const buildInput = useCallback((): OnboardingProfileInput => {
@@ -302,11 +311,13 @@ export default function OnboardingPage() {
   // ── tela 1: objetivo (avança sozinho; 'loja' revela sub-escolha antes) ──
   function pickGoal(id: Objetivo) {
     setObjetivo(id)
+    track('onboarding_goal_select', { objetivo: id })
     if (id === 'loja') return // mostra "como vai vender?" e só avança após a escolha
     setTimeout(() => go(1), 260)
   }
   function pickLojaModo(m: LojaModo) {
     setLojaModo(m)
+    track('onboarding_loja_modo_select', { loja_modo: m })
     setTimeout(() => go(1), 260)
   }
 
@@ -495,11 +506,13 @@ export default function OnboardingPage() {
       if (err) {
         setScreen(s)
         setScreenError(err)
+        track('onboarding_generate_block', { reason: 'validation', step: s })
         return
       }
     }
     // barra a geração se o SEO não passa do mínimo pra aparecer no Google
     if (!seo.ok) {
+      track('onboarding_generate_block', { reason: 'seo', seo_total: seo.total })
       // sem o Perfil de Empresa vinculado o teto não chega aos 75% — é o que mais pesa.
       // por isso, quando ele não vinculou, a mensagem aponta direto pra isso.
       setGenError(
@@ -509,6 +522,7 @@ export default function OnboardingPage() {
       )
       return
     }
+    track('onboarding_generate_click', { seo_total: seo.total, gpe_linked: seo.gpeLinked })
     setOverlay(true)
     setLoadStep(0)
     await flushSave()

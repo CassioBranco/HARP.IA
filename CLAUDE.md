@@ -14,6 +14,11 @@
 > ## 🧹 ESTILO DE CÓDIGO (ponytail — detalhe em `AGENTS.md` na raiz)
 > Antes de escrever código, pare na primeira regra que se aplica: **1)** precisa existir? (YAGNI) · **2)** já existe no projeto? → reusar · **3)** a stdlib resolve? · **4)** recurso nativo cobre? · **5)** dependência já instalada faz? · **6)** dá em uma linha? · **7)** só então: o mínimo que funciona. Deletar > adicionar, menos arquivos, diff mais curto vence — **mas só depois de entender o problema** (diff pequeno no lugar errado é um segundo bug). Bug = corrigir a causa-raiz na função compartilhada, não o sintoma de um caller. **NÃO** ser preguiçoso com: entender o problema, validação em fronteiras de confiança, tratamento de erro que evita perda de dado, segurança, acessibilidade. Lógica não-trivial deixa **uma** checagem executável.
 
+> ## 🗂️ GESTÃO DO PROJETO (ler ANTES de qualquer trabalho — pasta `docs/PROJETO/`)
+> O desenvolvimento é gerido estilo Scrum por skills. **Fonte única da verdade do progresso = `docs/PROJETO/`.**
+> **Ritual obrigatório:** 1) ler `docs/PROJETO/02-SPRINT-ATUAL.md` (o que fazer agora) + `docs/PROJETO/03-DECISOES.md` (o que já está travado, não rediscutir); 2) agir como o cargo certo; 3) atualizar o status no `01-BACKLOG.md` ao terminar. Se não atualizou o board, o cartão **não** está pronto.
+> **Cargos (skills em `.claude/skills/`):** `ancoreo-scrum-master` (maestro), `ancoreo-product-owner` (backlog), `ancoreo-backend`, `ancoreo-frontend` (estrutura; visual é do Claude Design), `ancoreo-qa-deploy` (último portão). Comece toda sessão pelo `ancoreo-scrum-master`.
+
 ---
 
 ## 1. VISÃO DO PRODUTO

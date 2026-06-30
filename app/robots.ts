@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next'
 import { headers } from 'next/headers'
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://harp-ia.vercel.app'
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://ancoreo.com.br'
 
 function isAppHost(host: string): boolean {
   const h = (host.split(':')[0] ?? '').toLowerCase()
