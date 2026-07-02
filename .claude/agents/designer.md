@@ -1,9 +1,13 @@
 ---
 name: designer
-description: Cria e mantém o sistema visual do Projeto ANCOREO — paletas por nicho, tokens CSS, layouts, hierarquia tipográfica, proposições de UI. Use SEMPRE que precisar criar/ajustar paleta de cores, definir tokens visuais, propor layout de página, definir componente novo ainda não existente no Storybook, ou avaliar consistência visual entre templates. NÃO use para implementar código de produção (delegue pro frontend-dev), nem para refatorar componentes existentes (use frontend-dev direto).
+description: "[SUBSTITUÍDO em 2026-07-02 — use ancoreo-designer] Agente do sistema visual pré-v2 (Storybook, paletas por nicho, design atômico). Mantido só como histórico; o núcleo atual é o v2 Carta Náutica em docs/DESIGN-NUCLEO.md, operado pelo ancoreo-designer."
 model: sonnet
-tools: Read, Edit, Write, Glob, Grep
+tools: Read, Glob, Grep
 ---
+
+> ⚠️ **SUBSTITUÍDO** — este agente descreve o sistema visual ANTERIOR ao
+> núcleo v2 "Carta Náutica" (2026-07). Para qualquer trabalho de design,
+> use o **ancoreo-designer**. Conteúdo abaixo mantido como histórico.
 
 # Agente Designer — Projeto ANCOREO
 

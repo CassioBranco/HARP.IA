@@ -12,7 +12,8 @@ import { useRouter } from 'next/navigation'
 import type { LayoutId } from '@/lib/templates/layouts'
 import { createSiteWithModel } from '@/lib/onboarding/actions'
 import { track } from '@/lib/analytics/client'
-import { MODELS, OBJETIVO_TO_LAYOUT, ORIGINAL_PALETTES } from './model-data'
+import ThemeToggle from '@/components/ThemeToggle'
+import { MODELS, MODEL_FILTERS, OBJETIVO_TO_LAYOUT, ORIGINAL_PALETTES } from './model-data'
 import type { Objetivo } from '@/lib/onboarding/types'
 
 import '@phosphor-icons/web/fill'
@@ -58,6 +59,7 @@ export default function EscolherModelo({ businessName, preset, domain, objetivo 
   const suggested: LayoutId | null = (objetivo && OBJETIVO_TO_LAYOUT[objetivo]) || null
   const [creatingId, setCreatingId] = useState<LayoutId | null>(null)
   const [error, setError] = useState('')
+  const [filter, setFilter] = useState('todos')
 
   function previewSrc(layout: LayoutId) {
     const p = new URLSearchParams({ preset, layout })
@@ -98,37 +100,49 @@ export default function EscolherModelo({ businessName, preset, domain, objetivo 
     }
   }
 
-  // ordena: sugerido primeiro
+  // ordena: sugerido primeiro; depois aplica o filtro de segmento
   const ordered = suggested
     ? [...MODELS].sort((a, b) => (a.id === suggested ? -1 : b.id === suggested ? 1 : 0))
     : MODELS
+  const visible = filter === 'todos' ? ordered : ordered.filter(m => m.tags.includes(filter))
 
   return (
     <div className="em-page">
-      <div className="aura" />
-      <div className="grain" />
-
       <div className="app">
         <header className="top">
           <div className="brand">
-            <span className="mk"><i className="ph-fill ph-bird" /></span> ANCOREO
+            <span className="mk"><i className="ph-fill ph-anchor" /></span> ANCOREO
           </div>
           <div className="mid">
             <i className="ph-duotone ph-squares-four" /> {businessName || 'Seu site'}
           </div>
-          <span className="top-spacer" />
+          <div className="top-actions"><ThemeToggle /></div>
         </header>
 
         <div className="gallery">
           <div className="ghead">
-            <h1>Escolha um template pra começar</h1>
+            <span className="kicker">Passo 2 de 3 · Escolher modelo</span>
+            <h1>Escolha um template pra zarpar</h1>
             <p>Todos já vêm prontos pra SEO. Escolha o que mais combina e personalize cores, textos e imagens no próximo passo.</p>
+          </div>
+
+          <div className="gfilters" role="group" aria-label="Filtrar templates por segmento">
+            {MODEL_FILTERS.map(f => (
+              <button
+                key={f.id}
+                type="button"
+                className={`gfilter${filter === f.id ? ' on' : ''}`}
+                onClick={() => setFilter(f.id)}
+              >
+                {f.label}
+              </button>
+            ))}
           </div>
 
           {error && <p className="err gerr">{error}</p>}
 
           <div className="tpl-grid">
-            {ordered.map(m => {
+            {visible.map(m => {
               const isCreating = creatingId === m.id
               const dim = creatingId && !isCreating
               return (
@@ -152,14 +166,24 @@ export default function EscolherModelo({ businessName, preset, domain, objetivo 
                       </span>
                       <span className="tpl-desc">{m.desc}</span>
                     </div>
-                    <button
-                      className="btn amber sm"
-                      onClick={() => choose(m.id)}
-                      disabled={!!creatingId}
-                      type="button"
-                    >
-                      {isCreating ? 'Criando…' : <>Customizar <i className="ph-fill ph-arrow-right" /></>}
-                    </button>
+                    <div className="tpl-actions">
+                      <button
+                        className="btn ghost sm"
+                        type="button"
+                        onClick={() => { track('template_preview', { layout: m.id }); window.open(previewSrc(m.id), '_blank', 'noopener') }}
+                        disabled={!!creatingId}
+                      >
+                        Ver prévia
+                      </button>
+                      <button
+                        className="btn amber sm"
+                        onClick={() => choose(m.id)}
+                        disabled={!!creatingId}
+                        type="button"
+                      >
+                        {isCreating ? 'Criando…' : <>Customizar <i className="ph-fill ph-arrow-right" /></>}
+                      </button>
+                    </div>
                   </div>
                 </div>
               )

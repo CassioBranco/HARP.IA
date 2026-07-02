@@ -1,76 +1,44 @@
 import { NextRequest } from 'next/server'
+import MUNICIPIOS from '@/lib/data/municipios-br.json'
 
 export const runtime = 'nodejs'
 
 // ============================================================
-// GET /api/onboarding/cities?q=soro
-// Autocomplete de cidade brasileira. Proxy server-side do Nominatim
-// (OpenStreetMap) com User-Agent próprio — evita o rate-limit/CORS
-// que o cliente sofre e força resultados BR em PT-BR.
+// GET /api/onboarding/cities?q=chapec
+// Autocomplete de cidade brasileira sobre a lista oficial do IBGE
+// (5.571 municípios, asset local em lib/data/municipios-br.json).
+// Busca com normalização de acento e ranking prefixo > contém —
+// "chapec", "Chapec" e "chapecó" acham "Chapecó, SC" igualmente.
+// (Substitui o proxy do Nominatim, que é geocoder e não fazia
+// autocomplete: digitação parcial retornava vazio, além de
+// depender de serviço externo com rate-limit. Bug N2-1.)
 // ============================================================
 
-interface CityResult {
-  name: string
-  state: string
-  lat: number
-  lng: number
-}
+type Row = [string, string] // [nome, UF]
 
-interface NominatimItem {
-  lat: string
-  lon: string
-  name?: string
-  address?: {
-    city?: string
-    town?: string
-    village?: string
-    municipality?: string
-    state?: string
-  }
-}
+const norm = (s: string) =>
+  s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+
+// índice normalizado calculado uma vez por processo
+const INDEX: { name: string; state: string; key: string }[] = (MUNICIPIOS as Row[]).map(
+  ([name, state]) => ({ name, state, key: norm(name) })
+)
 
 export async function GET(req: NextRequest) {
-  const q = (req.nextUrl.searchParams.get('q') ?? '').trim()
+  const q = norm((req.nextUrl.searchParams.get('q') ?? '').trim())
   if (q.length < 2) return Response.json({ results: [] })
 
-  const url = new URL('https://nominatim.openstreetmap.org/search')
-  url.searchParams.set('q', q)
-  url.searchParams.set('format', 'jsonv2')
-  url.searchParams.set('addressdetails', '1')
-  url.searchParams.set('countrycodes', 'br')
-  url.searchParams.set('featuretype', 'city')
-  url.searchParams.set('accept-language', 'pt-BR')
-  url.searchParams.set('limit', '8')
-
-  try {
-    const res = await fetch(url, {
-      headers: {
-        'User-Agent': 'ANCOREO/1.0 (onboarding city search)',
-        'Accept-Language': 'pt-BR',
-      },
-      next: { revalidate: 86400 },
-    })
-    if (!res.ok) return Response.json({ results: [] })
-
-    const data = (await res.json()) as NominatimItem[]
-    const seen = new Set<string>()
-    const results: CityResult[] = []
-
-    for (const item of data) {
-      const a = item.address ?? {}
-      const name = a.city ?? a.town ?? a.village ?? a.municipality ?? item.name
-      const state = a.state ?? ''
-      if (!name) continue
-      const key = `${name}|${state}`.toLowerCase()
-      if (seen.has(key)) continue
-      seen.add(key)
-      results.push({ name, state, lat: parseFloat(item.lat), lng: parseFloat(item.lon) })
-    }
-
-    return Response.json({ results }, {
-      headers: { 'Cache-Control': 'public, max-age=86400' },
-    })
-  } catch {
-    return Response.json({ results: [] }, { status: 200 })
+  const starts: { name: string; state: string }[] = []
+  const contains: { name: string; state: string }[] = []
+  for (const m of INDEX) {
+    if (m.key.startsWith(q)) starts.push({ name: m.name, state: m.state })
+    else if (m.key.includes(q)) contains.push({ name: m.name, state: m.state })
+    if (starts.length >= 8) break
   }
+  const results = [...starts, ...contains].slice(0, 8)
+
+  return Response.json(
+    { results },
+    { headers: { 'Cache-Control': 'public, max-age=86400' } }
+  )
 }

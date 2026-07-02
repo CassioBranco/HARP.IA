@@ -7,19 +7,32 @@
 import type { LayoutId } from '@/lib/templates/layouts'
 import type { Objetivo } from '@/lib/onboarding/types'
 
-// ── Modelos (10) — [slug, nome, descrição, swatch[3]] ────────
+// ── Modelos (10) — [slug, nome, descrição, swatch[3], tags] ──
 // swatch = cor-identidade do modelo, mostrada na mini-amostra do rail.
-export const MODELS: { id: LayoutId; name: string; desc: string; swatch: [string, string, string] }[] = [
-  { id: 'clean',        name: 'Clean',        desc: 'Minimalista elegante', swatch: ['#0E7C86', '#16B3A6', '#F2F8F9'] },
-  { id: 'bold',         name: 'Bold',         desc: 'Cinematográfico dark', swatch: ['#0E7C86', '#16B3A6', '#0F2A2E'] },
-  { id: 'profissional', name: 'Profissional', desc: 'Corporativo sólido',   swatch: ['#1E3A5F', '#C9A84C', '#F8F7F4'] },
-  { id: 'portfolio',    name: 'Portfólio',    desc: 'Visual forte',         swatch: ['#0E7C86', '#16B3A6', '#F2F8F9'] },
-  { id: 'acolhedor',    name: 'Acolhedor',    desc: 'Quente e humano',      swatch: ['#6B8F71', '#C99B6E', '#F2ECE2'] },
-  { id: 'conversao',    name: 'Conversão',    desc: 'Alta conversão',       swatch: ['#15425B', '#F97316', '#F4F7F9'] },
-  { id: 'magazine',     name: 'Magazine',     desc: 'Editorial',            swatch: ['#1D4ED8', '#C2410C', '#F4F5F7'] },
-  { id: 'academia',     name: 'Academia',     desc: 'Educacional',          swatch: ['#1D4ED8', '#FBBF24', '#EFF4FF'] },
-  { id: 'tech',         name: 'Tech',         desc: 'Dark / neon',          swatch: ['#6366F1', '#22D3EE', '#12121E'] },
-  { id: 'jovem',        name: 'Jovem',        desc: 'Zine / grunge',        swatch: ['#E0195A', '#F5C518', '#111111'] },
+// tags = segmentos pro filtro da galeria (não afeta banco nem renderização).
+export const MODELS: { id: LayoutId; name: string; desc: string; swatch: [string, string, string]; tags: string[] }[] = [
+  { id: 'clean',        name: 'Clean',        desc: 'Minimalista elegante', swatch: ['#0E7C86', '#16B3A6', '#F2F8F9'], tags: ['saude', 'servicos'] },
+  { id: 'bold',         name: 'Bold',         desc: 'Cinematográfico dark', swatch: ['#0E7C86', '#16B3A6', '#0F2A2E'], tags: ['gastronomia', 'beleza'] },
+  { id: 'profissional', name: 'Profissional', desc: 'Corporativo sólido',   swatch: ['#1E3A5F', '#C9A84C', '#F8F7F4'], tags: ['corporativo'] },
+  { id: 'portfolio',    name: 'Portfólio',    desc: 'Visual forte',         swatch: ['#0E7C86', '#16B3A6', '#F2F8F9'], tags: ['beleza', 'criativo'] },
+  { id: 'acolhedor',    name: 'Acolhedor',    desc: 'Quente e humano',      swatch: ['#6B8F71', '#C99B6E', '#F2ECE2'], tags: ['saude'] },
+  { id: 'conversao',    name: 'Conversão',    desc: 'Alta conversão',       swatch: ['#15425B', '#F97316', '#F4F7F9'], tags: ['servicos', 'corporativo'] },
+  { id: 'magazine',     name: 'Magazine',     desc: 'Editorial',            swatch: ['#1D4ED8', '#C2410C', '#F4F5F7'], tags: ['educacao', 'corporativo'] },
+  { id: 'academia',     name: 'Academia',     desc: 'Educacional',          swatch: ['#1D4ED8', '#FBBF24', '#EFF4FF'], tags: ['educacao'] },
+  { id: 'tech',         name: 'Tech',         desc: 'Dark / neon',          swatch: ['#6366F1', '#22D3EE', '#12121E'], tags: ['servicos', 'criativo'] },
+  { id: 'jovem',        name: 'Jovem',        desc: 'Zine / grunge',        swatch: ['#E0195A', '#F5C518', '#111111'], tags: ['criativo', 'educacao'] },
+]
+
+// Filtros de segmento da galeria (id 'todos' mostra tudo).
+export const MODEL_FILTERS: { id: string; label: string }[] = [
+  { id: 'todos',       label: 'Todos' },
+  { id: 'saude',       label: 'Saúde' },
+  { id: 'servicos',    label: 'Serviços' },
+  { id: 'corporativo', label: 'Corporativo' },
+  { id: 'educacao',    label: 'Educação' },
+  { id: 'beleza',      label: 'Beleza' },
+  { id: 'gastronomia', label: 'Gastronomia' },
+  { id: 'criativo',    label: 'Criativo' },
 ]
 
 // ── Paletas nomeadas ─────────────────────────────────────────

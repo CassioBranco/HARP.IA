@@ -8,52 +8,73 @@
 
 ## 🎯 Cartões da sprint (em ordem de prioridade)
 
-### S01 — Finalizar rename ANCOREO · 👀 EM REVISÃO (falta deploy)
+### S01 — Finalizar rename ANCOREO · ✅ FEITO
 - [x] Banco varrido — limpo (só sobrou tenant de QA, inofensivo)
 - [x] Cássio: renomeou projeto no painel **Vercel** (`ancoreo`)
 - [x] Backend: fallbacks `harp-ia.vercel.app` → `ancoreo.com.br` (sitemap, robots, mercadopago)
 - [x] Backend: middleware reconhece `ancoreo.com.br` + `www` como app (fallback de segurança se env faltar)
+- [x] **Deploy da beta** (commit `8629993`, push no `master`) — 2026-06-30
 - [ ] Cássio: renomear projeto no painel **Supabase** (cosmético, não urgente)
-- [ ] 🚫 Cássio: commit + deploy pra subir as mudanças
 - **Cargo:** Backend ✓ · `tsc` verde
 
-### S05 — Integração do domínio `ancoreo.com.br` · 🔨 EM ANDAMENTO
+### S05 — Integração do domínio `ancoreo.com.br` · 👀 EM REVISÃO (SSL gerando)
 - [x] Projeto renomeado + domínio adicionado no Vercel (apex + www)
 - [x] Middleware trata domínio raiz como app (não como site de cliente)
-- [ ] 🚫 Cássio: criar DNS no Registro.br — A `@`→`216.198.79.1`, CNAME `www`→`1252b615ed3ea839.vercel-dns-017.com.`
-- [ ] 🚫 Cássio: setar env **`NEXT_PUBLIC_APP_URL=https://ancoreo.com.br`** no Vercel (Production) + redeploy
-- [ ] Vercel valida DNS → HTTPS automático → "Valid Configuration" verde
+- [x] Cássio: criou DNS no Registro.br — A `ancoreo.com.br`→`216.198.79.1`, CNAME `www`→`1252b615ed3ea839.vercel-dns-017.com.`
+- [x] Vercel detectou o DNS e está **emitindo o HTTPS** (automático)
+- [ ] Cássio: setar env **`NEXT_PUBLIC_APP_URL=https://ancoreo.com.br`** no Vercel (Production) — código tem fallback, então não bloqueia
+- [ ] Confirmar "Valid Configuration" verde + site abrindo em `https://ancoreo.com.br`
 - **Cargo:** Backend ✓ (código) · resto são portões do Cássio
-- **📍 ESTADO (2026-06-30):** Registro.br em **transição (~2h)** — zona DNS ainda não aceita registros; aguardar e voltar no MODO AVANÇADO. Deploy conjunto (migration `analytics_events` + commit + middleware/rename) **adiado a pedido do Cássio** ("mais tarde fazemos isso"). Retomar por aqui.
+- **📍 ESTADO (2026-06-30):** DNS salvo no Registro.br; Vercel gerando SSL. Deploy da beta JÁ subiu (commit `8629993`). Falta só o SSL ficar verde e (opcional) a env `NEXT_PUBLIC_APP_URL`.
 
-### S02 — Telemetria de funil (LGPD-safe) · 👀 EM REVISÃO (código pronto; falta aplicar migration + deploy)
+### S02 — Telemetria de funil (LGPD-safe) · ✅ FEITO (no ar)
 - [x] Decisão da ferramenta: **tabela própria** (D17)
 - [x] Migration `analytics_events` escrita (RLS, sem PII) — `supabase/migrations/20260630120000_analytics_events.sql`
+- [x] **Migration aplicada no banco** (2026-06-30, com OK do Cássio)
 - [x] Rota `/api/track` (allowlist, session_id httpOnly, tenant best-effort, opt-out) + lib `lib/analytics/`
 - [x] Eventos fiados no funil: onboarding (start, step_view, goal, loja_modo, generate_block, generate_click) + template_choose + site_created
 - [x] `tsc` verde
-- [ ] 🚫 Cássio: **OK pra aplicar a migration** no banco (D14)
-- [ ] 🚫 Cássio: OK pra commit + deploy
+- [x] **Deploy** (commit `8629993`) — telemetria coletando em produção
 - **Eventos capturados** permitem ver: por onde abandonam, em que tela travam, % que gera, objetivo/modo/template escolhidos. Abandono = sessão com maior step < 7.
-- **Cargo:** Backend ✓ → QA/Deploy (aguarda portões humanos)
+- **Cargo:** Backend ✓ → no ar. Falta só o banner de consentimento (S04) pra fechar a camada LGPD.
 
-### S03 — Termo de Uso + Política de Privacidade · 🎯 SPRINT
-- Termo de Uso da plataforma + Política de Privacidade (LGPD: bases legais, direitos do titular, retenção, contato DPO).
-- Páginas públicas + aceite no cadastro.
-- **Cargo:** Backend (estrutura) · revisão de conteúdo com Cássio
+### S03 — Termo de Uso + Política de Privacidade · 👀 EM REVISÃO (falta deploy + dados da empresa)
+- [x] Páginas `/termos` e `/privacidade` criadas (`app/(legal)/`) — casca própria legível (`legal.css`)
+- [x] Política cobre: dados coletados, telemetria pseudônima, bases legais LGPD, cookies, subprocessadores (Vercel/Supabase/OpenAI/Anthropic/Mercado Pago/Google), transferência internacional, retenção 12m, direitos do titular, DPO
+- [x] Termo cobre: serviço, conta, planos/Mercado Pago, conteúdo por IA (sem garantia de rank), propriedade, uso aceitável, cancelamento/CDC, foro
+- [x] Aceite no cadastro já existia (signup linka /termos e /privacidade) — agora os links resolvem
+- [x] `tsc` verde · páginas servem 200 (verificado via HTTP)
+- [ ] 🟡 Cássio: preencher dados da empresa (trechos em amarelo) — razão social, CNPJ, cidade/UF, e-mails
+- [ ] 🚫 Cássio: OK pra deploy
+- **Cargo:** Backend ✓ → revisão de conteúdo + dados com Cássio
 
-### S04 — Consentimento (cookies + telemetria) · 🎯 SPRINT
-- Banner de consentimento; telemetria só dispara após opt-in (ou base legal de legítimo interesse documentada).
-- **Cargo:** Backend/Front
+### S04 — Consentimento (cookies + telemetria) · 👀 EM REVISÃO (falta deploy)
+- [x] Decisão: **transparência + opt-out** (legítimo interesse), telemetria SEGUE ligada (pedido do Cássio)
+- [x] `ConsentBanner` (client) montado no root layout; só aparece no host do app (não em site de cliente)
+- [x] "Entendi" grava `aco_consent`; "Não quero ser rastreado" grava `aco_no_track=1` (respeitado por client + rota)
+- [x] Link pra /privacidade no banner; `tsc` verde
+- [ ] 🚫 Cássio: OK pra deploy
+- **Cargo:** Backend/Front ✓
 
 ---
 
 ## 🔓 Decisões pendentes desta sprint (a alinhar com Cássio)
 
 1. ~~Ferramenta de telemetria~~ → resolvido: tabela própria (D17).
-2. **Consentimento (S04):** opt-in explícito vs legítimo interesse para métricas anônimas de produto.
+2. ~~Consentimento (S04): opt-in vs legítimo interesse~~ → resolvido (D20): **legítimo interesse + opt-out**, a pedido do Cássio ("quero telemetria dos usuários da plataforma").
 
 ---
 
+### S06 — Front-end novo (núcleo "Carta Náutica" v2, do zero) · 🔨 EM ANDAMENTO
+- [x] Decisão: núcleo do ZERO baseado no ANCOREO — sem herança HARPIA (feedback direto do Cássio)
+- [x] Cartilha escrita: `docs/DESIGN-NUCLEO.md` (paleta papel/navy/vermelho, Fraunces + Plex Mono, dispositivos de impresso naval)
+- [x] Tokens `globals.css` v2 (papel quente) + fontes novas no root layout
+- [x] **Landing refeita do zero** (`.anc`) — hero editorial, carimbo de score, marquee, manifesto, banda navy com selos, bilhetes de embarque, farol, rodapé escalopado
+- [x] Banner de consentimento + fundo do auth na linguagem v2
+- [x] `tsc` verde · verificado visualmente no preview (desktop + mobile)
+- [ ] Onboarding, painel, editor, galeria de templates → migrar pra v2 (próximas fases)
+- [ ] Templates dos sites de clientes (4 visuais arrojados) — fase própria
+- **Cargo:** Front/Design (Claude) · deploy só com OK do Cássio (D14)
+
 ## 📌 Próxima ação do Scrum Master
-S02 está em revisão (código pronto, `tsc` verde). Aguarda 2 portões humanos: **OK pra aplicar a migration** e **OK pra commit/deploy**. Em paralelo, próximo cartão codável sem bloqueio = **S03 (Termo de Uso + Política de Privacidade)**.
+Beta no ar (commit `8629993`). S03 (páginas legais) + S04 (banner de consentimento) **codados e verdes** — falta (1) Cássio preencher os dados da empresa nos trechos em amarelo das páginas legais e (2) OK pra deploy. Depois disso a camada legal LGPD da beta fecha por completo.

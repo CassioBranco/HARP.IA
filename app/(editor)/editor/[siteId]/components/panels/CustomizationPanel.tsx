@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useTransition } from 'react'
+import { useState, useEffect, useRef, useTransition } from 'react'
 import { createBrowserClient } from '@/lib/supabase/client'
 import type { SiteData } from '../../page'
 import ImageUploader from './ImageUploader'
@@ -31,6 +31,13 @@ type Props = {
 
 type SubTab = 'modelo' | 'cores' | 'fontes' | 'imagens' | 'marca' | 'textos'
 
+// Entrada da pilha de undo — guarda o estado ANTERIOR de cada mudança
+// de personalização (padrão dos editores top: Framer/Webflow têm undo).
+type UndoEntry =
+  | { type: 'palette'; name: string; colors: string[] | null; group: string }
+  | { type: 'font'; id: string }
+  | { type: 'template'; id: string }
+
 export default function CustomizationPanel({ site, siteId, onSave }: Props) {
   const [subTab, setSubTab] = useState<SubTab>('cores')
   const [selectedName, setSelectedName] = useState(site.palette_name ?? 'Original')
@@ -43,6 +50,16 @@ export default function CustomizationPanel({ site, siteId, onSave }: Props) {
   const [selectedTemplate, setSelectedTemplate] = useState(site.template ?? 'clean')
   const [expandedSection, setExpandedSection] = useState<string | null>('hero')
   const [saving, setSaving] = useState(false)
+
+  // ── Undo (Desfazer) ──
+  const [history, setHistory] = useState<UndoEntry[]>([])
+  const lastPalette = useRef<{ name: string; colors: string[] | null; group: string }>({
+    name: site.palette_name ?? 'Original',
+    colors: site.palette?.colors ?? null,
+    group: site.palette?.group ?? 'base',
+  })
+  const lastFont = useRef(site.font_pair ?? 'classico')
+  const lastTemplate = useRef(site.template ?? 'clean')
 
   // Clique no preview (iframe) → abre a aba certa. A ponte vive no PreviewBridge.
   useEffect(() => {
@@ -88,7 +105,9 @@ export default function CustomizationPanel({ site, siteId, onSave }: Props) {
     }
   }
 
-  async function savePaletteByName(name: string, colors: string[] | null, group: string) {
+  async function savePaletteByName(name: string, colors: string[] | null, group: string, record = true) {
+    if (record) setHistory(h => [...h, { type: 'palette', ...lastPalette.current }])
+    lastPalette.current = { name, colors, group }
     setSelectedName(name)
     setSaving(true)
     const palette = colors && colors.length >= 7 ? { name, group, colors } : null
@@ -103,13 +122,18 @@ export default function CustomizationPanel({ site, siteId, onSave }: Props) {
     next[idx] = val
     const built = buildCustom(next[0]!, next[1]!, next[2]!)
     setCustom(built)
-    void savePaletteByName('Personalizada', built, 'custom')
+    // só grava no histórico ao ENTRAR na personalizada — arrastar o
+    // seletor de cor dispara dezenas de onChange e inundaria o undo
+    const record = lastPalette.current.name !== 'Personalizada'
+    void savePaletteByName('Personalizada', built, 'custom', record)
   }
 
   // Troca o template do site. Só muda qual layout renderiza — textos, imagens
   // e seções continuam os mesmos. onSave atualiza o estado e recarrega o preview.
-  async function saveTemplate(templateId: string) {
+  async function saveTemplate(templateId: string, record = true) {
     if (templateId === selectedTemplate) return
+    if (record) setHistory(h => [...h, { type: 'template', id: lastTemplate.current }])
+    lastTemplate.current = templateId
     setSelectedTemplate(templateId)
     setSaving(true)
     const supabase = createBrowserClient()
@@ -118,13 +142,33 @@ export default function CustomizationPanel({ site, siteId, onSave }: Props) {
     onSave({ template: templateId })
   }
 
-  async function saveFont(fontId: string) {
+  async function saveFont(fontId: string, record = true) {
+    if (record) setHistory(h => [...h, { type: 'font', id: lastFont.current }])
+    lastFont.current = fontId
     setSelectedFont(fontId)
     setSaving(true)
     const supabase = createBrowserClient()
     await supabase.from('sites').update({ font_pair: fontId }).eq('id', siteId)
     setSaving(false)
     onSave({ font_pair: fontId })
+  }
+
+  // Desfaz a última mudança de modelo/cor/fonte (LIFO).
+  async function undo() {
+    const entry = history[history.length - 1]
+    if (!entry) return
+    setHistory(h => h.slice(0, -1))
+    if (entry.type === 'palette') {
+      lastPalette.current = { name: entry.name, colors: entry.colors, group: entry.group }
+      if (entry.colors) setCustom(entry.colors.length === 7 ? entry.colors : CUSTOM_DEFAULT)
+      await savePaletteByName(entry.name, entry.colors, entry.group, false)
+    } else if (entry.type === 'font') {
+      lastFont.current = entry.id
+      await saveFont(entry.id, false)
+    } else {
+      lastTemplate.current = entry.id
+      await saveTemplate(entry.id, false)
+    }
   }
 
   const SUB_TABS: { id: SubTab; label: string }[] = [
@@ -138,7 +182,18 @@ export default function CustomizationPanel({ site, siteId, onSave }: Props) {
 
   return (
     <>
-      <div className="ed-ph"><h2>Personalizar</h2></div>
+      <div className="ed-ph">
+        <h2>Personalizar</h2>
+        <button
+          className="btn glass sm"
+          onClick={undo}
+          disabled={history.length === 0 || saving}
+          title="Desfaz a última mudança de modelo, cor ou fonte"
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 14 4 9l5-5" /><path d="M4 9h10a6 6 0 0 1 0 12h-3" /></svg>
+          Desfazer
+        </button>
+      </div>
 
       <div className="ed-subtabs">
         {SUB_TABS.map(t => (
@@ -258,7 +313,7 @@ export default function CustomizationPanel({ site, siteId, onSave }: Props) {
               >
                 <b>{fp.name}</b>
                 <span className="smp">{fp.sample}</span>
-                <p style={{ fontFamily: fp.heading, fontSize: '1rem', fontWeight: 700, margin: '.3rem 0 0', color: '#fff' }}>
+                <p style={{ fontFamily: fp.heading, fontSize: '1rem', fontWeight: 700, margin: '.3rem 0 0', color: 'var(--ink)' }}>
                   Título do Site
                 </p>
                 <p style={{ fontFamily: fp.body, fontSize: '.75rem', color: 'var(--muted)', margin: '2px 0 0' }}>

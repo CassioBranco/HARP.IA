@@ -147,7 +147,7 @@ export default function SignupPage() {
       </div>
 
       {/* Card */}
-      <div className="rounded-2xl border border-border bg-card p-8 shadow-sm">
+      <div className="panel-naval p-8">
         {/* Cadastro social */}
         <GoogleButton next="/onboarding" label="Criar conta com Google" />
 
@@ -209,7 +209,7 @@ export default function SignupPage() {
           {/* Submit */}
           <button
             type="submit" disabled={loading}
-            className="w-full rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+            className="btn-naval w-full rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-60"
           >
             {loading ? 'Criando conta…' : 'Criar conta grátis'}
           </button>

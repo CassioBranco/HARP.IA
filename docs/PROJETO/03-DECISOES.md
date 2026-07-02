@@ -42,6 +42,7 @@ Formato: `D## — Decisão — data — motivo curto`
 - **D17 — Telemetria = tabela própria no Supabase (`analytics_events`), não PostHog.** — 2026-06-30 — custo zero, dados na nossa mão, sem operador externo nem transferência internacional → Termo/LGPD mais limpo.
 - **D18 — Telemetria LGPD privacy-by-design:** pseudônima (session_id aleatório em cookie httpOnly), 1st-party, sem PII/IP/UA cru (só classe de device), opt-out via cookie `aco_no_track`. Base legal: legítimo interesse (métricas de produto agregadas). Banner de consentimento = cartão S04. Retenção sugerida 12 meses.
 - **D19 — Telemetria nunca quebra a UX:** ingestão é best-effort (try/catch em tudo); allowlist de eventos na rota `/api/track` barra dado arbitrário.
+- **D20 — Consentimento = transparência + opt-out (legítimo interesse), não opt-in bloqueante.** — 2026-06-30 — a pedido do Cássio ("quero telemetria dos usuários da plataforma"). Banner informa e oferece desativar; telemetria roda por padrão (dado pseudônimo de produto). Banner só no host do app, nunca em site publicado de cliente.
 
 ### Marca
 

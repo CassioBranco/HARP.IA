@@ -4,6 +4,7 @@
 // aqui mora só a fiação (auth, nome do tenant, plano, nav ativa).
 // ============================================================
 import Link from 'next/link'
+import ThemeToggle from '@/components/ThemeToggle'
 import { LogoutButton } from '@/components/draft/LogoutButton'
 import { hasSupabaseEnv } from '@/lib/env'
 import { createServerClient } from '@/lib/supabase/server'
@@ -68,12 +69,13 @@ export default async function DashboardLayout({
       <div className="app">
         <aside className="side">
           <div className="brand">
-            <span className="mk"><i className="ph-fill ph-bird" /></span> ANCOREO
+            <span className="mk"><i className="ph-fill ph-anchor" /></span> ANCOREO
           </div>
           <PainelNav />
           <Link href="/onboarding" className="nav-item">
             <i className="ph-duotone ph-rocket-launch" /> Novo site
           </Link>
+          <div className="side-theme"><ThemeToggle /></div>
           <div className="foot">
             <span className="avatar">{initials}</span>
             <div style={{ minWidth: 0, flex: 1 }}>

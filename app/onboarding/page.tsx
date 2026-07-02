@@ -171,7 +171,7 @@ export default function OnboardingPage() {
           ? cleanDomain(dominioProprio) || null
           : dominioModo === 'proprio'
             ? `${slug}.com.br`
-            : `${slug}.harpia.site`,
+            : `${slug}.ancoreo.com.br`,
     }
   }, [
     objetivo, lojaModo, businessName, about, cat, niche, segPick, otherActive, registro,
@@ -539,86 +539,19 @@ export default function OnboardingPage() {
     }, 850)
   }
 
-  // ── floaters (client-only, evita mismatch de hidratação) ──
-  const floaters = useMemo(() => {
-    if (!mounted) return [] as React.ReactNode[]
-    const items: React.ReactNode[] = []
-    const rnd = (a: number, b: number) => a + Math.random() * (b - a)
-    const setVars = (o: Record<string, string>) => o
-    let k = 0
-    for (let n = 0; n < 10; n++) {
-      const far = n < 4
-      const sz = (far ? rnd(34, 62) : rnd(16, 38)) | 0
-      items.push(
-        <div
-          key={`f${k++}`}
-          className={`fl feather${far ? ' far' : ''}`}
-          style={
-            {
-              top: `${rnd(0, 100)}%`,
-              '--d': `${(far ? rnd(52, 80) : rnd(28, 54)).toFixed(1)}s`,
-              '--dl': `${-rnd(0, 60)}s`,
-              '--s': `${rnd(7, 14).toFixed(1)}s`,
-              '--o': (far ? rnd(0.2, 0.38) : rnd(0.34, 0.68)).toFixed(2),
-              '--sz': `${sz}px`,
-              '--yend': `${(rnd(0, 120) - 70) | 0}px`,
-            } as React.CSSProperties
-          }
-        >
-          <i className="in ph-fill ph-feather" />
-        </div>
-      )
-    }
-    for (let n = 0; n < 18; n++) {
-      items.push(
-        <div
-          key={`f${k++}`}
-          className="fl mote"
-          style={
-            {
-              top: `${rnd(0, 100)}%`,
-              '--d': `${rnd(20, 48).toFixed(1)}s`,
-              '--dl': `${-rnd(0, 60)}s`,
-              '--o': rnd(0.3, 0.8).toFixed(2),
-              '--sz': `${(2 + rnd(0, 4)) | 0}px`,
-            } as React.CSSProperties
-          }
-        >
-          <span className="in" />
-        </div>
-      )
-    }
-    items.push(
-      <div
-        key={`f${k++}`}
-        className="fl bird"
-        style={
-          { top: `${rnd(0, 100)}%`, '--d': `${rnd(54, 84).toFixed(1)}s`, '--o': '0.15', '--sz': `${(42 + rnd(0, 30)) | 0}px` } as React.CSSProperties
-        }
-      >
-        <i className="in ph-fill ph-bird" />
-      </div>
-    )
-    void setVars
-    return items
-  }, [mounted])
-
   const isLastScreen = screen === TOTAL - 1
 
   return (
     <div className="ob-page">
+      {/* núcleo v2 minimal: sem aura/penas/grão — decoração saiu, ficou a tipografia */}
       <div className="aura" ref={auraRef} />
-      <div className="floaters">{floaters}</div>
-      <div className="skyveil top" />
-      <div className="skyveil bottom" />
-      <div className="grain" />
 
       <div className="ob">
         {/* header */}
         <header className="head">
           <div className="brand">
             <span className="mk">
-              <i className="ph-fill ph-bird" />
+              <i className="ph-fill ph-anchor" />
             </span>{' '}
             ANCOREO
           </div>
@@ -1399,7 +1332,7 @@ export default function OnboardingPage() {
                       <span className="dhead">
                         <b>Subdomínio grátis do ANCOREO</b>
                       </span>
-                      <span className="durl">{slug}.harpia.site</span>
+                      <span className="durl">{slug}.ancoreo.com.br</span>
                       <span className="ddesc">Pronto na hora, sem custo. Bom pra começar.</span>
                       <span className="dwarn">
                         <i className="ph-fill ph-warning" />{' '}

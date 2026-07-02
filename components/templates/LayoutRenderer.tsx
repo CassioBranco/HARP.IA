@@ -3,6 +3,7 @@ import type { PaletteColors } from '@/lib/templates/palettes'
 import type { LayoutId } from '@/lib/templates/layouts'
 import { getFontPair } from '@/lib/templates/fonts'
 import SiteSocials from './shared/SiteSocials'
+import SiteReveal from './shared/SiteReveal'
 
 import CleanLayout from './layouts/CleanLayout'
 import BoldLayout from './layouts/BoldLayout'
@@ -48,6 +49,7 @@ export default function LayoutRenderer({ layout, c, p, preview = false, fontPair
     <>
       <Component c={c} p={p} preview={preview} />
       <SiteSocials c={c} p={p} />
+      <SiteReveal />
       {font && (
         <>
           {/* eslint-disable-next-line @next/next/no-page-custom-font */}

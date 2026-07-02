@@ -161,6 +161,14 @@ const templateCSS = `
 .cv .sticky-cta { position: fixed; left: 0; right: 0; bottom: 0; z-index: 60; background: var(--sb); border-top: 1px solid var(--line); padding: .6rem .8rem; display: none; gap: .6rem; box-shadow: 0 -4px 20px rgb(0 0 0 / .1); }
 .cv .sticky-cta .wa, .cv .sticky-cta .call { flex: 1; padding: .9rem; font-size: 1rem; border-radius: 10px; }
 
+/* micro-interações (polish v2) */
+.cv .svc .svc-icon { transition: transform .25s ease; display: inline-block; }
+.cv .svc:hover .svc-icon { transform: scale(1.12); }
+.cv .review { transition: transform .2s ease, box-shadow .2s ease; }
+.cv .review:hover { transform: translateY(-3px); box-shadow: 0 12px 28px rgb(0 0 0 / .07); }
+.cv .step .n { transition: transform .2s ease; }
+.cv .step:hover .n { transform: scale(1.1); }
+
 @media (max-width: 880px) {
   .cv .hero .wrap { grid-template-columns: 1fr; gap: 2rem; }
   .cv .trustbar .wrap { grid-template-columns: 1fr 1fr; gap: 1.4rem; }

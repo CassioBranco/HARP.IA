@@ -153,7 +153,7 @@ export default function EditorPage() {
     ? `/preview/${siteId}?chrome=0&v=${previewKey}`
     : 'about:blank'
 
-  const url = site?.domain ?? `${siteId}.harp-ia.com`
+  const url = site?.domain ?? `${siteId}.ancoreo.com.br`
 
   if (!site) {
     return (
@@ -234,27 +234,27 @@ export default function EditorPage() {
                 {gen.state === 'running' ? (
                   <>
                     <style dangerouslySetInnerHTML={{ __html: `
-                      @keyframes harpFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-7px) scale(1.1)}}
-                      @keyframes harpGlow{0%,100%{filter:drop-shadow(0 0 6px rgba(124,109,240,.45))}50%{filter:drop-shadow(0 0 18px rgba(59,130,246,.85))}}
-                      @keyframes harpDots{0%{opacity:.2}20%{opacity:1}100%{opacity:.2}}
-                      @keyframes harpBar{0%{transform:translateX(-120%)}100%{transform:translateX(420%)}}
-                      .harp-spark{display:inline-block;animation:harpFloat 2.4s ease-in-out infinite,harpGlow 2.4s ease-in-out infinite}
-                      .harp-track{position:relative;width:200px;height:4px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.1)}
-                      .harp-track i{position:absolute;top:0;left:0;width:46px;height:100%;border-radius:999px;background:linear-gradient(90deg,#7c6df0,#3b82f6 55%,#16a8c0);animation:harpBar 1.5s ease-in-out infinite}
-                      .harp-dots i{display:inline-block;animation:harpDots 1.4s infinite}
-                      .harp-dots i:nth-child(2){animation-delay:.2s}
-                      .harp-dots i:nth-child(3){animation-delay:.4s}
-                      @media(prefers-reduced-motion:reduce){.harp-spark,.harp-track i,.harp-dots i{animation:none!important}}
+                      @keyframes acoFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-7px) scale(1.1)}}
+                      @keyframes acoGlow{0%,100%{filter:drop-shadow(0 0 6px rgba(215,38,61,.4))}50%{filter:drop-shadow(0 0 18px rgba(215,38,61,.8))}}
+                      @keyframes acoDots{0%{opacity:.2}20%{opacity:1}100%{opacity:.2}}
+                      @keyframes acoBar{0%{transform:translateX(-120%)}100%{transform:translateX(420%)}}
+                      .aco-spark{display:inline-block;animation:acoFloat 2.4s ease-in-out infinite,acoGlow 2.4s ease-in-out infinite}
+                      .aco-track{position:relative;width:200px;height:4px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.12)}
+                      .aco-track i{position:absolute;top:0;left:0;width:46px;height:100%;border-radius:999px;background:linear-gradient(90deg,#0A2239,#D7263D 70%,#E8556A);animation:acoBar 1.5s ease-in-out infinite}
+                      .aco-dots i{display:inline-block;animation:acoDots 1.4s infinite}
+                      .aco-dots i:nth-child(2){animation-delay:.2s}
+                      .aco-dots i:nth-child(3){animation-delay:.4s}
+                      @media(prefers-reduced-motion:reduce){.aco-spark,.aco-track i,.aco-dots i{animation:none!important}}
                     ` }} />
-                    <i className="ph-fill ph-sparkle ai-spark harp-spark" style={{ fontSize: '2.6rem' }} />
+                    <i className="ph-fill ph-sparkle ai-spark aco-spark" style={{ fontSize: '2.6rem' }} />
                     <b style={{ color: '#fff', fontFamily: "'Plus Jakarta Sans'", fontSize: '1.05rem' }}>
                       A IA está escrevendo seu site
-                      <span className="harp-dots"><i>.</i><i>.</i><i>.</i></span>
+                      <span className="aco-dots"><i>.</i><i>.</i><i>.</i></span>
                     </b>
                     <span style={{ color: 'var(--muted)', fontSize: '.85rem', maxWidth: 320, minHeight: '1.2em', transition: 'opacity .3s' }}>
                       {GEN_STEPS[genStep]}
                     </span>
-                    <div className="harp-track" style={{ marginTop: '.3rem' }}><i /></div>
+                    <div className="aco-track" style={{ marginTop: '.3rem' }}><i /></div>
                     <span style={{ color: 'var(--muted2, #8aa0b6)', fontSize: '.74rem', marginTop: '.2rem' }}>
                       Não feche esta página.
                     </span>

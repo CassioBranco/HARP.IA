@@ -1,0 +1,133 @@
+/* Páginas legais (Termo de Uso, Política de Privacidade).
+   Estilo próprio, claro e legível — independente do tema do painel e da
+   landing, pra documento jurídico ler bem em qualquer dispositivo. */
+
+.legal {
+  --lg-ink: #122a44;
+  --lg-soft: #51667f;
+  --lg-line: #e4e8ee;
+  --lg-accent: #1e4e8c;
+  min-height: 100vh;
+  background: #fbfcfe;
+  color: var(--lg-ink);
+  font-family: var(--font-body), system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  line-height: 1.7;
+}
+
+.legal__bar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  background: rgba(251, 252, 254, 0.85);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--lg-line);
+}
+
+.legal__brand {
+  font-family: var(--font-heading), var(--font-body), sans-serif;
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: var(--lg-ink);
+  text-decoration: none;
+  letter-spacing: -0.01em;
+}
+
+.legal__back {
+  font-size: 0.85rem;
+  color: var(--lg-soft);
+  text-decoration: none;
+}
+.legal__back:hover { color: var(--lg-ink); }
+
+.legal__wrap {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 4rem;
+}
+
+.legal__doc h1 {
+  font-family: var(--font-heading), var(--font-body), sans-serif;
+  font-size: 1.9rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.4rem;
+}
+
+.legal__meta {
+  color: var(--lg-soft);
+  font-size: 0.85rem;
+  margin: 0 0 2rem;
+}
+
+.legal__doc h2 {
+  font-family: var(--font-heading), var(--font-body), sans-serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 2.2rem 0 0.6rem;
+  scroll-margin-top: 5rem;
+}
+
+.legal__doc h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 1.4rem 0 0.4rem;
+}
+
+.legal__doc p,
+.legal__doc li { font-size: 0.95rem; }
+
+.legal__doc p { margin: 0 0 0.9rem; }
+
+.legal__doc ul { margin: 0 0 1rem; padding-left: 1.2rem; }
+.legal__doc li { margin: 0 0 0.4rem; }
+
+.legal__doc a { color: var(--lg-accent); }
+
+.legal__doc strong { font-weight: 700; }
+
+/* Marcador visível de dado da empresa a preencher (some quando trocado). */
+.legal__fill {
+  background: #fff4d6;
+  border-bottom: 1px dashed #d9a400;
+  padding: 0 2px;
+  border-radius: 2px;
+  font-style: normal;
+}
+
+.legal__note {
+  margin: 1.5rem 0;
+  padding: 1rem 1.1rem;
+  background: #eef4ff;
+  border: 1px solid #d4e2ff;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  color: #2a3a55;
+}
+
+.legal__foot {
+  border-top: 1px solid var(--lg-line);
+  padding: 1.5rem;
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--lg-soft);
+}
+.legal__foot a { color: var(--lg-soft); }
+.legal__foot a:hover { color: var(--lg-ink); }
+
+.legal__theme { display: inline-flex; }
+
+/* tema escuro */
+.dark .legal {
+  --lg-ink: #ede7da;
+  --lg-soft: #9fadbd;
+  --lg-line: rgba(237, 231, 218, 0.14);
+  --lg-accent: #7fa8dc;
+  background: #0b1f35;
+}
+.dark .legal__bar { background: rgba(11, 31, 53, 0.88); }
+.dark .legal__fill { background: rgba(217, 164, 0, 0.22); border-bottom-color: #d9a400; }
+.dark .legal__note { background: rgba(30, 78, 140, 0.18); border-color: rgba(127, 168, 220, 0.3); color: #c4d4e8; }

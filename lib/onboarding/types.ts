@@ -27,7 +27,9 @@ export type GpeModo = 'vincular' | 'criar' | 'sem'
 
 // 'proprio'     = não tem domínio, a plataforma compra e configura
 // 'tenho'       = já tem um domínio próprio, vai apontar o DNS pra cá
-// 'subdominio'  = subdomínio grátis em harpia.site (SEO inferior)
+// 'subdominio'  = subdomínio grátis em ancoreo.com.br (SEO inferior).
+//                 ATENÇÃO infra: exige wildcard *.ancoreo.com.br no Vercel
+//                 + CNAME curinga no Registro.br (gate do Cássio).
 export type DominioModo = 'proprio' | 'tenho' | 'subdominio'
 
 // Item da seção "Seu conhecimento vale ouro" (E-E-A-T)

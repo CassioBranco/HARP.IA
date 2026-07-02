@@ -23,7 +23,7 @@ export default function EditorSidebar({ site }: Props) {
   return (
     <div className="ed-rail">
       <Link href="/sites" className="mk" title="Meus sites">
-        <i className="ph-fill ph-bird" />
+        <i className="ph-fill ph-anchor" />
       </Link>
 
       {/* Edição do site (ativo sempre — é o que o editor faz) */}

@@ -7,6 +7,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createBrowserClient } from '@/lib/supabase/client'
+import { extractKeywords, similarity } from '@/lib/seo/triangulation'
 
 export type PostEditorData = {
   id: string | null
@@ -63,6 +64,9 @@ export default function PostEditor({
   const [aiGenerating, setAiGenerating] = useState(false)
   const [aiTheme, setAiTheme] = useState('')
   const [aiErr, setAiErr] = useState<string | null>(null)
+
+  // outros artigos publicados do site — base das sugestões de link interno
+  const [published, setPublished] = useState<{ id: string; slug: string; title: string; meta: string | null }[]>([])
 
   const bodyRef = useRef<HTMLTextAreaElement>(null)
 
@@ -217,15 +221,56 @@ export default function PostEditor({
     }
   }
 
+  // ── Sugestão de links internos (triangulação N5, client-side) ──
+  useEffect(() => {
+    const supabase = createBrowserClient()
+    supabase
+      .from('blog_posts')
+      .select('id, slug, title, meta_description')
+      .eq('site_id', siteId)
+      .eq('status', 'published')
+      .then(({ data: rows }) => {
+        setPublished(
+          (rows ?? [])
+            .filter(r => r.id !== postId && r.slug && r.title)
+            .map(r => ({ id: r.id as string, slug: r.slug as string, title: r.title as string, meta: (r.meta_description as string) ?? null })),
+        )
+      })
+  }, [siteId, postId])
+
+  const hasInternalLink = /\]\(\/blog\/|href="\/blog\//.test(data.content)
+
+  const linkSuggestions = useMemo(() => {
+    if (published.length === 0) return []
+    const mine = extractKeywords(data.title, data.meta_description || data.content.slice(0, 400))
+    return published
+      .map(p => ({ ...p, score: similarity(mine, extractKeywords(p.title, p.meta)) }))
+      .filter(p => !data.content.includes(`/blog/${p.slug}`)) // já linkado → some
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 3)
+  }, [published, data.title, data.meta_description, data.content])
+
+  // insere `[título](/blog/slug)` na posição do cursor do corpo
+  function insertLink(p: { slug: string; title: string }) {
+    const ta = bodyRef.current
+    const md = `[${p.title}](/blog/${p.slug})`
+    if (!ta) { patch({ content: `${data.content}\n\n${md}` }); return }
+    const { selectionStart: s, value } = ta
+    patch({ content: `${value.slice(0, s)}${md}${value.slice(s)}` })
+    requestAnimationFrame(() => { ta.focus(); ta.setSelectionRange(s + md.length, s + md.length) })
+  }
+
   // ── Checklist de SEO (calculado de verdade) ──────────────
   const words = wordCount(data.content)
   const titleHasKeyword = data.title.trim().length >= 8
   const checks = [
     { ok: titleHasKeyword, label: 'Título preenchido' },
-    { ok: data.meta_description.trim().length >= 80, label: 'Resumo (meta) com 80+ caracteres' },
+    { ok: data.title.trim().length > 0 && data.title.trim().length <= 60, label: 'Título até 60 caracteres (não corta no Google)' },
+    { ok: data.meta_description.trim().length >= 80 && data.meta_description.trim().length <= 160, label: 'Resumo (meta) entre 80 e 160 caracteres' },
     { ok: words >= 600, label: `Texto com 600+ palavras (${words})` },
     { ok: /(<h2|^##\s|\n##\s)/i.test(data.content), label: 'Pelo menos 1 subtítulo (H2)' },
     { ok: /faq|pergunt/i.test(data.content), label: 'Bloco de FAQ' },
+    { ok: published.length === 0 || hasInternalLink, label: 'Link pra outro artigo do site' },
   ]
   const score = Math.round((checks.filter(c => c.ok).length / checks.length) * 100)
   const scoreLabel = score >= 80 ? 'Bom' : score >= 50 ? 'Regular' : 'Fraco'
@@ -321,8 +366,32 @@ export default function PostEditor({
             </div>
           </div>
 
+          {linkSuggestions.length > 0 && (
+            <div className="glass side-card">
+              <h3><i className="ph-duotone ph-link" /> Links internos sugeridos</h3>
+              <p style={{ fontSize: '.78rem', color: 'var(--muted)', margin: '0 0 .6rem' }}>
+                Linkar artigos entre si ajuda o Google a entender seu site. Sugestões por afinidade de tema:
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '.45rem' }}>
+                {linkSuggestions.map(p => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    className="btn ghost sm"
+                    style={{ justifyContent: 'space-between', textAlign: 'left', gap: '.6rem' }}
+                    title={`Inserir link pra “${p.title}” na posição do cursor`}
+                    onClick={() => insertLink(p)}
+                  >
+                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.title}</span>
+                    <i className="ph-fill ph-plus-circle" style={{ flex: 'none' }} />
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="glass side-card">
-            <div className="seoscore"><span style={{ color: '#cfe0f5' }}>Força de SEO</span><span>{scoreLabel}</span></div>
+            <div className="seoscore"><span style={{ color: 'var(--ink)' }}>Força de SEO</span><span>{scoreLabel}</span></div>
             <div className="seobar"><i style={{ width: `${score}%` }} /></div>
             <div className="seochk">
               {checks.map((c, i) => (

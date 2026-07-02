@@ -8,6 +8,7 @@ import { NextRequest } from 'next/server'
 import { createServerClient } from '@/lib/supabase/server'
 import { validateBlogPostForPublish } from '@/lib/seo/validator'
 import { ensureInternalLinks } from '@/lib/seo/internal-links'
+import { triangulateSiteArticles } from '@/lib/seo/triangulation'
 
 export const runtime = 'nodejs'
 
@@ -54,8 +55,15 @@ export async function POST(req: NextRequest) {
 
   // AEO Regra 7 — religa o grafo de links internos incluindo o artigo novo.
   let internalLinks: Awaited<ReturnType<typeof ensureInternalLinks>> | null = null
+  let triangulation: Awaited<ReturnType<typeof triangulateSiteArticles>> | null = null
   if (userData?.tenant_id) {
     internalLinks = await ensureInternalLinks(supabase, {
+      tenantId: userData.tenant_id,
+      siteId: post.site_id as string,
+    }).catch(() => null)
+    // Triangulação contextual: injeta 2–4 âncoras reais no HTML dos
+    // artigos do site (o novo E os antigos — backfill idempotente).
+    triangulation = await triangulateSiteArticles(supabase, {
       tenantId: userData.tenant_id,
       siteId: post.site_id as string,
     }).catch(() => null)
@@ -71,6 +79,7 @@ export async function POST(req: NextRequest) {
       warnings: validation.warnings,
       internal_links_created: internalLinks?.created ?? 0,
       orphans: internalLinks?.orphans?.length ?? 0,
+      triangulation: triangulation ?? undefined,
     },
   })
 
@@ -78,5 +87,6 @@ export async function POST(req: NextRequest) {
     ok: true,
     warnings: validation.warnings,
     orphans: internalLinks?.orphans ?? [],
+    triangulation,
   })
 }

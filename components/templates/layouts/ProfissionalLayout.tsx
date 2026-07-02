@@ -127,6 +127,17 @@ footer.p-site .p-wrap { padding-top: 3.5rem; padding-bottom: 2.5rem; }
 .p-foot-grid a:hover { color: #fff; }
 .p-foot-bottom { border-top: 1px solid rgb(255 255 255 / .15); padding-top: 1.6rem; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem; font-size: .8rem; }
 
+/* micro-interações (polish v2) */
+.p-post { overflow: hidden; }
+.p-post img { transition: transform .7s cubic-bezier(.22,1,.36,1), filter .5s ease; filter: saturate(.94); }
+.p-post:hover img { transform: scale(1.04); filter: saturate(1.05); }
+.p-hero-img img { transition: filter .5s ease; filter: saturate(.94); }
+.p-hero-img:hover img { filter: saturate(1.06); }
+.p-btn { transition: background .2s ease, transform .15s ease; }
+.p-btn:hover { transform: translateY(-1px); }
+.p-svc { transition: padding-left .25s ease; }
+.p-svc:hover { padding-left: .5rem; }
+
 @media (max-width: 880px) {
   .p-wrap { padding: 0 1.4rem; }
   .p-topbar .p-wrap { padding: .55rem 1.4rem; }

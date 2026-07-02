@@ -9,6 +9,7 @@
 //  onboarding_generate_block → geração barrada (props.reason, props.seo_total)
 //  onboarding_generate_click → clicou em gerar com SEO ok (props.seo_total, props.gpe_linked)
 //  template_choose           → escolheu um template (props.layout)
+//  template_preview          → abriu a prévia de um template em nova aba (props.layout)
 //  site_created              → site criado de fato (props.layout)
 //
 // Abandono = sessões cujo maior step visto < 7 (não precisa de evento de saída).
@@ -21,6 +22,7 @@ export const ANALYTICS_EVENTS = [
   'onboarding_generate_block',
   'onboarding_generate_click',
   'template_choose',
+  'template_preview',
   'site_created',
 ] as const
 

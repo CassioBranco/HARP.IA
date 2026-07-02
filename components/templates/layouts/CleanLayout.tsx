@@ -143,6 +143,16 @@ section.cl-block { padding: 6rem 0; }
 
 .cl-hairline { border: 0; border-top: 1px solid var(--line); margin: 0; }
 
+/* micro-interações (polish v2) */
+.cl-band { overflow: hidden; }
+.cl-band img, .cl-post img { transition: transform .7s cubic-bezier(.22,1,.36,1); }
+.cl-band:hover img { transform: scale(1.025); }
+.cl-post:hover img { transform: scale(1.035); }
+.cl-btn { transition: filter .2s ease, transform .15s ease; }
+.cl-btn:hover { transform: translateY(-1px); }
+.cl-testi { border-top: 2px solid transparent; padding-top: 1rem; transition: border-color .25s ease; }
+.cl-testi:hover { border-top-color: var(--sa); }
+
 @media (max-width: 880px) {
   .cl-wrap { padding: 0 1.4rem; }
   .cl-nav-links a:not(.cl-btn) { display: none; }
