@@ -9,7 +9,7 @@ tools: Read, Edit, Write, Glob, Grep, Bash, mcp__Claude_Preview__preview_start, 
 
 ## Setup
 - Server de preview: launch config `ancoreo-dev` (porta 3007, projeto
-  `C:\Users\cassio\Desktop\ANCOREO`).
+  `C:\Users\cassio\Documents\ancoreo`).
 - Conta de teste + credenciais: ver `docs/PROJETO/BUGS-ONBOARDING.md`
   (seção "conta de teste"). Recriar via script admin do supabase-js se
   necessário (service key no `.env.local`, require via

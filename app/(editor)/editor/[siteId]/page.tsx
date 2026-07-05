@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation'
 import { createBrowserClient } from '@/lib/supabase/client'
 import EditorSidebar from './components/EditorSidebar'
 import CustomizationPanel from './components/panels/CustomizationPanel'
+import { useEditBridge } from './components/useEditBridge'
 
 export type ViewMode = 'desktop' | 'mobile'
 
@@ -20,6 +21,8 @@ export type SiteData = {
   font_pair: string
   domain: string | null
   status: string
+  booking_enabled: boolean
+  leads_enabled: boolean
 }
 
 const GEN_STEPS = [
@@ -55,7 +58,7 @@ export default function EditorPage() {
     const supabase = createBrowserClient()
     supabase
       .from('sites')
-      .select('id,niche,template,palette_index,palette,palette_name,font_pair,domain,status')
+      .select('id,niche,template,palette_index,palette,palette_name,font_pair,domain,status,booking_enabled,leads_enabled')
       .eq('id', siteId)
       .single()
       .then(({ data, error }) => {
@@ -67,6 +70,11 @@ export default function EditorPage() {
   function refreshPreview() {
     startTransition(() => setPreviewKey(k => k + 1))
   }
+
+  // Ponte de edição inline com o iframe do preview (Fases 1 e 2 do editor
+  // visual): texto direto no preview + toolbar de seção + drag-n-drop de
+  // imagem/seção. O niche alimenta o alt text do upload por drop.
+  const { iframeRef, saveState, toast: editToast, runUndo } = useEditBridge(siteId, site?.niche ?? '', refreshPreview)
 
   // Dispara a geração de conteúdo (SSE). Usado tanto no auto-gen quanto no retry.
   async function generateContent() {
@@ -209,6 +217,13 @@ export default function EditorPage() {
 
             <div className="ed-url">{url}</div>
 
+            {/* Indicador da edição inline (mesmo padrão "Salvando…" do painel) */}
+            {saveState !== 'idle' && (
+              <span style={{ fontSize: '.72rem', color: 'var(--muted)', whiteSpace: 'nowrap' }}>
+                {saveState === 'saving' ? 'Salvando…' : 'Salvo ✓'}
+              </span>
+            )}
+
             <button onClick={refreshPreview} className="ed-icon-btn" title="Recarregar preview">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
             </button>
@@ -224,6 +239,26 @@ export default function EditorPage() {
           </div>
 
           <div className="ed-canvas" style={{ position: 'relative' }}>
+            {/* Toast das operações estruturais (mover/duplicar/remover/adicionar)
+                com "Desfazer" de 5s — ver decisão de undo no useEditBridge. */}
+            {editToast && (
+              <div style={{
+                position: 'absolute', bottom: '1rem', left: '50%', transform: 'translateX(-50%)',
+                zIndex: 30, display: 'flex', alignItems: 'center', gap: '.75rem',
+                background: '#0f172a', color: '#fff', padding: '.5rem .9rem',
+                borderRadius: 10, fontSize: '.8rem', boxShadow: '0 8px 24px rgba(0,0,0,.28)',
+              }}>
+                <span>{editToast.label}</span>
+                {editToast.undo && (
+                  <button
+                    onClick={runUndo}
+                    style={{ background: 'none', border: 0, color: '#7dd3fc', fontWeight: 700, cursor: 'pointer', fontSize: '.8rem', padding: 0 }}
+                  >
+                    Desfazer
+                  </button>
+                )}
+              </div>
+            )}
             {gen.state !== 'idle' && (
               <div style={{
                 position: 'absolute', inset: 0, zIndex: 20, display: 'flex',
@@ -281,14 +316,14 @@ export default function EditorPage() {
                   <span className="dot" style={{ background: '#34d399' }} />
                   <span className="u">{url}</span>
                 </div>
-                <iframe key={`desktop-${previewKey}`} src={previewSrc} title="Preview desktop" />
+                <iframe ref={iframeRef} key={`desktop-${previewKey}`} src={previewSrc} title="Preview desktop" />
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '.5rem' }}>
                 <div className="ed-phone">
                   <span className="notch" />
                   <div className="scr">
-                    <iframe key={`mobile-${previewKey}`} src={previewSrc} title="Preview mobile" />
+                    <iframe ref={iframeRef} key={`mobile-${previewKey}`} src={previewSrc} title="Preview mobile" />
                   </div>
                 </div>
                 <p style={{ fontSize: '.7rem', color: 'var(--muted2)' }}>390 × 720 px</p>

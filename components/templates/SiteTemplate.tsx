@@ -1,5 +1,6 @@
 import type { SiteContent } from '@/lib/templates/example-content'
 import type { PaletteColors } from '@/lib/templates/palettes'
+import { jsonLdScript } from '@/lib/seo/jsonld'
 
 // ---------------------------------------------------------------------------
 // SiteTemplate — renderiza o site publicado do assinante.
@@ -67,7 +68,7 @@ export default function SiteTemplate({ content: c, palette: p, preview = false }
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
+          __html: jsonLdScript({
             '@context': 'https://schema.org',
             '@type': c.schemaType,
             name: c.businessName,
@@ -247,7 +248,7 @@ export default function SiteTemplate({ content: c, palette: p, preview = false }
           <script
             type="application/ld+json"
             dangerouslySetInnerHTML={{
-              __html: JSON.stringify({
+              __html: jsonLdScript({
                 '@context': 'https://schema.org',
                 '@type': 'FAQPage',
                 mainEntity: c.faqs.map(f => ({

@@ -16,7 +16,7 @@
 
 > ## 🗂️ GESTÃO DO PROJETO (ler ANTES de qualquer trabalho — pasta `docs/PROJETO/`)
 > O desenvolvimento é gerido estilo Scrum por skills. **Fonte única da verdade do progresso = `docs/PROJETO/`.**
-> **Ritual obrigatório:** 1) ler `docs/PROJETO/02-SPRINT-ATUAL.md` (o que fazer agora) + `docs/PROJETO/03-DECISOES.md` (o que já está travado, não rediscutir); 2) agir como o cargo certo; 3) atualizar o status no `01-BACKLOG.md` ao terminar. Se não atualizou o board, o cartão **não** está pronto.
+> **Ritual obrigatório:** 1) ler **`docs/PROJETO/ESTADO-MVP.md` (leia-me primeiro — estado vivo, próxima ação, gates)** + `docs/PROJETO/02-SPRINT-ATUAL.md` (o que fazer agora) + `docs/PROJETO/03-DECISOES.md` (o que já está travado, não rediscutir); 2) agir como o cargo certo; 3) atualizar o status no `01-BACKLOG.md` ao terminar. Se não atualizou o board, o cartão **não** está pronto.
 > **Cargos (skills em `.claude/skills/`):** `ancoreo-scrum-master` (maestro), `ancoreo-product-owner` (backlog), `ancoreo-backend`, `ancoreo-frontend` (estrutura; visual é do Claude Design), `ancoreo-qa-deploy` (último portão). Comece toda sessão pelo `ancoreo-scrum-master`.
 
 ---

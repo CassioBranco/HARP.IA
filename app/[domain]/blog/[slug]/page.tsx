@@ -35,8 +35,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       url,
       type: 'article',
       ...(post.published_at ? { publishedTime: post.published_at } : {}),
+      ...(post.updated_at ? { modifiedTime: post.updated_at } : {}),
+      ...(post.cover_image ? { images: [{ url: post.cover_image }] } : {}),
     },
   }
+}
+
+// JSON-LD seguro dentro de <script>: escapa "<" pra não fechar a tag.
+function jsonLd(obj: unknown): string {
+  return JSON.stringify(obj).replace(/</g, '\\u003c')
 }
 
 export default async function PublishedBlogPostPage({ params }: Props) {
@@ -51,19 +58,35 @@ export default async function PublishedBlogPostPage({ params }: Props) {
   if (!built) notFound()
   const businessName = built.content.businessName
 
-  const faqs = Array.isArray(post.schema_faq) ? post.schema_faq : []
+  // Article completo (GEO/SEO): image, datas, autor/publisher = negócio.
+  // Tudo automático — sai do que já existe no banco, sem UI nova.
+  const url = `https://${domain}/blog/${post.slug}`
+  const logoUrl = built.content.logoUrl
+  const publisher = {
+    '@type': 'Organization',
+    name: businessName,
+    ...(logoUrl?.startsWith('http') ? { logo: { '@type': 'ImageObject', url: logoUrl } } : {}),
+  }
   const articleJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Article',
     headline: post.title,
     description: post.meta_description ?? undefined,
-    url: `https://${domain}/blog/${post.slug}`,
+    url,
+    inLanguage: 'pt-BR',
+    ...(post.cover_image ? { image: [post.cover_image] } : {}),
     ...(post.published_at ? { datePublished: post.published_at } : {}),
+    ...(post.updated_at || post.published_at ? { dateModified: post.updated_at ?? post.published_at } : {}),
     author: { '@type': 'Organization', name: businessName },
-    publisher: { '@type': 'Organization', name: businessName },
-    mainEntityOfPage: { '@type': 'WebPage', '@id': `https://${domain}/blog/${post.slug}` },
+    publisher,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': url },
   }
-  const faqJsonLd = faqs.length >= 6 ? {
+
+  // FAQPage: só perguntas completas; 2+ pra schema não nascer pobre.
+  const faqs = (Array.isArray(post.schema_faq) ? post.schema_faq : []).filter(
+    f => (f?.question ?? '').trim().length > 0 && (f?.answer ?? '').trim().length > 0,
+  )
+  const faqJsonLd = faqs.length >= 2 ? {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
     mainEntity: faqs.map(f => ({
@@ -75,9 +98,9 @@ export default async function PublishedBlogPostPage({ params }: Props) {
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(articleJsonLd) }} />
       {faqJsonLd && (
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(faqJsonLd) }} />
       )}
       <SiteShell
         palette={built.palette}

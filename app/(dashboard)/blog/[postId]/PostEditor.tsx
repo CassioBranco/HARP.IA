@@ -7,7 +7,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createBrowserClient } from '@/lib/supabase/client'
-import { extractKeywords, similarity } from '@/lib/seo/triangulation'
+import { extractKeywords, similarity, injectLinks, norm } from '@/lib/seo/triangulation'
+import { buildPostSeoChecks, computeSeoScore, wordCount, type FaqItem } from '@/lib/seo/score'
+import FaqEditor from './FaqEditor'
+import SnippetPreview from './SnippetPreview'
 
 export type PostEditorData = {
   id: string | null
@@ -15,6 +18,8 @@ export type PostEditorData = {
   slug: string
   content: string
   meta_description: string
+  /** FAQ estruturada (blog_posts.schema_faq) — acordeão + FAQPage no público */
+  faq: FaqItem[]
   status: 'draft' | 'review' | 'published'
 }
 
@@ -26,10 +31,6 @@ function slugify(s: string): string {
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '')
     .slice(0, 60)
-}
-
-function wordCount(html: string): number {
-  return html.replace(/<[^>]+>/g, ' ').trim().split(/\s+/).filter(Boolean).length
 }
 
 // Sugestões genéricas (não fabricam dados do negócio — guiam o tema).
@@ -86,27 +87,44 @@ export default function PostEditor({
       setSaving(true)
       setErr(null)
       const supabase = createBrowserClient()
-      const payload = {
+      const payload: Record<string, unknown> = {
         title: next.title,
         slug: next.slug || slugify(next.title),
         content: next.content,
         meta_description: next.meta_description,
+        schema_faq: next.faq,
         status: next.status,
+      }
+      // Banco sem a coluna schema_faq (migration pendente) não pode travar o
+      // save: se o erro citar a coluna, salva de novo sem ela.
+      const withoutFaq = () => {
+        const { schema_faq: _drop, ...rest } = payload
+        return rest
       }
       try {
         if (postId) {
-          const { error } = await supabase.from('blog_posts').update(payload).eq('id', postId)
+          let { error } = await supabase.from('blog_posts').update(payload).eq('id', postId)
+          if (error && /schema_faq/i.test(error.message)) {
+            ({ error } = await supabase.from('blog_posts').update(withoutFaq()).eq('id', postId))
+          }
           if (error) throw error
           setSaving(false)
           setDirty(false)
           setSavedAt(true)
           return postId
         } else {
-          const { data: ins, error } = await supabase
+          let { data: ins, error } = await supabase
             .from('blog_posts')
             .insert({ ...payload, site_id: siteId, tenant_id: tenantId })
             .select('id')
             .single()
+          if (error && /schema_faq/i.test(error.message)) {
+            ({ data: ins, error } = await supabase
+              .from('blog_posts')
+              .insert({ ...withoutFaq(), site_id: siteId, tenant_id: tenantId })
+              .select('id')
+              .single())
+          }
           if (error) throw error
           const newId = ins!.id as string
           setPostId(newId)
@@ -208,6 +226,10 @@ export default function PostEditor({
         slug: slugify(json.title ?? d.title),
         content: json.content ?? d.content,
         meta_description: json.meta_description ?? d.meta_description,
+        // a IA de artigo já devolve a FAQ estruturada — aproveita direto
+        faq: Array.isArray(json.schema_faq)
+          ? (json.schema_faq as FaqItem[]).map(f => ({ question: String(f?.question ?? ''), answer: String(f?.answer ?? '') }))
+          : d.faq,
         status: 'review',
       }))
       setDirty(true)
@@ -218,6 +240,34 @@ export default function PostEditor({
     } catch (e) {
       setAiGenerating(false)
       setAiErr(e instanceof Error ? e.message : 'Não consegui gerar agora. Tente de novo.')
+    }
+  }
+
+  // ── Gerar FAQ com IA (a partir do conteúdo do próprio artigo) ──
+  const [faqGenerating, setFaqGenerating] = useState(false)
+  const [faqErr, setFaqErr] = useState<string | null>(null)
+
+  async function generateFaq() {
+    setFaqErr(null)
+    setFaqGenerating(true)
+    // a rota lê o post do banco — garante que o rascunho atual está salvo
+    const id = await persist()
+    if (!id) { setFaqGenerating(false); setFaqErr('Salve o artigo antes (dê um título).'); return }
+    try {
+      const res = await fetch('/api/ai/generate-faq', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ post_id: id }),
+      })
+      const json = await res.json()
+      if (!res.ok || json.error) throw new Error(json.error || 'Falha na geração')
+      const generated = (json.faq as FaqItem[]).map(f => ({ question: String(f.question ?? ''), answer: String(f.answer ?? '') }))
+      // mantém o que o usuário já escreveu; IA completa por baixo
+      patch({ faq: [...data.faq.filter(f => f.question.trim() || f.answer.trim()), ...generated] })
+    } catch (e) {
+      setFaqErr(e instanceof Error ? e.message : 'Não consegui gerar agora. Tente de novo.')
+    } finally {
+      setFaqGenerating(false)
     }
   }
 
@@ -250,8 +300,20 @@ export default function PostEditor({
       .slice(0, 3)
   }, [published, data.title, data.meta_description, data.content])
 
-  // insere `[título](/blog/slug)` na posição do cursor do corpo
-  function insertLink(p: { slug: string; title: string }) {
+  // 1 clique: corpo HTML (gerado pela IA) usa o injectLinks da triangulação —
+  // âncora natural na 1ª menção do assunto, ou bloco "Leia também" no fim.
+  // Corpo markdown/texto do usuário mantém a inserção na posição do cursor.
+  function insertLink(p: { slug: string; title: string; meta: string | null }) {
+    const isHtml = /<(p|h2|h3|ul|ol)\b/i.test(data.content)
+    if (isHtml) {
+      const contentNorm = norm(data.content)
+      const keyword = Array.from(extractKeywords(p.title, p.meta))
+        .sort((a, b) => b.length - a.length)
+        .find(w => contentNorm.includes(w)) ?? null
+      const { content } = injectLinks(data.content, [{ slug: p.slug, anchor: p.title, keyword }])
+      patch({ content })
+      return
+    }
     const ta = bodyRef.current
     const md = `[${p.title}](/blog/${p.slug})`
     if (!ta) { patch({ content: `${data.content}\n\n${md}` }); return }
@@ -260,20 +322,16 @@ export default function PostEditor({
     requestAnimationFrame(() => { ta.focus(); ta.setSelectionRange(s + md.length, s + md.length) })
   }
 
-  // ── Checklist de SEO (calculado de verdade) ──────────────
-  const words = wordCount(data.content)
-  const titleHasKeyword = data.title.trim().length >= 8
-  const checks = [
-    { ok: titleHasKeyword, label: 'Título preenchido' },
-    { ok: data.title.trim().length > 0 && data.title.trim().length <= 60, label: 'Título até 60 caracteres (não corta no Google)' },
-    { ok: data.meta_description.trim().length >= 80 && data.meta_description.trim().length <= 160, label: 'Resumo (meta) entre 80 e 160 caracteres' },
-    { ok: words >= 600, label: `Texto com 600+ palavras (${words})` },
-    { ok: /(<h2|^##\s|\n##\s)/i.test(data.content), label: 'Pelo menos 1 subtítulo (H2)' },
-    { ok: /faq|pergunt/i.test(data.content), label: 'Bloco de FAQ' },
-    { ok: published.length === 0 || hasInternalLink, label: 'Link pra outro artigo do site' },
-  ]
-  const score = Math.round((checks.filter(c => c.ok).length / checks.length) * 100)
-  const scoreLabel = score >= 80 ? 'Bom' : score >= 50 ? 'Regular' : 'Fraco'
+  // ── Checklist de SEO (núcleo compartilhado em lib/seo/score) ──
+  const checks = buildPostSeoChecks({
+    title: data.title,
+    metaDescription: data.meta_description,
+    content: data.content,
+    faq: data.faq,
+    hasLinkTargets: published.length > 0,
+    hasInternalLink,
+  })
+  const { score, label: scoreLabel } = computeSeoScore(checks)
 
   return (
     <>
@@ -295,7 +353,8 @@ export default function PostEditor({
       </div>
 
       <div className="post-grid">
-        {/* documento */}
+        {/* coluna do documento (artigo + FAQ estruturada) */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.4rem', minWidth: 0 }}>
         <article className="glass doc">
           <div className="cover">
             <button className="cover-btn" type="button" disabled title="Capa por artigo ainda não disponível">
@@ -331,6 +390,17 @@ export default function PostEditor({
             />
           </div>
         </article>
+
+        {/* FAQ estruturada — acordeão + FAQPage schema no artigo publicado */}
+        <FaqEditor
+          faq={data.faq}
+          onChange={faq => patch({ faq })}
+          onGenerate={() => { void generateFaq() }}
+          generating={faqGenerating}
+          canGenerate={wordCount(data.content) >= 50}
+          genErr={faqErr}
+        />
+        </div>
 
         {/* sidebar */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.4rem' }}>

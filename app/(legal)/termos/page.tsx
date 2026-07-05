@@ -21,8 +21,8 @@ export default function TermosPage() {
 
       <p>
         Estes Termos de Uso regem o acesso e o uso da plataforma <strong>ANCOREO</strong>
-        (&ldquo;plataforma&rdquo;, &ldquo;serviço&rdquo;), operada por{' '}
-        <Fill>[RAZÃO SOCIAL DA EMPRESA]</Fill>, CNPJ <Fill>[CNPJ]</Fill> (&ldquo;ANCOREO&rdquo;,
+        (&ldquo;plataforma&rdquo;, &ldquo;serviço&rdquo;), operada pela <strong>ANCOREO</strong>{' '}
+        (<Fill>razão social e CNPJ em atualização durante o beta</Fill>) (&ldquo;ANCOREO&rdquo;,
         &ldquo;nós&rdquo;). Ao criar uma conta ou usar o serviço, você concorda com estes Termos e com
         a nossa{' '}
         <Link href="/privacidade">Política de Privacidade</Link>. Se não concordar, não use a plataforma.
@@ -160,9 +160,8 @@ export default function TermosPage() {
 
       <h2 id="foro">12. Lei aplicável e foro</h2>
       <p>
-        Estes Termos são regidos pelas leis do Brasil. Fica eleito o foro da comarca de{' '}
-        <Fill>[CIDADE/UF]</Fill> para dirimir eventuais conflitos, salvo direito do consumidor de optar
-        pelo foro do seu domicílio.
+        Estes Termos são regidos pelas leis do Brasil. Fica eleito o foro do domicílio do
+        consumidor para dirimir eventuais conflitos.
       </p>
 
       <h2 id="contato">13. Contato</h2>
@@ -170,11 +169,6 @@ export default function TermosPage() {
         Dúvidas sobre estes Termos? Fale com a gente em <Fill>contato@ancoreo.com.br</Fill>.
       </p>
 
-      <div className="legal__note">
-        <strong>Nota interna (remover antes do lançamento):</strong> os trechos destacados em amarelo
-        precisam ser preenchidos com os dados reais da empresa. Veja a lista no final da conversa com o
-        Claude.
-      </div>
     </>
   )
 }

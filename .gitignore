@@ -49,3 +49,7 @@ playwright-report/
 test-results/
 .next-dev.log
 docs/_backups/
+
+# código legado / mockups — NÃO deployar (render antigo de blog sem sanitize)
+/app_backup/
+/_mockups/

@@ -13,7 +13,7 @@ O Cássio já foi obrigado a repetir coisas porque eu (Claude) afirmei pendênci
 > **Verificar > Afirmar.** Nunca diga "falta X" ou "X está pronto" nem peça uma ação ao Cássio sem antes confirmar no git, no banco ao vivo e no build. A memória envelhece; o banco e o git, não.
 
 ## Fatos fixos (não re-perguntar)
-- **Pasta (raiz do projeto):** `C:\Users\cassio\Desktop\ANCOREO` (abrir o Claude AQUI) · **Repo:** github.com/CassioBranco/HARP.IA · **Deploy:** Vercel (branch `master`)
+- **Pasta (raiz do projeto):** `C:\Users\cassio\Documents\ancoreo` (abrir o Claude AQUI) · **Repo:** github.com/CassioBranco/HARP.IA · **Deploy:** Vercel (branch `master`)
 - **Supabase project_id:** `yejjeiveqgkgrtcettkl`
 - **Nome oficial:** ANCOREO (codinome = marca = identidade). NÃO é Ancoreo.
 - **`ANTHROPIC_API_KEY`** já existe no `.env.local`. NÃO dizer que falta. (Confirmar só se está no Vercel de produção.)

@@ -77,4 +77,19 @@
 - **Cargo:** Front/Design (Claude) · deploy só com OK do Cássio (D14)
 
 ## 📌 Próxima ação do Scrum Master
-Beta no ar (commit `8629993`). S03 (páginas legais) + S04 (banner de consentimento) **codados e verdes** — falta (1) Cássio preencher os dados da empresa nos trechos em amarelo das páginas legais e (2) OK pra deploy. Depois disso a camada legal LGPD da beta fecha por completo.
+**Auditoria do fluxo do assinante de ponta a ponta** (cadastro → onboarding →
+gerar site → publicar → loja/checkout), só leitura, sem tocar em nada — pra
+dizer com fato o que funciona / o que quebra / o que falta pro MVP fechar. É o
+que destrava a decisão "pago já vs beta grátis" (D25). **Fonte de contexto
+completa: `ESTADO-MVP.md` (leia-me primeiro).**
+
+Pendências que continuam abertas em paralelo:
+- **E-commerce agora é MVP** (D21) → loja do cliente (Connect + validar
+  assinatura do webhook + `MERCADOPAGO_ACCESS_TOKEN`) + assinatura nossa.
+- **Segurança:** sanitizador de HTML do blog (achado NV6) — Claude faz.
+- **Legal (S03/S04):** Cássio preenche dados da empresa + OK pra deploy do banner.
+- **Fila noturna NV1–NV6 + landing v2 = local, não deployado**; migrations
+  escritas e não aplicadas (ver `ESTADO-MVP.md` §3). Deploy só com OK (D14).
+
+> Beta no ar (commit `8629993`). S03/S04 codados e verdes — falta Cássio
+> preencher dados da empresa nas páginas legais e dar OK pra deploy.

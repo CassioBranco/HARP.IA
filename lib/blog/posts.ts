@@ -12,6 +12,9 @@ export type PublishedPost = {
   schema_faq: { question: string; answer: string }[] | null
   published_at: string | null
   site_id: string
+  /** Colunas de migrations ainda não aplicadas — podem não existir no banco. */
+  cover_image: string | null
+  updated_at: string | null
 }
 
 export type PostListItem = {
@@ -25,14 +28,29 @@ export async function getPublishedPostBySlug(domain: string, slug: string): Prom
   const siteId = await publishedSiteId(domain)
   if (!siteId) return null
   const admin = createAdminClient()
+  // select('*') tolera colunas de migrations não aplicadas (cover_image,
+  // updated_at): listar coluna ausente erraria a query inteira.
   const { data } = await admin
     .from('blog_posts')
-    .select('id, title, slug, content, meta_description, schema_faq, published_at, site_id')
+    .select('*')
     .eq('site_id', siteId)
     .eq('slug', slug)
     .eq('status', 'published')
     .maybeSingle()
-  return (data as PublishedPost | null) ?? null
+  if (!data) return null
+  const r = data as Record<string, unknown>
+  return {
+    id: r.id as string,
+    title: (r.title as string) ?? '',
+    slug: (r.slug as string) ?? '',
+    content: (r.content as string | null) ?? null,
+    meta_description: (r.meta_description as string | null) ?? null,
+    schema_faq: Array.isArray(r.schema_faq) ? (r.schema_faq as PublishedPost['schema_faq']) : null,
+    published_at: (r.published_at as string | null) ?? null,
+    site_id: r.site_id as string,
+    cover_image: typeof r.cover_image === 'string' ? r.cover_image : null,
+    updated_at: typeof r.updated_at === 'string' ? r.updated_at : null,
+  }
 }
 
 export async function getPublishedPostsByDomain(domain: string): Promise<PostListItem[]> {

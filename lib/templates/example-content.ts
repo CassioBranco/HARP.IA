@@ -83,6 +83,14 @@ export type SiteContent = {
   // Google Perfil de Empresa (Maps / Business Profile) — alimenta schema + botões
   gbpLink?: string
   gbpPlaceId?: string
+  // Agendamento (BookingWidget): preenchidos pelo buildSiteContent a partir
+  // de sites.id + sites.booking_enabled. O widget precisa do siteId pra
+  // postar a solicitação em /api/booking. Conteúdo de exemplo não usa.
+  siteId?: string
+  bookingEnabled?: boolean
+  // Captura de leads (LeadCaptureBar): faixa inline no fim da página quando
+  // sites.leads_enabled = true. A barra posta em /api/leads usando o siteId.
+  leadsEnabled?: boolean
 }
 
 // Imagens placeholder — picsum com seeds fixos por categoria

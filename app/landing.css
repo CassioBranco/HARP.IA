@@ -110,6 +110,42 @@
 .anc .postmark b{font-family:var(--font-display),'Fraunces',serif;font-size:2.1rem;font-weight:640;line-height:1}
 .anc .coord{position:absolute;bottom:-2rem;right:.2rem;font-size:.62rem;color:var(--ink-faint)}
 
+/* ── sonar de visibilidade (hero) ── */
+.anc .window{position:relative;z-index:2}
+.anc .radar{position:absolute;left:-2.5rem;top:50%;transform:translateY(-50%);width:340px;height:340px;z-index:0;pointer-events:none;display:grid;place-items:center}
+.anc .radar-ring{position:absolute;inset:0;margin:auto;width:96px;height:96px;border:2px solid var(--red);border-radius:50%;opacity:0;animation:ancSonar 3.4s ease-out infinite}
+.anc .radar-ring:nth-child(2){animation-delay:1.13s}
+.anc .radar-ring:nth-child(3){animation-delay:2.26s}
+.anc .radar-core{position:relative;z-index:1;width:58px;height:58px;border-radius:50%;display:grid;place-items:center;
+  background:var(--ink);color:var(--paper);border:2px solid var(--ink);box-shadow:3px 3px 0 rgba(10,34,57,.22);font-size:1.5rem}
+@keyframes ancSonar{0%{transform:scale(.35);opacity:.5}80%{opacity:0}100%{transform:scale(3.4);opacity:0}}
+
+/* ── cards flutuantes dos motores (hero) ── */
+.anc .ai-pill{position:absolute;z-index:3;display:flex;align-items:center;gap:.55rem;background:var(--white);
+  border:1.5px solid var(--ink);border-radius:13px;padding:.5rem .75rem;box-shadow:3px 3px 0 rgba(10,34,57,.15);
+  animation:ancFloat 5s ease-in-out infinite}
+.anc .ai-pill img{width:22px;height:22px;flex:none}
+.anc .ai-pill b{display:block;font-family:var(--font-heading),'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:.74rem;line-height:1.15;color:var(--ink)}
+.anc .ai-pill span{display:block;font-family:var(--font-mono),monospace;font-size:.5rem;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-faint)}
+.anc .ai-pill--google{top:-1.1rem;right:-1.2rem;animation-delay:0s}
+.anc .ai-pill--chatgpt{top:22%;right:-2rem;animation-delay:.7s}
+.anc .ai-pill--gemini{top:50%;right:-1.4rem;animation-delay:1.4s}
+.anc .ai-pill--perplexity{bottom:-.8rem;right:14%;animation-delay:2.1s}
+@keyframes ancFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+.dark .anc .ai-pill{box-shadow:3px 3px 0 rgba(0,0,0,.45)}
+.dark .anc .radar-core{box-shadow:3px 3px 0 rgba(0,0,0,.4)}
+@media(prefers-reduced-motion:reduce){
+  .anc .radar-ring{animation:none;opacity:.12;transform:scale(1.6)}
+  .anc .ai-pill{animation:none}
+}
+@media(max-width:960px){
+  .anc .radar{width:240px;height:240px;left:0}
+  .anc .ai-pill--google{right:-.4rem}
+  .anc .ai-pill--chatgpt{right:-.4rem}
+  .anc .ai-pill--gemini{right:-.2rem}
+  .anc .ai-pill--perplexity{right:8%}
+}
+
 /* ── letreiro de rumo ── */
 .anc .marquee{overflow:hidden;background:var(--red);border-bottom:2px solid var(--ink);padding:.55rem 0}
 .anc .marquee-track{display:flex;width:max-content;animation:ancMarquee 30s linear infinite}
@@ -121,7 +157,9 @@
 
 /* ── números de bordo ── */
 .anc .stats{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:2px solid var(--ink);margin-top:0}
-.anc .stat{padding:2rem 1.4rem;display:flex;flex-direction:column;gap:.45rem;border-left:1.5px dashed var(--line)}
+.anc .stat{padding:2rem 1.4rem;display:flex;align-items:center;gap:.9rem;border-left:1.5px dashed var(--line)}
+.anc .stat i{font-size:1.9rem;color:var(--red);flex:none}
+.anc .stat>div{display:flex;flex-direction:column;gap:.35rem;min-width:0}
 .anc .stat:first-child{border-left:0}
 .anc .stat b{font-family:var(--font-display),'Fraunces',serif;font-weight:620;font-size:clamp(1.7rem,2.8vw,2.3rem);line-height:1}
 .anc .stat .mono{font-size:.62rem;color:var(--ink-faint)}
@@ -143,6 +181,22 @@
 .anc .manifest h3{font-size:1.4rem;font-weight:620;margin:0 0 .5rem}
 .anc .manifest p{color:var(--ink-soft);font-size:.98rem;line-height:1.6;margin:0;max-width:34rem}
 
+/* ── mapa da rota (três passos, banda navy) ── */
+.anc .deep--route .route{list-style:none;margin:2.6rem 0 0;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:1.6rem;position:relative}
+.anc .deep--route .route::before{content:'';position:absolute;top:27px;left:9%;right:9%;height:2px;background:repeating-linear-gradient(90deg,rgba(247,244,237,.42) 0 7px,transparent 7px 15px)}
+.anc .route li{position:relative;text-align:center;padding:0 .6rem}
+.anc .route-num{display:inline-grid;place-items:center;width:56px;height:56px;border-radius:50%;background:var(--red);color:#fff;font-family:var(--font-display),'Fraunces',serif;font-weight:640;font-size:1.45rem;box-shadow:0 0 0 7px var(--ink);position:relative;z-index:1;margin-bottom:1.2rem}
+.anc .route li h3{color:var(--paper);font-size:1.24rem;font-weight:620;margin:0 0 .5rem}
+.anc .route li p{color:#B8C5D4;font-size:.95rem;line-height:1.6;margin:0 auto;max-width:21rem}
+.anc .route-boat{position:absolute;top:6px;left:9%;font-size:1.55rem;color:#FFD79E;animation:ancSail 9s ease-in-out infinite;z-index:2;pointer-events:none}
+@keyframes ancSail{0%,100%{left:9%}50%{left:86%}}
+.dark .anc .route-num{box-shadow:0 0 0 7px #061527}
+@media(prefers-reduced-motion:reduce){.anc .route-boat{display:none}}
+@media(max-width:760px){
+  .anc .deep--route .route{grid-template-columns:1fr;gap:2.2rem}
+  .anc .deep--route .route::before,.anc .route-boat{display:none}
+}
+
 /* ── banda navy noturna (pilares) ── */
 .anc .deep{background:var(--ink);color:var(--paper);position:relative;padding:5.5rem 0 6rem}
 .anc .deep::before,.anc .deep::after{content:'';position:absolute;left:0;right:0;height:12px}
@@ -161,6 +215,34 @@
 .anc .pillar h3{color:var(--paper);font-size:1.3rem;font-weight:620;margin:0 0 .55rem}
 .anc .pillar p{color:#B8C5D4;font-size:.94rem;line-height:1.6;margin:0}
 
+/* ── centro de visibilidade: farol + pilares (v2) ── */
+.anc .deep-grid{display:grid;grid-template-columns:.82fr 1.18fr;gap:2.6rem;align-items:center;margin-top:.5rem}
+.anc .deep-photo{margin:0;position:relative}
+.anc .deep-photo img{width:100%;max-height:540px;object-fit:cover;border-radius:16px;border:1.5px solid rgba(247,244,237,.3);box-shadow:8px 8px 0 rgba(0,0,0,.28);display:block}
+.anc .deep-photo figcaption{position:absolute;left:1rem;bottom:1rem;display:inline-flex;align-items:center;gap:.5rem;font-size:.6rem;color:var(--paper);background:rgba(6,21,39,.72);border:1px solid rgba(247,244,237,.28);border-radius:999px;padding:.4rem .8rem;backdrop-filter:blur(4px)}
+.anc .deep-photo figcaption i{color:#FFD79E}
+.anc .deep-grid .pillars{display:flex;flex-direction:column;gap:1rem}
+.anc .deep-grid .pillar{display:flex;align-items:flex-start;gap:1.1rem;padding:1.35rem 1.5rem;transition:transform .12s ease,border-color .12s ease}
+.anc .deep-grid .pillar:hover{transform:translateX(4px);border-color:rgba(247,244,237,.5)}
+.anc .p-ico{flex:none;width:52px;height:52px;border-radius:13px;display:grid;place-items:center;font-size:1.5rem;border:1.5px solid currentColor}
+.anc .p-body{min-width:0}
+.anc .p-tag{display:block;font-size:.58rem;letter-spacing:.06em;margin-bottom:.4rem;opacity:.95}
+.anc .deep-grid .pillar h3{margin:0 0 .35rem;font-size:1.16rem;color:var(--paper)}
+.anc .deep-grid .pillar p{margin:0 0 .7rem}
+.anc .p-link{display:inline-flex;align-items:center;gap:.4rem;font-size:.62rem;font-weight:600}
+.anc .p-link i{transition:transform .15s ease}
+.anc .deep-grid .pillar:hover .p-link i{transform:translateX(3px)}
+.anc .pillar--seo{--pc:#3BC9B0}
+.anc .pillar--geo{--pc:#FF6B7D}
+.anc .pillar--aeo{--pc:#6BA8FF}
+.anc .pillar--seo .p-ico,.anc .pillar--geo .p-ico,.anc .pillar--aeo .p-ico{color:var(--pc);background:color-mix(in srgb,var(--pc) 13%,transparent)}
+.anc .pillar--seo .p-tag,.anc .pillar--geo .p-tag,.anc .pillar--aeo .p-tag,
+.anc .pillar--seo .p-link,.anc .pillar--geo .p-link,.anc .pillar--aeo .p-link{color:var(--pc)}
+@media(max-width:960px){
+  .anc .deep-grid{grid-template-columns:1fr;gap:1.6rem}
+  .anc .deep-photo img{max-height:340px}
+}
+
 /* ── modelos ── */
 .anc .models{display:grid;grid-template-columns:repeat(4,1fr);gap:1.3rem}
 .anc .model{background:var(--white);border:2px solid var(--ink);border-radius:10px;overflow:hidden;box-shadow:var(--hard);transition:transform .12s ease,box-shadow .12s ease}
@@ -174,6 +256,27 @@
 .anc .note{background:var(--white);border:2px solid var(--ink);border-radius:10px;padding:1.4rem 1.5rem;box-shadow:var(--hard)}
 .anc .note header{font-size:.62rem;color:var(--red);font-weight:600;padding-bottom:.8rem;margin-bottom:.9rem;border-bottom:1.5px dashed var(--line)}
 .anc .note p{margin:0;font-size:.95rem;line-height:1.62;color:var(--ink-soft)}
+
+/* ── IA cita você (GEO em ação) ── */
+.anc .cite-card{background:var(--white);border:2px solid var(--ink);border-radius:14px;box-shadow:var(--hard);padding:2rem 2.2rem;max-width:640px;margin:0 auto}
+.anc .cite-q{display:flex;gap:.7rem;align-items:flex-start;margin-bottom:1.1rem;padding-bottom:1.1rem;border-bottom:1.5px dashed var(--line)}
+.anc .cite-q i{font-size:1.25rem;color:var(--ink-faint);margin-top:.15rem}
+.anc .cite-q p{margin:0;font-size:1.02rem;color:var(--ink-soft);font-style:italic}
+.anc .cite-a{display:flex;gap:.7rem;align-items:flex-start}
+.anc .cite-a i{font-size:1.25rem;color:var(--red);margin-top:.15rem}
+.anc .cite-a p{margin:0 0 1rem;font-size:.96rem;line-height:1.65;color:var(--ink)}
+.anc .cite-a b{background:rgba(215,38,61,.12);padding:.05rem .3rem;border-radius:4px}
+.anc .cite-platforms{display:flex;flex-wrap:wrap;gap:.5rem;padding-left:1.95rem}
+.anc .cite-platforms span{display:inline-flex;align-items:center;gap:.4rem;font-size:.62rem;letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--line);border-radius:999px;padding:.32rem .75rem .32rem .55rem;color:var(--ink-faint)}
+.anc .cite-platforms img{width:16px;height:16px;flex:none}
+
+/* ── curva de crescimento ── */
+.anc .growth{display:flex;align-items:flex-end;gap:1.2rem;justify-content:center;flex-wrap:wrap}
+.anc .gcol{display:flex;flex-direction:column;align-items:center;gap:.55rem;flex:1;max-width:92px}
+.anc .gbar{width:100%;background:linear-gradient(180deg,var(--red),#8f1522);border:1.5px solid var(--ink);border-radius:6px 6px 0 0}
+.anc .gcol b{font-size:.8rem;font-family:var(--font-mono),monospace;color:var(--ink)}
+.anc .gcol span{font-size:.6rem;color:var(--ink-faint);letter-spacing:.05em;text-transform:uppercase}
+.anc .growth-note{text-align:center;font-size:.62rem;color:var(--ink-faint);margin-top:1.4rem}
 
 /* ── planos (bilhetes de embarque) ── */
 .anc .plans{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;align-items:stretch}
@@ -209,6 +312,19 @@
 .anc .beacon .btn{position:relative}
 .anc .beacon .btn.red{border-color:var(--paper);box-shadow:5px 5px 0 rgba(247,244,237,.35)}
 .anc .beacon .btn.red:hover{box-shadow:7px 7px 0 rgba(247,244,237,.35)}
+/* CTA com foto de farol gerada (Nano Banana) */
+.anc .beacon--photo{padding:0;overflow:hidden}
+.anc .beacon--photo::before{display:none}
+.anc .beacon-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center right;z-index:0}
+.anc .beacon--photo::after{content:'';position:absolute;inset:0;z-index:1;
+  background:linear-gradient(90deg,rgba(6,21,39,.94),rgba(6,21,39,.74) 42%,rgba(6,21,39,.26) 78%,rgba(6,21,39,.1))}
+.anc .beacon-in{position:relative;z-index:2;padding:4.6rem 3rem;max-width:33rem;text-align:left}
+.anc .beacon-in .eyebrow{color:#FFD79E}
+.anc .beacon-in .eyebrow::before{background:#FFD79E}
+@media(max-width:960px){
+  .anc .beacon-in{padding:3rem 1.6rem;max-width:100%}
+  .anc .beacon--photo::after{background:linear-gradient(180deg,rgba(6,21,39,.66),rgba(6,21,39,.92))}
+}
 
 /* ── rodapé (casco) ── */
 .anc .foot{background:var(--ink);color:#B8C5D4;position:relative}

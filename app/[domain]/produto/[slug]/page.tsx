@@ -7,6 +7,7 @@ import { getPublishedProductBySlug, getLojaModo } from '@/lib/ecommerce/products
 import { buildProductJsonLd, buildProductFaqJsonLd } from '@/lib/ecommerce/product-jsonld'
 import SiteShell from '@/components/site/SiteShell'
 import ProductDetail from '@/components/store/ProductDetail'
+import { jsonLdScript } from '@/lib/seo/jsonld'
 
 // Página de produto (PDP) pública. Esqueleto de loja (StoreShell) + JSON-LD
 // Product/Offer/FAQ. O visual veste a paleta/fonte do template do cliente.
@@ -59,9 +60,9 @@ export default async function ProductPage({ params }: Props) {
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(jsonLd) }} />
       {faqJsonLd && (
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(faqJsonLd) }} />
       )}
       <SiteShell
         palette={built.palette}

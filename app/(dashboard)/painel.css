@@ -315,6 +315,15 @@
 .painel-shell .soon p{font-size:.78rem;max-width:22rem;line-height:1.5;margin:0}
 .painel-shell .metric-loading{text-align:center;color:var(--muted);padding:2rem}
 
+/* link de ação inline (mesmo vocabulário do onboarding, escopado no painel) */
+.painel-shell .diag-link{display:inline-flex;align-items:center;gap:.3rem;font-family:inherit;color:var(--navy);background:none;border:0;padding:0;margin-top:.35rem;cursor:pointer;font-weight:600;text-decoration:none}
+.painel-shell .diag-link:hover{text-decoration:underline}
+
+/* checkbox de conferência guiada (presença local) — quadrado token-based */
+.painel-shell .pchk{position:relative;width:28px;height:28px;border-radius:7px;display:grid;place-items:center;font-size:1rem;flex-shrink:0;border:1px solid var(--line);background:hsl(var(--muted) / .5);color:var(--muted2);transition:all .15s}
+.painel-shell .pchk[data-on]{background:rgba(34,197,94,.14);border-color:rgba(34,197,94,.3);color:#15803d}
+.dark .painel-shell .pchk[data-on]{color:#86efac}
+
 /* banner crítico: Perfil do Google não conectado */
 .painel-shell .gpe-banner{display:flex;align-items:center;gap:.7rem;margin:0 0 1.4rem;padding:.85rem 1.05rem;border-radius:12px;background:hsl(var(--destructive) / .08);border:1px solid hsl(var(--destructive) / .4);color:var(--ink);font-size:.88rem;line-height:1.45}
 .painel-shell .gpe-banner > i{color:hsl(var(--destructive));font-size:1.25rem;flex:none}
@@ -323,6 +332,22 @@
 .painel-shell .gpe-banner-cta{flex:none;font-family:var(--font-mono),monospace;font-weight:600;font-size:.68rem;text-transform:uppercase;letter-spacing:.04em;color:#fff;background:hsl(var(--destructive));padding:.5rem .85rem;border-radius:8px;text-decoration:none;white-space:nowrap}
 .painel-shell .gpe-banner-cta:hover{filter:brightness(1.1)}
 @media (max-width:640px){.painel-shell .gpe-banner{flex-wrap:wrap}}
+
+/* ── Banner de cadência do Google (GBP) ── */
+.painel-shell .gbp-cadence{display:flex;align-items:center;gap:.9rem;padding:.85rem 1.05rem;border-radius:12px;margin-bottom:1.4rem;background:var(--surf);border:1px solid var(--line);line-height:1.45}
+.painel-shell .gbp-cadence p{margin:0;font-size:.86rem;color:var(--ink)}
+.painel-shell .gbp-cadence .ic{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;font-size:1.2rem;flex-shrink:0}
+.painel-shell .gbp-cadence .btn{flex-shrink:0}
+.painel-shell .gbp-cadence.ok{background:rgba(34,197,94,.08);border-color:rgba(34,197,94,.3)}
+.painel-shell .gbp-cadence.ok .ic{background:rgba(34,197,94,.14);color:#15803d}
+.dark .painel-shell .gbp-cadence.ok .ic{color:#86efac}
+.painel-shell .gbp-cadence.start .ic{background:hsl(var(--muted));color:var(--navy)}
+.painel-shell .gbp-cadence.due{background:rgba(245,163,10,.08);border-color:rgba(245,163,10,.32)}
+.painel-shell .gbp-cadence.due .ic{background:rgba(245,163,10,.16);color:#b45309}
+.dark .painel-shell .gbp-cadence.due .ic{color:#fcd581}
+.painel-shell .gbp-cadence.warn{background:hsl(var(--destructive) / .07);border-color:hsl(var(--destructive) / .35)}
+.painel-shell .gbp-cadence.warn .ic{background:hsl(var(--destructive) / .12);color:hsl(var(--destructive))}
+@media(max-width:640px){.painel-shell .gbp-cadence{flex-wrap:wrap}.painel-shell .gbp-cadence .btn{margin-left:auto}}
 
 /* ── Calendário de postagens ── */
 .painel-shell .cal-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1rem;flex-wrap:wrap}

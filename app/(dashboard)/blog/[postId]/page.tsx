@@ -46,23 +46,28 @@ export default async function PostEditorPage({ params }: { params: { postId: str
     slug: '',
     content: '',
     meta_description: '',
+    faq: [],
     status: 'draft',
   }
 
   if (!isNew) {
+    // select('*') tolera coluna ausente (schema_faq em banco parcial):
+    // listar coluna que não existe derrubaria a query e o editor inteiro.
     const { data: row } = await supabase
       .from('blog_posts')
-      .select('id, title, slug, content, meta_description, status, site_id')
+      .select('*')
       .eq('id', params.postId)
       .maybeSingle()
     // Garante que o post é do site do tenant (RLS já protege, mas reforçamos)
     if (!row || row.site_id !== siteId) notFound()
+    const faqRaw = Array.isArray(row.schema_faq) ? (row.schema_faq as { question?: unknown; answer?: unknown }[]) : []
     post = {
       id: row.id,
       title: row.title ?? '',
       slug: row.slug ?? '',
       content: row.content ?? '',
       meta_description: row.meta_description ?? '',
+      faq: faqRaw.map(f => ({ question: String(f?.question ?? ''), answer: String(f?.answer ?? '') })),
       status: (row.status as PostEditorData['status']) ?? 'draft',
     }
   }

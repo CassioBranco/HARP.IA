@@ -82,7 +82,7 @@ export default function BrandPanel({ siteId }: { siteId: string }) {
 
   return (
     <>
-      <p className="ed-hint">A logo aparece no topo do site e vira o favicon (ícone da aba). As redes viram botões flutuantes no site.</p>
+      <p className="ed-hint">A logo aparece no topo do site e vira o favicon (ícone da aba). As redes viram botões flutuantes no site — o WhatsApp também alimenta o balão de chat com as perguntas frequentes.</p>
 
       {/* ── LOGO ── */}
       <p className="ed-cap">Logo do negócio</p>

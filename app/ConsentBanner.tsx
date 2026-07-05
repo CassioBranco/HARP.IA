@@ -69,7 +69,7 @@ export default function ConsentBanner() {
       </p>
       <div className="aco-consent__actions">
         <button type="button" className="aco-consent__btn aco-consent__btn--no" onClick={refuse}>
-          Não quero ser rastreado
+          Não, obrigado
         </button>
         <button type="button" className="aco-consent__btn aco-consent__btn--ok" onClick={accept}>
           Entendi

@@ -11,7 +11,7 @@ O Cássio se perde porque a linha de trabalho do projeto vive espalhada (git, de
 > **Regra de ouro: a verdade é git + banco + deploy, não doc velho.** Sempre verificar antes de afirmar "pronto" ou "falta".
 
 ## Fatos fixos (não re-perguntar)
-- Pasta (raiz do projeto): `C:\Users\cassio\Desktop\ANCOREO` (abrir o Claude AQUI) · Repo: github.com/CassioBranco/HARP.IA · Deploy: Vercel (branch `master`).
+- Pasta (raiz do projeto): `C:\Users\cassio\Documents\ancoreo` (abrir o Claude AQUI) · Repo: github.com/CassioBranco/HARP.IA · Deploy: Vercel (branch `master`).
 - Supabase project_id: `yejjeiveqgkgrtcettkl`. Vercel project: `harp-ia` (team `team_H8QyXN4nNTPeBb84zNdfsnvB`).
 - Marca final: **ANCOREO**. Legado de infra que AINDA usa "harp-ia" e só troca com ação externa (gate S13 do DNS): repo `HARP.IA`, deploy `harp-ia.vercel.app`, domínio `harpia.site`.
 - Doc-âncora: **`docs/CRONOGRAMA.md`** — fonte da verdade do cronograma. Trello/STATUS-PROJETO antigos = aposentados.

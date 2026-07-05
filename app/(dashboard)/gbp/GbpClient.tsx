@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import { gbpCadence } from '@/lib/seo/local-presence'
 
 export type GbpPostRow = {
   id: string
@@ -37,6 +38,16 @@ export default function GbpClient({
   const [err, setErr] = useState('')
   const [copiedId, setCopiedId] = useState<string | null>(null)
 
+  // Cadência: há quanto tempo o dono não posta (sobre os posts já gerados).
+  const cadence = gbpCadence(posts.map(p => p.created_at))
+  const genRef = useRef<HTMLDivElement | null>(null)
+  function focusGenerator() {
+    const el = genRef.current
+    if (!el) return
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    el.querySelector<HTMLInputElement>('input.field')?.focus()
+  }
+
   async function generate() {
     if (!siteId) { setErr('Crie e publique um site primeiro.'); return }
     setGen(true); setErr('')
@@ -65,8 +76,31 @@ export default function GbpClient({
     } catch { /* clipboard bloqueado */ }
   }
 
+  const cadenceTone =
+    cadence.status === 'overdue' ? 'warn'
+    : cadence.status === 'due' ? 'due'
+    : cadence.status === 'never' ? 'start'
+    : 'ok'
+
   return (
     <>
+      {/* banner de cadência: há quanto tempo não posta no Google */}
+      <div className={`gbp-cadence ${cadenceTone}`}>
+        <span className="ic">
+          <i className={`ph-fill ${
+            cadence.status === 'ok' ? 'ph-check-circle'
+            : cadence.status === 'never' ? 'ph-rocket-launch'
+            : 'ph-clock-countdown'
+          }`} />
+        </span>
+        <p style={{ flex: 1, minWidth: 0 }}>{cadence.message}</p>
+        {cadence.status !== 'ok' && (
+          <button type="button" className="btn sm" onClick={focusGenerator}>
+            <i className="ph-fill ph-sparkle" /> Gerar post agora
+          </button>
+        )}
+      </div>
+
       {/* aviso se o perfil não estiver vinculado */}
       {!gpeConnected && (
         <div className="ai-banner" style={{ borderColor: 'rgba(245,163,10,.4)' }}>
@@ -79,7 +113,7 @@ export default function GbpClient({
       )}
 
       {/* gerador */}
-      <div className="ai-banner">
+      <div className="ai-banner" ref={genRef}>
         <span className="ic"><i className="ph-fill ph-magic-wand" /></span>
         <div style={{ flex: 1, minWidth: 0 }}>
           <b>Deixe a IA escrever seu post do Google</b>

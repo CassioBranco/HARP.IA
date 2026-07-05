@@ -47,3 +47,12 @@ Formato: `D## — Decisão — data — motivo curto`
 ### Marca
 
 - **D16 — Nome do projeto: ANCOREO** (era HARPIA/harp-ia). Banco já limpo; falta renomear projeto no painel Vercel + Supabase e ajustar refs `harp-ia.vercel.app` no código.
+
+### MVP, custos & IA (fase de fechamento)
+
+- **D21 — E-commerce ENTRA no MVP.** — 2026-07-04 — decisão do Cássio, emenda a posição antiga ("checkout = pós-MVP"). Foco SEO/GEO/AEO segue soberano (a loja só vale se for a que mais aparece na busca). Consequência: **pagamentos agora são MVP** — loja do cliente (Connect + webhook assinado) + assinatura nossa.
+- **D22 — IA custo-benefício, model-agnostic.** — 2026-07-04 — **Haiku 4.5 primário** (US$1/5), **Sonnet 4.6 backup/qualidade** (US$3/15). Trocar de modelo = 1 parâmetro; TODOS os agentes na MESMA skill/pipeline/parâmetros pra uniformidade absoluta. ⚠️ **Fable 5 é o MAIS caro** (US$10/50) — nunca em geração em massa. Alavancas: cache de prompt (-90% input cacheado) + batch (-50%). Custos detalhados em `CUSTOS-E-PLANOS.md`.
+- **D23 — service_role key do Supabase ROTACIONADA.** — 2026-07-04 — feito pelo Cássio. O aviso "rotacionar antes de produção" está resolvido; o Claude não tem a key antiga e não deve procurá-la.
+- **D24 — Front-end despriorizado até o MVP fechar.** — 2026-07-04 — a landing v2 (`app/page.tsx` + `app/landing.css` + imagens de farol em `public/img/`) fica parada como base de front futura. Não investir mais nela até o MVP estar ok.
+- **D25 — Decidir "pago já vs beta grátis" só DEPOIS da auditoria de fluxo.** — 2026-07-04 — a escolha do modelo de lançamento (gate do billing, Q1) depende de saber se o fluxo cadastro→onboarding→gerar→publicar→loja funciona. Próxima ação = auditoria ponta-a-ponta (só leitura). Ver `ESTADO-MVP.md` §0.
+- **D26 — Planos: 4 níveis (Inicial · Médio · Avançado · E-commerce).** — 2026-07-04 — Médio = **volume + alcance** (mais artigos + auto-blog semanal + Parcerias/backlinks + GBP completo). E-commerce = **taxa pequena por venda** (add-on ligável em qualquer plano). Métrica de valor = por site + volume de conteúdo/gerações de IA (alinha preço ao custo). **Valores NÃO definidos** — decisão final do Cássio depois de travar cotações e teto de IA por faixa. Esqueleto em `CUSTOS-E-PLANOS.md`.

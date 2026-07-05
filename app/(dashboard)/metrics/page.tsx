@@ -24,16 +24,18 @@ export default async function MetricsPage() {
 
   let siteId = ''
   let domain = ''
+  let siteStatus = ''
   if (tenantId) {
     const { data: site } = await supabase
       .from('sites')
-      .select('id, domain')
+      .select('id, domain, status')
       .eq('tenant_id', tenantId)
       .order('created_at', { ascending: false })
       .limit(1)
       .maybeSingle()
     siteId = site?.id ?? ''
     domain = site?.domain ?? ''
+    siteStatus = (site?.status as string) ?? ''
   }
 
   if (!siteId) {
@@ -62,5 +64,72 @@ export default async function MetricsPage() {
     published_at: (p.published_at as string | null) ?? null,
   }))
 
-  return <MetricsView siteId={siteId} domain={domain || 'seu site'} posts={posts} />
+  // ── Presença local + sitemap (tolerante a coluna/tabela ausente) ──
+  // Perfil de negócio (gpe + campos disponíveis). Nunca deixa a página 500:
+  // qualquer erro/coluna faltando vira campo vazio.
+  let gpeModo = ''
+  let gpeLink = ''
+  let businessName = ''
+  let city = ''
+  try {
+    const { data: prof } = await supabase
+      .from('onboarding_profiles')
+      .select('gpe_modo, gpe_link, business_name, city')
+      .eq('site_id', siteId)
+      .maybeSingle()
+    gpeModo = (prof?.gpe_modo as string) ?? ''
+    gpeLink = (prof?.gpe_link as string) ?? ''
+    businessName = (prof?.business_name as string) ?? ''
+    city = (prof?.city as string) ?? ''
+  } catch { /* coluna/tabela ausente — degrada pra vazio */ }
+
+  // Datas dos posts do Google (alimenta cadência + item "post nos últimos 14d").
+  let gbpPostDates: string[] = []
+  try {
+    const { data: gbpRows } = await supabase
+      .from('gbp_posts')
+      .select('created_at')
+      .eq('site_id', siteId)
+      .order('created_at', { ascending: false })
+    gbpPostDates = (gbpRows ?? []).map(r => r.created_at as string).filter(Boolean)
+  } catch { /* tabela ausente — sem posts */ }
+
+  // Contagens do sitemap: MESMA lógica de app/sitemap.ts (só quando publicado).
+  // Páginas publicadas + artigos publicados = o que entra no sitemap.xml.
+  let sitemapPages = 0
+  let sitemapPosts = 0
+  if (siteStatus === 'published') {
+    try {
+      const [{ count: pagesCount }, { count: postsCount }] = await Promise.all([
+        supabase
+          .from('pages')
+          .select('id', { count: 'exact', head: true })
+          .eq('site_id', siteId)
+          .eq('published', true),
+        supabase
+          .from('blog_posts')
+          .select('id', { count: 'exact', head: true })
+          .eq('site_id', siteId)
+          .eq('status', 'published'),
+      ])
+      sitemapPages = pagesCount ?? 0
+      sitemapPosts = postsCount ?? 0
+    } catch { /* mantém 0 */ }
+  }
+
+  return (
+    <MetricsView
+      siteId={siteId}
+      domain={domain || 'seu site'}
+      posts={posts}
+      siteStatus={siteStatus}
+      gpeModo={gpeModo}
+      gpeLink={gpeLink}
+      businessName={businessName}
+      city={city}
+      gbpPostDates={gbpPostDates}
+      sitemapPages={sitemapPages}
+      sitemapPosts={sitemapPosts}
+    />
+  )
 }

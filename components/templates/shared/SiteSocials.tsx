@@ -54,7 +54,8 @@ const LABELS: Record<string, string> = {
   google: 'Ver no Google',
 }
 
-export default function SiteSocials({ c }: { c: SiteContent; p?: PaletteColors }) {
+// raise: sobe a pilha quando o ChatWidget (FAQ/chat) ocupa o canto inferior direito.
+export default function SiteSocials({ c, raise = false }: { c: SiteContent; p?: PaletteColors; raise?: boolean }) {
   const s = (c.socials ?? {}) as Socials
   // WhatsApp também aceita o telefone do hero (c.whatsapp) como fallback.
   const wa = s.whatsapp || c.whatsapp || ''
@@ -72,7 +73,7 @@ export default function SiteSocials({ c }: { c: SiteContent; p?: PaletteColors }
 
   return (
     <div style={{
-      position: 'fixed', right: '16px', bottom: '16px', zIndex: 9998,
+      position: 'fixed', right: '16px', bottom: raise ? '86px' : '16px', zIndex: 9998,
       display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center',
     }}>
       {items.map(({ k, href }) => (

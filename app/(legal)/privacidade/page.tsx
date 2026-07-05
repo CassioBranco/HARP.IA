@@ -27,9 +27,8 @@ export default function PrivacidadePage() {
 
       <h2 id="controlador">1. Quem é o controlador dos dados</h2>
       <p>
-        O controlador dos seus dados é{' '}
-        <Fill>[RAZÃO SOCIAL DA EMPRESA]</Fill>, inscrita no CNPJ sob nº{' '}
-        <Fill>[CNPJ]</Fill>, com sede em <Fill>[CIDADE/UF]</Fill> (&ldquo;ANCOREO&rdquo;,
+        O controlador dos seus dados é a <strong>ANCOREO</strong>{' '}
+        (<Fill>razão social, CNPJ e sede em atualização durante o beta</Fill>) (&ldquo;ANCOREO&rdquo;,
         &ldquo;nós&rdquo;). Para qualquer assunto sobre seus dados, fale com o nosso Encarregado
         (DPO) pelo e-mail <Fill>privacidade@ancoreo.com.br</Fill>.
       </p>
@@ -188,11 +187,6 @@ export default function PrivacidadePage() {
         <Fill>privacidade@ancoreo.com.br</Fill>.
       </p>
 
-      <div className="legal__note">
-        <strong>Nota interna (remover antes do lançamento):</strong> os trechos destacados em amarelo
-        precisam ser preenchidos com os dados reais da empresa (razão social, CNPJ, cidade/UF e e-mail
-        de privacidade). Veja a lista no final da conversa com o Claude.
-      </div>
     </>
   )
 }

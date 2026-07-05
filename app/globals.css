@@ -164,8 +164,9 @@ html { scroll-behavior: smooth; }
   white-space: nowrap;
 }
 .ai-help i { font-size: .85em; }
-/* em superfícies escuras (painel/editor/onboarding/landing) o texto clareia */
-.painel-shell .ai-help, .ob-page .ai-help, .lp .ai-help {
+/* painel/editor/onboarding são token-based (auto claro/escuro) — o texto só
+   precisa clarear quando o tema escuro está de fato ativo (.dark). */
+.dark .painel-shell .ai-help, .dark .ob-page .ai-help, .dark .lp .ai-help {
   color: #c9bdff;
   background: linear-gradient(135deg, rgba(124,109,240,.22), rgba(59,130,246,.18));
   border-color: rgba(160,150,255,.4);

@@ -36,6 +36,15 @@ const FAQ = [
   ['O blog escreve sozinho?', 'Sim. A IA usa o que você ensina sobre a sua área pra publicar artigos que constroem autoridade e melhoram seu ranqueamento ao longo do tempo.'],
 ]
 
+const GROWTH = [
+  { m: 'Mês 1', v: '120', h: '34px' },
+  { m: 'Mês 2', v: '310', h: '58px' },
+  { m: 'Mês 3', v: '680', h: '86px' },
+  { m: 'Mês 4', v: '1.240', h: '120px' },
+  { m: 'Mês 5', v: '2.100', h: '158px' },
+  { m: 'Mês 6', v: '3.400', h: '200px' },
+]
+
 const MARQUEE = [
   'Apareça no Google',
   'Seja citado pelo ChatGPT',
@@ -99,8 +108,15 @@ export default function HomePage() {
             <p className="reassure mono"><i className="ph-fill ph-check-circle" /> 7 dias pra zarpar · sem cartão de crédito</p>
           </div>
 
-          {/* janela de site do cliente — linguagem de impresso */}
+          {/* janela do site do cliente + os motores onde ele aparece */}
           <div className="hero-visual">
+            {/* sonar de visibilidade — âncora no centro, ondas que zarpam */}
+            <div className="radar" aria-hidden="true">
+              <span className="radar-ring" />
+              <span className="radar-ring" />
+              <span className="radar-ring" />
+              <span className="radar-core"><i className="ph-fill ph-anchor" /></span>
+            </div>
             <div className="window">
               <div className="window-bar">
                 <span className="dots"><i /><i /><i /></span>
@@ -126,19 +142,23 @@ export default function HomePage() {
                 <Link href="/signup" className="btn sm">Editar</Link>
               </div>
             </div>
-            {/* carimbo postal de score */}
-            <div className="postmark" aria-hidden="true">
-              <svg viewBox="0 0 120 120">
-                <circle cx="60" cy="60" r="56" fill="none" stroke="currentColor" strokeWidth="2.5" />
-                <circle cx="60" cy="60" r="44" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="3 4" />
-                <path id="pmArc" d="M 60 14 A 46 46 0 1 1 59.9 14" fill="none" />
-                <text fontSize="10.5" letterSpacing="2.5" fill="currentColor" fontFamily="var(--font-mono)">
-                  <textPath href="#pmArc" startOffset="0">SCORE DE BUSCA · SEO GEO AEO ·</textPath>
-                </text>
-              </svg>
-              <b>92</b>
+            {/* cards flutuantes: os motores onde seu site aparece */}
+            <div className="ai-pill ai-pill--google">
+              <img src="/icons/platforms/google.svg" alt="" width={20} height={20} />
+              <div><b>Google</b><span>Busca tradicional</span></div>
             </div>
-            <span className="coord mono">27°05′S · 52°37′W</span>
+            <div className="ai-pill ai-pill--chatgpt">
+              <img src="/icons/platforms/chatgpt.svg" alt="" width={20} height={20} />
+              <div><b>ChatGPT</b><span>Citado pelas IAs</span></div>
+            </div>
+            <div className="ai-pill ai-pill--gemini">
+              <img src="/icons/platforms/gemini.svg" alt="" width={20} height={20} />
+              <div><b>Gemini</b><span>Resposta direta</span></div>
+            </div>
+            <div className="ai-pill ai-pill--perplexity">
+              <img src="/icons/platforms/perplexity.svg" alt="" width={20} height={20} />
+              <div><b>Perplexity</b><span>Fonte citada</span></div>
+            </div>
           </div>
         </div>
       </header>
@@ -158,42 +178,39 @@ export default function HomePage() {
 
       {/* ── números de bordo ── */}
       <section className="shell stats">
-        <div className="stat"><b>~10 min</b><span className="mono">do zero ao site no ar</span></div>
-        <div className="stat"><b>3 motores</b><span className="mono">Google, IAs e busca por voz</span></div>
-        <div className="stat"><b>0 código</b><span className="mono">nenhuma linha pra você escrever</span></div>
-        <div className="stat"><b>100%</b><span className="mono">orgânico, sem tráfego pago</span></div>
+        <div className="stat"><i className="ph-duotone ph-compass" /><div><b>~10 min</b><span className="mono">do zero ao site no ar</span></div></div>
+        <div className="stat"><i className="ph-duotone ph-anchor" /><div><b>3 motores</b><span className="mono">Google, IAs e busca por voz</span></div></div>
+        <div className="stat"><i className="ph-duotone ph-crosshair" /><div><b>0 código</b><span className="mono">nenhuma linha pra você escrever</span></div></div>
+        <div className="stat"><i className="ph-duotone ph-lighthouse" /><div><b>100%</b><span className="mono">orgânico, sem tráfego pago</span></div></div>
       </section>
 
-      {/* ── como funciona: manifesto de bordo ── */}
-      <section className="shell block" id="como">
-        <div className="sec-head">
-          <span className="eyebrow mono">Diário de bordo</span>
-          <h2>Do zero ao site publicado em três passos</h2>
-          <p>Sem escrever uma linha, sem contratar designer, sem esperar semanas.</p>
-        </div>
-        <ol className="manifest">
-          <li>
-            <span className="num">01</span>
-            <div>
+      {/* ── como funciona: mapa da rota (banda navy) ── */}
+      <section className="deep deep--route" id="como">
+        <div className="shell">
+          <div className="sec-head">
+            <span className="eyebrow mono">Mapa da rota</span>
+            <h2>Do zero ao site publicado em três passos</h2>
+            <p>Sem escrever uma linha, sem contratar designer, sem esperar semanas.</p>
+          </div>
+          <ol className="route">
+            <i className="ph-fill ph-boat route-boat" aria-hidden="true" />
+            <li>
+              <span className="route-num">01</span>
               <h3>Você conta do negócio</h3>
               <p>Responde poucas perguntas: o que faz, onde atende e o que só você sabe da sua área.</p>
-            </div>
-          </li>
-          <li>
-            <span className="num">02</span>
-            <div>
+            </li>
+            <li>
+              <span className="route-num">02</span>
               <h3>A IA escreve tudo</h3>
               <p>Cada texto sai otimizado pra SEO, GEO e AEO, com FAQ, blog e dados estruturados.</p>
-            </div>
-          </li>
-          <li>
-            <span className="num">03</span>
-            <div>
+            </li>
+            <li>
+              <span className="route-num">03</span>
               <h3>Publica no seu domínio</h3>
               <p>O site entra no ar pronto pra aparecer, e você ajusta o que quiser, quando quiser.</p>
-            </div>
-          </li>
-        </ol>
+            </li>
+          </ol>
+        </div>
       </section>
 
       {/* ── pilares: banda navy noturna ── */}
@@ -204,22 +221,66 @@ export default function HomePage() {
             <h2>A busca mudou. Seu site precisa aparecer nos três lugares</h2>
             <p>Não basta estar no Google. Hoje as pessoas perguntam pra IA e buscam por voz.</p>
           </div>
-          <div className="pillars">
-            <article className="pillar">
-              <span className="seal mono">SEO</span>
-              <h3>Busca tradicional</h3>
-              <p>Estrutura, schema e velocidade corretas pra ranquear no Google quando buscam pelo seu serviço.</p>
-            </article>
-            <article className="pillar">
-              <span className="seal red-seal mono">GEO</span>
-              <h3>Citado pelas IAs</h3>
-              <p>Conteúdo no formato que ChatGPT, Gemini e Perplexity usam pra recomendar o seu negócio.</p>
-            </article>
-            <article className="pillar">
-              <span className="seal mono">AEO</span>
-              <h3>Resposta direta</h3>
-              <p>FAQ e dados prontos pra virar a resposta exibida na busca e nas perguntas por voz.</p>
-            </article>
+          <div className="deep-grid">
+            <figure className="deep-photo">
+              <img src="/img/farol-visibilidade.webp" alt="Farol emitindo um feixe de luz sobre o mar ao anoitecer" width={1792} height={2400} loading="lazy" />
+              <figcaption className="mono"><i className="ph-fill ph-lighthouse" /> Seu sinal, visível de longe</figcaption>
+            </figure>
+            <div className="pillars">
+              <article className="pillar pillar--seo">
+                <span className="p-ico"><i className="ph-duotone ph-magnifying-glass" /></span>
+                <div className="p-body">
+                  <span className="p-tag mono">SEO · Busca tradicional</span>
+                  <h3>Ser encontrado no Google</h3>
+                  <p>Estrutura, schema e velocidade corretas pra ranquear quando alguém busca pelo seu serviço.</p>
+                  <span className="p-link mono">Ser encontrado <i className="ph-bold ph-arrow-right" /></span>
+                </div>
+              </article>
+              <article className="pillar pillar--geo">
+                <span className="p-ico"><i className="ph-duotone ph-sparkle" /></span>
+                <div className="p-body">
+                  <span className="p-tag mono">GEO · Citado pelas IAs</span>
+                  <h3>Ser referenciado pelas IAs</h3>
+                  <p>Conteúdo no formato que ChatGPT, Gemini e Perplexity usam pra recomendar o seu negócio.</p>
+                  <span className="p-link mono">Ser referenciado <i className="ph-bold ph-arrow-right" /></span>
+                </div>
+              </article>
+              <article className="pillar pillar--aeo">
+                <span className="p-ico"><i className="ph-duotone ph-chat-teardrop-text" /></span>
+                <div className="p-body">
+                  <span className="p-tag mono">AEO · Resposta direta</span>
+                  <h3>Ser a resposta</h3>
+                  <p>FAQ e dados prontos pra virar a resposta exibida na busca e nas perguntas por voz.</p>
+                  <span className="p-link mono">Ser a resposta <i className="ph-bold ph-arrow-right" /></span>
+                </div>
+              </article>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── IA cita você: GEO em ação ── */}
+      <section className="shell block">
+        <div className="sec-head">
+          <span className="eyebrow mono">GEO em ação</span>
+          <h2>Quando alguém pergunta pra IA, o seu negócio aparece na resposta</h2>
+          <p>É assim que ChatGPT, Gemini e Claude respondem quando o seu site já está otimizado.</p>
+        </div>
+        <div className="cite-card">
+          <div className="cite-q">
+            <i className="ph-fill ph-chat-circle-text" />
+            <p>&ldquo;Qual o melhor studio de pilates em Sorocaba?&rdquo;</p>
+          </div>
+          <div className="cite-a">
+            <i className="ph-fill ph-sparkle" />
+            <p>Em Sorocaba, o <b>Vida Plena Studio</b> se destaca por turmas pequenas de pilates, funcional e yoga, com atendimento próximo e personalizado — bem avaliado por quem busca acompanhamento de perto.</p>
+          </div>
+          <div className="cite-platforms mono">
+            <span><img src="/icons/platforms/chatgpt.svg" alt="" width={16} height={16} />ChatGPT</span>
+            <span><img src="/icons/platforms/gemini.svg" alt="" width={16} height={16} />Gemini</span>
+            <span><img src="/icons/platforms/claude.svg" alt="" width={16} height={16} />Claude</span>
+            <span><img src="/icons/platforms/meta.svg" alt="" width={16} height={16} />Meta AI</span>
+            <span><img src="/icons/platforms/copilot.svg" alt="" width={16} height={16} />Copilot</span>
           </div>
         </div>
       </section>
@@ -262,6 +323,25 @@ export default function HomePage() {
             <p>FAQ e dados estruturados prontos pra virar a resposta direta na busca e por voz, sem você escrever nada.</p>
           </article>
         </div>
+      </section>
+
+      {/* ── curva de crescimento ── */}
+      <section className="shell block">
+        <div className="sec-head">
+          <span className="eyebrow mono">Ao longo do tempo</span>
+          <h2>Cada mês fica mais fácil de te encontrar</h2>
+          <p>O blog e o conteúdo otimizado constroem autoridade — a busca orgânica cresce sozinha.</p>
+        </div>
+        <div className="growth">
+          {GROWTH.map(g => (
+            <div className="gcol" key={g.m}>
+              <div className="gbar" style={{ height: g.h }} />
+              <b>{g.v}</b>
+              <span className="mono">{g.m}</span>
+            </div>
+          ))}
+        </div>
+        <p className="growth-note mono">visitas orgânicas do Google · site de exemplo</p>
       </section>
 
       {/* ── planos: bilhetes de embarque ── */}
@@ -322,10 +402,14 @@ export default function HomePage() {
 
       {/* ── CTA final: farol ── */}
       <section className="shell">
-        <div className="beacon">
-          <h2>Seu próximo cliente está navegando agora</h2>
-          <p>Crie seu site grátis e coloque seu negócio na rota do Google e das IAs hoje.</p>
-          <Link href="/signup" className="btn red lg"><i className="ph-fill ph-anchor" /> Criar meu site agora</Link>
+        <div className="beacon beacon--photo">
+          <img className="beacon-bg" src="/img/farol-cta.webp" alt="" aria-hidden="true" />
+          <div className="beacon-in">
+            <span className="eyebrow mono">Zarpe agora</span>
+            <h2>Seu próximo cliente está navegando agora</h2>
+            <p>Crie seu site grátis e coloque seu negócio na rota do Google e das IAs hoje.</p>
+            <Link href="/signup" className="btn red lg"><i className="ph-fill ph-anchor" /> Criar meu site agora</Link>
+          </div>
         </div>
       </section>
 

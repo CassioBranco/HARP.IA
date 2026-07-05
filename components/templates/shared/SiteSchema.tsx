@@ -1,4 +1,5 @@
 import type { SiteContent } from '@/lib/templates/example-content'
+import { jsonLdScript } from '@/lib/seo/jsonld'
 
 export default function SiteSchema({ c, preview }: { c: SiteContent; preview: boolean }) {
   const baseSchema = {
@@ -30,8 +31,8 @@ export default function SiteSchema({ c, preview }: { c: SiteContent; preview: bo
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(baseSchema) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(baseSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(faqSchema) }} />
     </>
   )
 }

@@ -3,6 +3,7 @@
 // chave, createCheckout falha graciosamente (PaymentNotConfiguredError).
 // Doc: https://www.mercadopago.com.br/developers (Checkout Pro / preferences)
 
+import { createHmac, timingSafeEqual } from 'crypto'
 import {
   type PaymentProvider,
   type CheckoutRequest,
@@ -16,6 +17,59 @@ const MP_API = 'https://api.mercadopago.com'
 
 function token(): string | null {
   return process.env.MERCADOPAGO_ACCESS_TOKEN ?? null
+}
+
+// Segredo da assinatura do webhook (painel MP → Webhooks → "Chave secreta").
+// Diferente do access token. Sem ele não dá pra validar a origem.
+function webhookSecret(): string | null {
+  return process.env.MERCADOPAGO_WEBHOOK_SECRET ?? null
+}
+
+// Valida o header x-signature do Mercado Pago (HMAC-SHA256), confirmando que a
+// notificação veio mesmo do MP e não foi forjada.
+// Manifesto: `id:<data.id>;request-id:<x-request-id>;ts:<ts>;`
+// Doc: mercadopago.com.br/developers → Notificações/Webhooks → validação de origem.
+// Retorna:
+//   'valid'        assinatura confere
+//   'invalid'      assinatura ausente/errada → descartar a notificação
+//   'unconfigured' sem segredo no ambiente → não dá pra validar; o re-fetch
+//                  autenticado do pagamento ainda protege o status real.
+function verifyMpSignature(req: Request, url: URL): 'valid' | 'invalid' | 'unconfigured' {
+  const secret = webhookSecret()
+  if (!secret) return 'unconfigured'
+
+  const sigHeader = req.headers.get('x-signature')
+  const requestId = req.headers.get('x-request-id') ?? ''
+  if (!sigHeader) return 'invalid'
+
+  // x-signature vem como "ts=1699000000,v1=<hex>"
+  const parts: Record<string, string> = {}
+  for (const kv of sigHeader.split(',')) {
+    const idx = kv.indexOf('=')
+    if (idx === -1) continue
+    parts[kv.slice(0, idx).trim()] = kv.slice(idx + 1).trim()
+  }
+  const ts = parts.ts
+  const v1 = parts.v1
+  if (!ts || !v1) return 'invalid'
+
+  // data.id da query; se alfanumérico, MP exige minúsculas no manifesto.
+  const rawId = url.searchParams.get('data.id') ?? url.searchParams.get('id') ?? ''
+  const dataId = /^[0-9]+$/.test(rawId) ? rawId : rawId.toLowerCase()
+
+  const manifest = `id:${dataId};request-id:${requestId};ts:${ts};`
+  const expected = createHmac('sha256', secret).update(manifest).digest('hex')
+
+  // Comparação timing-safe; buffers de tamanho diferente = inválido.
+  let a: Buffer, b: Buffer
+  try {
+    a = Buffer.from(expected, 'hex')
+    b = Buffer.from(v1, 'hex')
+  } catch {
+    return 'invalid'
+  }
+  if (a.length !== b.length || a.length === 0) return 'invalid'
+  return timingSafeEqual(a, b) ? 'valid' : 'invalid'
 }
 
 function appUrl(): string {
@@ -88,12 +142,26 @@ export const mercadoPagoProvider: PaymentProvider = {
     if (!t) return { orderRef: null, status: null }
 
     const url = new URL(req.url)
+
+    // Origem: descarta notificação forjada antes de qualquer processamento.
+    // Sem segredo configurado, seguimos — o re-fetch autenticado abaixo lê o
+    // status real do pagamento na API do MP, então não dá pra "marcar pago"
+    // um pedido sem um pagamento aprovado de verdade apontando pra ele.
+    const sig = verifyMpSignature(req, url)
+    if (sig === 'invalid') {
+      console.warn('[mercadopago] webhook com x-signature inválida — ignorado')
+      return { orderRef: null, status: null }
+    }
+
     const body = await req.json().catch(() => ({})) as Record<string, unknown>
     const type = (body.type as string) ?? (body.topic as string) ?? url.searchParams.get('type') ?? url.searchParams.get('topic')
     if (type && type !== 'payment') return { orderRef: null, status: null }
 
     const data = body.data as { id?: string } | undefined
-    const paymentId = data?.id ?? (body.id as string | undefined) ?? url.searchParams.get('data.id') ?? url.searchParams.get('id')
+    // Fonte de verdade = o data.id da QUERY (o valor coberto pela assinatura
+    // HMAC validada acima). Body só como fallback quando a query não trouxe o
+    // id. Evita assinar um id e buscar outro (replay com body.data.id trocado).
+    const paymentId = url.searchParams.get('data.id') ?? url.searchParams.get('id') ?? data?.id ?? (body.id as string | undefined)
     if (!paymentId) return { orderRef: null, status: null }
 
     const res = await fetch(`${MP_API}/v1/payments/${paymentId}`, {

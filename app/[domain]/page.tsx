@@ -6,6 +6,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { hasSupabaseEnv } from '@/lib/env'
 import { buildSiteContent } from '@/lib/templates/build-site-content'
 import LayoutRenderer from '@/components/templates/LayoutRenderer'
+import { jsonLdScript } from '@/lib/seo/jsonld'
 import type { SiteContent } from '@/lib/templates/example-content'
 import type { Metadata } from 'next'
 
@@ -156,16 +157,16 @@ export default async function PublishedSitePage({ params }: Props) {
       {/* JSON-LD — AEO Regra 2 */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdScript(jsonLd) }}
       />
       {faqSchema && (
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+          dangerouslySetInnerHTML={{ __html: jsonLdScript(faqSchema) }}
         />
       )}
 
-      <LayoutRenderer layout={layout} c={content} p={palette} fontPair={fontPair} preview={false} />
+      <LayoutRenderer layout={layout} c={content} p={palette} fontPair={fontPair} sections={built.sections} preview={false} />
     </>
   )
 }

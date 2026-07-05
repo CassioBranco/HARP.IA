@@ -55,7 +55,8 @@ const STOPWORDS = new Set([
   'conheça', 'conheca', 'veja', 'confira', 'melhor', 'melhores', 'completo', 'completa',
 ])
 
-function norm(s: string): string {
+/** Normaliza pra comparação: minúsculas, sem acento. (Reusado pelo score.) */
+export function norm(s: string): string {
   return s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
 }
 

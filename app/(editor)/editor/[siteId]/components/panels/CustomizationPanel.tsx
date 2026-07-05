@@ -6,6 +6,7 @@ import type { SiteData } from '../../page'
 import ImageUploader from './ImageUploader'
 import SectionEditor from './SectionEditor'
 import BrandPanel from './BrandPanel'
+import SeoPanel from './SeoPanel'
 import {
   MODELS,
   PALETTES,
@@ -29,7 +30,7 @@ type Props = {
   onSave: (updated: Partial<SiteData>) => void
 }
 
-type SubTab = 'modelo' | 'cores' | 'fontes' | 'imagens' | 'marca' | 'textos'
+type SubTab = 'modelo' | 'cores' | 'fontes' | 'imagens' | 'marca' | 'textos' | 'seo' | 'agenda' | 'leads'
 
 // Entrada da pilha de undo — guarda o estado ANTERIOR de cada mudança
 // de personalização (padrão dos editores top: Framer/Webflow têm undo).
@@ -50,6 +51,8 @@ export default function CustomizationPanel({ site, siteId, onSave }: Props) {
   const [selectedTemplate, setSelectedTemplate] = useState(site.template ?? 'clean')
   const [expandedSection, setExpandedSection] = useState<string | null>('hero')
   const [saving, setSaving] = useState(false)
+  const [bookingOn, setBookingOn] = useState(Boolean(site.booking_enabled))
+  const [leadsOn, setLeadsOn] = useState(Boolean(site.leads_enabled))
 
   // ── Undo (Desfazer) ──
   const [history, setHistory] = useState<UndoEntry[]>([])
@@ -62,12 +65,17 @@ export default function CustomizationPanel({ site, siteId, onSave }: Props) {
   const lastTemplate = useRef(site.template ?? 'clean')
 
   // Clique no preview (iframe) → abre a aba certa. A ponte vive no PreviewBridge.
+  // Quando o clique foi num texto de seção conhecida, expande o acordeão dela.
   useEffect(() => {
     const onMsg = (e: MessageEvent) => {
-      const d = e.data as { source?: string; kind?: string } | null
+      if (e.origin !== window.location.origin) return
+      const d = e.data as { source?: string; kind?: string; sectionType?: string } | null
       if (!d || d.source !== 'ancoreo-preview') return
       if (d.kind === 'image') setSubTab('imagens')
-      else if (d.kind === 'text') setSubTab('textos')
+      else if (d.kind === 'text') {
+        setSubTab('textos')
+        if (d.sectionType && SECTIONS.includes(d.sectionType)) setExpandedSection(d.sectionType)
+      }
     }
     window.addEventListener('message', onMsg)
     return () => window.removeEventListener('message', onMsg)
@@ -178,7 +186,30 @@ export default function CustomizationPanel({ site, siteId, onSave }: Props) {
     { id: 'imagens', label: 'Imagens' },
     { id: 'marca',   label: 'Marca' },
     { id: 'textos',  label: 'Textos' },
+    { id: 'seo',     label: 'SEO' },
+    { id: 'agenda',  label: 'Agenda' },
+    { id: 'leads',   label: 'Leads' },
   ]
+
+  // Liga/desliga o widget de agendamento no site publicado (sites.booking_enabled).
+  async function saveBooking(on: boolean) {
+    setBookingOn(on)
+    setSaving(true)
+    const supabase = createBrowserClient()
+    await supabase.from('sites').update({ booking_enabled: on }).eq('id', siteId)
+    setSaving(false)
+    onSave({ booking_enabled: on })
+  }
+
+  // Liga/desliga a faixa de captura de leads no site publicado (sites.leads_enabled).
+  async function saveLeads(on: boolean) {
+    setLeadsOn(on)
+    setSaving(true)
+    const supabase = createBrowserClient()
+    await supabase.from('sites').update({ leads_enabled: on }).eq('id', siteId)
+    setSaving(false)
+    onSave({ leads_enabled: on })
+  }
 
   return (
     <>
@@ -330,6 +361,92 @@ export default function CustomizationPanel({ site, siteId, onSave }: Props) {
 
         {/* ── MARCA (logo, favicon, redes) ── */}
         {subTab === 'marca' && <BrandPanel siteId={siteId} />}
+
+        {/* ── SEO (score ao vivo da página + título/meta do Google) ── */}
+        {subTab === 'seo' && <SeoPanel siteId={siteId} onSaved={() => onSave({})} />}
+
+        {/* ── AGENDA (widget de agendamento no site) ── */}
+        {subTab === 'agenda' && (
+          <>
+            <p className="ed-hint">
+              Botão &quot;Agendar&quot; flutuante no site: o visitante pede um horário
+              (nome, WhatsApp, serviço, data) e a solicitação chega no seu painel.
+            </p>
+            <button
+              onClick={() => saveBooking(!bookingOn)}
+              className={`ed-opt ${bookingOn ? 'on' : ''}`}
+              style={{ display: 'flex', alignItems: 'center', gap: '.6rem', width: '100%' }}
+              role="switch"
+              aria-checked={bookingOn}
+            >
+              <span style={{
+                width: 34, height: 20, borderRadius: 999, flexShrink: 0,
+                background: bookingOn ? '#22c55e' : 'var(--line)',
+                position: 'relative', transition: 'background .15s',
+              }}>
+                <i style={{
+                  position: 'absolute', top: 2, left: bookingOn ? 16 : 2,
+                  width: 16, height: 16, borderRadius: '50%', background: '#fff',
+                  transition: 'left .15s',
+                }} />
+              </span>
+              <span style={{ textAlign: 'left' }}>
+                <b>{bookingOn ? 'Agendamento ativado' : 'Agendamento desativado'}</b>
+                <span style={{ display: 'block', fontSize: '.72rem', color: 'var(--muted)' }}>
+                  {bookingOn ? 'O botão aparece no site publicado.' : 'Ative pra receber pedidos de horário.'}
+                </span>
+              </span>
+            </button>
+            <p className="ed-hint" style={{ marginTop: '.6rem' }}>
+              Você vê e confirma cada solicitação em{' '}
+              <a href="/agendamentos" style={{ color: 'inherit', textDecoration: 'underline' }}>Agendamentos</a>.
+              Não é reserva automática — quem confirma o horário é você.
+            </p>
+            {saving && <p className="ed-saving">Salvando…</p>}
+          </>
+        )}
+
+        {/* ── LEADS (faixa de captura de contato no site) ── */}
+        {subTab === 'leads' && (
+          <>
+            <p className="ed-hint">
+              Faixa discreta &quot;Fique por dentro&quot; no fim do site: o visitante
+              deixa nome, e-mail ou WhatsApp e o contato chega no seu painel.
+              Não é popup — não atrapalha a navegação nem o Google.
+            </p>
+            <button
+              onClick={() => saveLeads(!leadsOn)}
+              className={`ed-opt ${leadsOn ? 'on' : ''}`}
+              style={{ display: 'flex', alignItems: 'center', gap: '.6rem', width: '100%' }}
+              role="switch"
+              aria-checked={leadsOn}
+            >
+              <span style={{
+                width: 34, height: 20, borderRadius: 999, flexShrink: 0,
+                background: leadsOn ? '#22c55e' : 'var(--line)',
+                position: 'relative', transition: 'background .15s',
+              }}>
+                <i style={{
+                  position: 'absolute', top: 2, left: leadsOn ? 16 : 2,
+                  width: 16, height: 16, borderRadius: '50%', background: '#fff',
+                  transition: 'left .15s',
+                }} />
+              </span>
+              <span style={{ textAlign: 'left' }}>
+                <b>{leadsOn ? 'Captura de leads ativada' : 'Captura de leads desativada'}</b>
+                <span style={{ display: 'block', fontSize: '.72rem', color: 'var(--muted)' }}>
+                  {leadsOn ? 'A faixa aparece no fim do site publicado.' : 'Ative pra receber contatos de interessados.'}
+                </span>
+              </span>
+            </button>
+            <p className="ed-hint" style={{ marginTop: '.6rem' }}>
+              Você vê cada contato em{' '}
+              <a href="/leads" style={{ color: 'inherit', textDecoration: 'underline' }}>Leads</a>.
+              O visitante pode dispensar a faixa — ela não volta no mesmo dia.
+            </p>
+            {saving && <p className="ed-saving">Salvando…</p>}
+          </>
+        )}
 
         {/* ── TEXTOS ── */}
         {subTab === 'textos' && (

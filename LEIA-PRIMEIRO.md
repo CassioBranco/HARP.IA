@@ -4,7 +4,7 @@
 > Reorganizado em 2026-06-26: erguido pra fora do "porão" (`Marketing GERAL/claude`) pra esta pasta dedicada.
 
 ## ⚡ Como abrir (importante)
-Abra o Claude Code **nesta pasta** (`C:\Users\cassio\Desktop\ANCOREO`), não no porão antigo.
+Abra o Claude Code **nesta pasta** (`C:\Users\cassio\Documents\ancoreo`), não no porão antigo.
 Assim, toda sessão já carrega: as skills do projeto + a memória do projeto. Fim do "começar do zero".
 
 ## 🧭 Onde está cada coisa

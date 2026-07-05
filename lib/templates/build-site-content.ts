@@ -7,6 +7,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { getPalette, type PaletteColors } from '@/lib/templates/palettes'
 import type { SiteContent } from '@/lib/templates/example-content'
 import type { LayoutId } from '@/lib/templates/layouts'
+import { VISUAL_SECTION_TYPES, type SectionSnapshot } from '@/lib/editor/inline-edit'
 
 export type BuiltSite = {
   content: SiteContent
@@ -16,6 +17,9 @@ export type BuiltSite = {
   niche: string
   status: string
   domain: string | null
+  /** Seções visuais na ordem salva (order_index), com flag de oculta —
+   *  consumidas pelo SectionArrange (ordem/ocultas/duplicadas no DOM). */
+  sections: SectionSnapshot[]
 }
 
 // Paleta custom salva em sites.palette.colors[7] vence palette_index legado.
@@ -39,7 +43,7 @@ export async function buildSiteContent(
 ): Promise<BuiltSite | null> {
   let query = supabase
     .from('sites')
-    .select('id, niche, template, palette_index, palette, font_pair, status, domain')
+    .select('id, niche, template, palette_index, palette, font_pair, status, domain, booking_enabled, leads_enabled')
 
   query = match.siteId
     ? query.eq('id', match.siteId)
@@ -70,15 +74,34 @@ export async function buildSiteContent(
   const { data: sections } = page?.id
     ? await supabase
         .from('sections')
-        .select('section_type, content')
+        .select('id, section_type, content, order_index')
         .eq('page_id', page.id)
         .order('order_index')
     : { data: [] }
 
-  const sectionMap = (sections ?? []).reduce<Record<string, unknown>>((acc, s) => {
+  const sectionRows = (sections ?? []) as {
+    id: string
+    section_type: string
+    content: Record<string, unknown> | null
+    order_index: number | null
+  }[]
+
+  const sectionMap = sectionRows.reduce<Record<string, unknown>>((acc, s) => {
     acc[s.section_type] = s.content
     return acc
   }, {})
+
+  // Snapshot das seções visuais (ordem/oculta) pro SectionArrange.
+  // Seção oculta continua alimentando o conteúdo (o esconder é visual).
+  const sectionsMeta: SectionSnapshot[] = sectionRows
+    .filter(s => (VISUAL_SECTION_TYPES as readonly string[]).includes(s.section_type))
+    .map(s => ({
+      id: s.id,
+      section_type: s.section_type,
+      order_index: s.order_index ?? 0,
+      hidden: Boolean((s.content ?? {})['_hidden']),
+      content: (s.content ?? {}) as Record<string, unknown>,
+    }))
 
   // Ponto focal salvo no editor (percentuais 0-100). Vira string CSS p/ object-position.
   // Default centro (50% 50%) — compatível com seções antigas que só têm a URL.
@@ -138,6 +161,13 @@ export async function buildSiteContent(
       ? { gbpLink: profile.gpe_link as string }
       : {}),
     ...(profile?.gbp_place_id ? { gbpPlaceId: profile.gbp_place_id as string } : {}),
+    // Agendamento: o BookingWidget usa o siteId pra postar em /api/booking
+    // e só aparece quando o dono ligou o toggle no editor.
+    siteId: site.id as string,
+    bookingEnabled: Boolean(site.booking_enabled),
+    // Leads: o LeadCaptureBar (faixa inline no fim da página) usa o siteId
+    // pra postar em /api/leads e só aparece com o toggle ligado no editor.
+    leadsEnabled: Boolean(site.leads_enabled),
   }
 
   return {
@@ -148,5 +178,6 @@ export async function buildSiteContent(
     niche: site.niche ?? 'servicos',
     status: site.status,
     domain: site.domain,
+    sections: sectionsMeta,
   }
 }

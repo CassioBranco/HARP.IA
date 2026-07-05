@@ -64,6 +64,7 @@ export default async function PreviewPage({ params, searchParams }: Props) {
         c={built.content}
         p={built.palette}
         fontPair={built.fontPair}
+        sections={built.sections}
         preview
       />
 

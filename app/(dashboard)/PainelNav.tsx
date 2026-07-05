@@ -9,7 +9,10 @@ const NAV = [
   { href: '/sites',    label: 'Meus sites',    icon: 'ph-globe-hemisphere-west' },
   { href: '/editor',   label: 'Editor',         icon: 'ph-pencil-ruler' },
   { href: '/blog',     label: 'Blog',           icon: 'ph-article' },
+  { href: '/agendamentos', label: 'Agendamentos', icon: 'ph-calendar-check' },
+  { href: '/leads',    label: 'Leads',          icon: 'ph-envelope-simple' },
   { href: '/gbp',      label: 'Google',         icon: 'ph-google-logo' },
+  { href: '/parcerias', label: 'Parcerias',     icon: 'ph-handshake' },
   { href: '/settings', label: 'Configurações',  icon: 'ph-gear' },
 ]
 
