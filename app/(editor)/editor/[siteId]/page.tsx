@@ -188,14 +188,13 @@ export default function EditorPage() {
         {/* Rail de ícones */}
         <EditorSidebar site={site} />
 
-        {/* Painel de controles — edição do site */}
-        <div className="ed-panel">
-          <CustomizationPanel
-            site={site}
-            siteId={siteId}
-            onSave={(updated) => { setSite(s => s ? { ...s, ...updated } : s); refreshPreview() }}
-          />
-        </div>
+        {/* Painéis de edição — esquerda (conteúdo) + direita (design).
+            O CustomizationPanel devolve os dois <aside> já posicionados na grade. */}
+        <CustomizationPanel
+          site={site}
+          siteId={siteId}
+          onSave={(updated) => { setSite(s => s ? { ...s, ...updated } : s); refreshPreview() }}
+        />
 
         {/* Palco / preview */}
         <div className="ed-stage">

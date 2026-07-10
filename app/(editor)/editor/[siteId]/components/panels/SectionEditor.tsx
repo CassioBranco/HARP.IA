@@ -20,6 +20,7 @@ type ServiceItem = { name: string; description: string; icon?: string }
 export default function SectionEditor({ siteId, sectionType, niche, onSaved }: Props) {
   const [content, setContent] = useState<SectionContent | null>(null)
   const [loading, setLoading] = useState(true)
+  const [loadErr, setLoadErr] = useState(false)
   const [saving, setSaving] = useState(false)
   const [aiLoading, setAiLoading] = useState(false)
   const [aiMode, setAiMode] = useState<'block' | 'page' | null>(null)
@@ -29,33 +30,45 @@ export default function SectionEditor({ siteId, sectionType, niche, onSaved }: P
   const [genErrIdx, setGenErrIdx] = useState<number | null>(null)
 
   useEffect(() => {
+    let alive = true
+    // try/catch/finally: se QUALQUER query rejeitar (rede, auth), o finally
+    // ainda tira o loading e mostramos um erro acionável — nunca "loading eterno".
     async function load() {
-      const supabase = createBrowserClient()
-      const { data: page } = await supabase
-        .from('pages')
-        .select('id')
-        .eq('site_id', siteId)
-        .eq('slug', 'home')
-        .single()
+      try {
+        const supabase = createBrowserClient()
+        const { data: page } = await supabase
+          .from('pages')
+          .select('id')
+          .eq('site_id', siteId)
+          .eq('slug', 'home')
+          .single()
 
-      if (!page?.id) { setLoading(false); return }
-      setPageId(page.id)
+        if (!alive) return
+        if (!page?.id) return
+        setPageId(page.id)
 
-      // .limit(1) em vez de .single(): a seção pode ter sido duplicada no
-      // editor visual (linhas do mesmo tipo compartilham o conteúdo).
-      const { data: sectionRows } = await supabase
-        .from('sections')
-        .select('content')
-        .eq('page_id', page.id)
-        .eq('section_type', sectionType)
-        .order('order_index')
-        .limit(1)
+        // .limit(1) em vez de .single(): a seção pode ter sido duplicada no
+        // editor visual (linhas do mesmo tipo compartilham o conteúdo).
+        const { data: sectionRows } = await supabase
+          .from('sections')
+          .select('content')
+          .eq('page_id', page.id)
+          .eq('section_type', sectionType)
+          .order('order_index')
+          .limit(1)
 
-      const section = sectionRows?.[0]
-      if (section?.content) setContent(section.content as SectionContent)
-      setLoading(false)
+        if (!alive) return
+        const section = sectionRows?.[0]
+        if (section?.content) setContent(section.content as SectionContent)
+      } catch (e) {
+        console.error('[SectionEditor] falha ao carregar a seção', e)
+        if (alive) setLoadErr(true)
+      } finally {
+        if (alive) setLoading(false)
+      }
     }
     load()
+    return () => { alive = false }
   }, [siteId, sectionType])
 
   // Edição inline no preview → espelha aqui (aba Textos) sem reload.
@@ -109,6 +122,20 @@ export default function SectionEditor({ siteId, sectionType, niche, onSaved }: P
 
   if (loading) {
     return <p className="ed-saving">Carregando…</p>
+  }
+
+  if (loadErr && !content) {
+    return (
+      <>
+        <p className="ed-err">Não consegui carregar esta seção.</p>
+        <button
+          onClick={() => { setLoadErr(false); setLoading(true); location.reload() }}
+          className="btn glass sm"
+        >
+          Recarregar
+        </button>
+      </>
+    )
   }
 
   if (!content) {
