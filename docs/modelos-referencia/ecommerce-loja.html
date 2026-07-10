@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<!--
+  MODELO DE REFERÊNCIA — E-commerce / Loja
+  Enviado pelo Cássio em 2026-07-10 para servir de base a um layout
+  editável pelo cliente no editor do ANCOREO.
+
+  Este é um WIREFRAME (estrutura + placeholders), não o visual final.
+  Blocos que compõem este modelo (candidatos a virarem "blocks" no wireframe dinâmico):
+    1. announcement   — barra de aviso (frete grátis / promo)
+    2. header-shop     — logo + busca + região/conta/carrinho
+    3. nav             — menu horizontal de categorias
+    4. hero-carousel   — banner com dots (slides)
+    5. info-blocks     — benefícios (2 colunas: ícone + título + texto)
+    6. collections     — categorias em círculo (scroll horizontal)
+    7. promo-banners   — 3 cards coloridos com CTA
+    8. product-grid    — grade de produtos (badge, marca, título, preço, rating, estoque)
+    9. pagination      — paginação
+   10. newsletter      — captura de e-mail
+   11. footer-shop     — 4 colunas de links + formas de pagamento
+
+  NOTA ARQUITETURAL: este é um tipo de site diferente dos layouts atuais
+  (que são de negócio de serviço: hero/about/services/testimonials/faq).
+  E-commerce precisa de dados de PRODUTO. Ao recriar no editor, tratar
+  cada bloco acima como um "block" reutilizável do wireframe dinâmico.
+-->
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wireframe - Template E-commerce</title>
+<style>
+  :root{
+    --dark: #16213e;
+    --primary: #2b3a8f;
+    --accent: #16b8c4;
+    --gray-bg: #f2f3f5;
+    --gray-box: #d9dce1;
+    --gray-box-dark: #c3c7cf;
+    --text-muted: #6b7280;
+    --border: #e2e4e8;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family: Arial, Helvetica, sans-serif; color:#222; background:#fff;}
+  a{text-decoration:none; color:inherit;}
+  ul{list-style:none;}
+  img,.ph{display:block;}
+
+  /* Placeholder box helper */
+  .ph{
+    background: var(--gray-box);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color: var(--text-muted);
+    font-size:13px;
+    text-align:center;
+    border-radius:4px;
+  }
+
+  /* Announcement bar */
+  .announcement{
+    background: var(--primary);
+    color:#fff;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:8px 24px;
+    font-size:13px;
+  }
+  .announcement .subscribe{
+    background:var(--accent);
+    padding:6px 14px;
+    border-radius:4px;
+    font-weight:bold;
+  }
+
+  /* Header */
+  header.main{
+    background: var(--primary);
+    padding:16px 24px;
+    display:flex;
+    align-items:center;
+    gap:24px;
+    flex-wrap:wrap;
+  }
+  .logo{
+    color:#fff;
+    font-size:22px;
+    font-weight:bold;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    white-space:nowrap;
+  }
+  .logo .logo-icon{
+    width:32px;height:32px;
+    background:var(--accent);
+    border-radius:6px;
+  }
+  .search-bar{
+    flex:1;
+    display:flex;
+    min-width:220px;
+    max-width:700px;
+  }
+  .search-bar input{
+    flex:1;
+    padding:10px 12px;
+    border:none;
+    border-radius:4px 0 0 4px;
+    font-size:14px;
+  }
+  .search-bar select{
+    border:none;
+    border-left:1px solid #ddd;
+    padding:0 8px;
+    font-size:13px;
+  }
+  .search-bar button{
+    background: var(--accent);
+    border:none;
+    color:#fff;
+    padding:0 16px;
+    border-radius:0 4px 4px 0;
+    cursor:pointer;
+  }
+  .header-right{
+    display:flex;
+    align-items:center;
+    gap:24px;
+    color:#fff;
+    font-size:13px;
+    white-space:nowrap;
+  }
+  .header-right .item strong{display:block; font-size:14px;}
+  .cart-icon{position:relative;}
+  .cart-count{
+    position:absolute;
+    top:-8px; right:-10px;
+    background:var(--accent);
+    color:#fff;
+    font-size:11px;
+    border-radius:50%;
+    width:18px;height:18px;
+    display:flex;align-items:center;justify-content:center;
+  }
+
+  /* Nav */
+  nav.main-nav{
+    background:#fff;
+    border-bottom:1px solid var(--border);
+    padding:14px 24px;
+    display:flex;
+    gap:28px;
+    font-size:14px;
+    overflow-x:auto;
+  }
+  nav.main-nav a{color:#333; white-space:nowrap;}
+
+  /* Hero */
+  .hero{
+    position:relative;
+    height:420px;
+    background: var(--gray-box-dark);
+    display:flex;
+    align-items:center;
+    padding:0 60px;
+  }
+  .hero-text{
+    background:rgba(0,0,0,0.55);
+    color:#fff;
+    padding:28px 32px;
+    max-width:420px;
+    border-radius:4px;
+  }
+  .hero-text h1{font-size:28px; margin-bottom:10px;}
+  .hero-text p{font-size:14px; margin-bottom:18px; opacity:.9;}
+  .btn{
+    display:inline-block;
+    background: var(--accent);
+    color:#fff;
+    padding:12px 22px;
+    border-radius:4px;
+    font-size:14px;
+    font-weight:bold;
+    border:none;
+    cursor:pointer;
+  }
+  .hero-dots{
+    position:absolute;
+    bottom:16px; left:0; right:0;
+    display:flex;
+    justify-content:center;
+    gap:8px;
+  }
+  .hero-dots span{
+    width:8px;height:8px;
+    border-radius:50%;
+    background:rgba(255,255,255,0.5);
+  }
+  .hero-dots span.active{background:#fff;}
+
+  /* Section wrapper */
+  section{padding:40px 24px;}
+  .section-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom:20px;
+  }
+  .section-header h2{font-size:22px; color:var(--primary);}
+  .section-header a{font-size:13px; color:var(--accent); font-weight:bold;}
+
+  /* Info blocks */
+  .info-blocks{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px;
+  }
+  .info-block{
+    display:flex;
+    gap:16px;
+    align-items:center;
+    border:1px solid var(--border);
+    padding:20px;
+    border-radius:6px;
+  }
+  .info-block .icon{
+    width:64px;height:64px;
+    border-radius:50%;
+    flex-shrink:0;
+  }
+  .info-block h3{font-size:15px; margin-bottom:6px; color:var(--primary);}
+  .info-block p{font-size:13px; color:var(--text-muted);}
+
+  /* Collections circles */
+  .collections-row{
+    display:flex;
+    gap:24px;
+    overflow-x:auto;
+    padding-bottom:8px;
+  }
+  .collection-item{
+    text-align:center;
+    flex-shrink:0;
+    width:120px;
+  }
+  .collection-item .circle{
+    width:120px;height:120px;
+    border-radius:50%;
+    margin-bottom:10px;
+  }
+  .collection-item span{font-size:13px; font-weight:bold; color:var(--primary);}
+
+  /* Promo banners */
+  .promo-banners{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:20px;
+  }
+  .promo-card{
+    height:220px;
+    border-radius:6px;
+    padding:24px;
+    color:#fff;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    gap:10px;
+  }
+  .promo-card.c1{background:#e91e63;}
+  .promo-card.c2{background:#6f42c1;}
+  .promo-card.c3{background:#16b8c4;}
+  .promo-card h3{font-size:20px;}
+  .promo-card p{font-size:13px; opacity:.9;}
+  .promo-card .btn{
+    background:#fff; color:#222;
+    align-self:flex-start;
+  }
+
+  /* Product grid */
+  .toolbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-size:13px;
+    color:var(--text-muted);
+    margin-bottom:20px;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .product-grid{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:24px;
+  }
+  .product-card{
+    border:1px solid var(--border);
+    border-radius:6px;
+    overflow:hidden;
+    position:relative;
+  }
+  .product-card .badge{
+    position:absolute;
+    top:10px; left:10px;
+    background:#e91e63;
+    color:#fff;
+    font-size:11px;
+    padding:3px 8px;
+    border-radius:3px;
+    font-weight:bold;
+    z-index:2;
+  }
+  .product-card .badge.new{background:#2e9e5b; top:10px;}
+  .product-card .badge.sale{top:36px;}
+  .product-card .thumb{height:180px;}
+  .product-card .content{padding:14px;}
+  .product-card .brand{font-size:11px; color:var(--text-muted); text-transform:uppercase; margin-bottom:4px;}
+  .product-card .title{font-size:14px; font-weight:bold; margin-bottom:8px; color:#222; min-height:38px;}
+  .price{margin-bottom:6px;}
+  .price .now{color:#c0392b; font-weight:bold; font-size:15px;}
+  .price .now.no-sale{color:var(--accent);}
+  .price .was{color:var(--text-muted); font-size:13px; text-decoration:line-through; margin-left:6px;}
+  .rating{font-size:12px; color:var(--text-muted); margin-bottom:6px;}
+  .rating .stars{color:#f5a623;}
+  .stock{font-size:12px; color:#2e9e5b; display:flex; align-items:center; gap:5px;}
+  .stock .dot{width:7px;height:7px;border-radius:50%;background:#2e9e5b;}
+
+  .pagination{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:10px;
+    margin-top:32px;
+    font-size:14px;
+  }
+  .pagination .page{
+    width:32px;height:32px;
+    display:flex;align-items:center;justify-content:center;
+    border-radius:4px;
+    color:var(--primary);
+  }
+  .pagination .page.active{background:var(--accent); color:#fff;}
+  .pagination .next{color:var(--primary); font-weight:bold;}
+
+  /* Newsletter */
+  .newsletter{
+    background: var(--primary);
+    color:#fff;
+    text-align:center;
+    padding:50px 24px;
+  }
+  .newsletter h2{margin-bottom:10px;}
+  .newsletter p{font-size:14px; opacity:.85; margin-bottom:20px;}
+  .newsletter-form{
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    max-width:420px;
+    margin:0 auto;
+  }
+  .newsletter-form input{
+    flex:1;
+    padding:12px;
+    border:none;
+    border-radius:4px;
+  }
+
+  /* Footer */
+  footer{
+    background:#0f1730;
+    color:#c7cad3;
+    padding:50px 24px 24px;
+  }
+  .footer-cols{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:32px;
+    margin-bottom:32px;
+  }
+  .footer-cols h4{color:#fff; margin-bottom:14px; font-size:14px;}
+  .footer-cols li{font-size:13px; margin-bottom:8px; color:#9ba0af;}
+  .footer-bottom{
+    border-top:1px solid rgba(255,255,255,0.1);
+    padding-top:20px;
+    display:flex;
+    justify-content:space-between;
+    font-size:12px;
+    color:#8890a0;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+
+  /* Responsive */
+  @media (max-width: 900px){
+    .product-grid{grid-template-columns:repeat(2, 1fr);}
+    .promo-banners{grid-template-columns:1fr;}
+    .info-blocks{grid-template-columns:1fr;}
+    .footer-cols{grid-template-columns:repeat(2, 1fr);}
+  }
+  @media (max-width: 600px){
+    .product-grid{grid-template-columns:1fr;}
+    header.main{flex-direction:column; align-items:stretch;}
+    .header-right{justify-content:space-between;}
+    .hero{padding:0 20px; height:340px;}
+    .hero-text{max-width:100%;}
+  }
+</style>
+</head>
+<body>
+
+  <!-- Announcement bar -->
+  <div class="announcement">
+    <span>Frete grátis em compras acima de R$ 400</span>
+    <span class="subscribe">Assine e economize</span>
+  </div>
+
+  <!-- Header -->
+  <header class="main">
+    <div class="logo"><span class="logo-icon"></span> Sua Loja</div>
+    <div class="search-bar">
+      <input type="text" placeholder="Buscar produtos...">
+      <select><option>Todas categorias</option></select>
+      <button>🔍</button>
+    </div>
+    <div class="header-right">
+      <div class="item">Região<br><strong>Brasil (R$)</strong></div>
+      <div class="item">Entrar<br><strong>Minha conta</strong></div>
+      <div class="item cart-icon">🛒 Carrinho<span class="cart-count">0</span></div>
+    </div>
+  </header>
+
+  <!-- Nav -->
+  <nav class="main-nav">
+    <a href="#">Todos os produtos</a>
+    <a href="#">Novidades</a>
+    <a href="#">Promoções</a>
+    <a href="#">Coleções</a>
+    <a href="#">Marcas</a>
+    <a href="#">Informações</a>
+    <a href="#">Blog</a>
+    <a href="#">Contato</a>
+  </nav>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-text">
+      <h1>Título de destaque da campanha</h1>
+      <p>Texto de apoio descrevendo a promoção ou coleção em destaque.</p>
+      <button class="btn">Ver coleção</button>
+    </div>
+    <div class="hero-dots">
+      <span class="active"></span><span></span><span></span><span></span>
+    </div>
+  </div>
+
+  <!-- Info blocks -->
+  <section>
+    <div class="info-blocks">
+      <div class="info-block">
+        <div class="icon ph">Ícone</div>
+        <div>
+          <h3>Ofertas exclusivas</h3>
+          <p>Descreva aqui um benefício ou condição especial da loja.</p>
+        </div>
+      </div>
+      <div class="info-block">
+        <div class="icon ph">Ícone</div>
+        <div>
+          <h3>Frete grátis</h3>
+          <p>Descreva as condições de envio para os clientes.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Collections -->
+  <section>
+    <div class="section-header">
+      <h2>Nossas coleções</h2>
+      <a href="#">Ver todas</a>
+    </div>
+    <div class="collections-row">
+      <div class="collection-item"><div class="circle ph">Img</div><span>Categoria 1</span></div>
+      <div class="collection-item"><div class="circle ph">Img</div><span>Categoria 2</span></div>
+      <div class="collection-item"><div class="circle ph">Img</div><span>Categoria 3</span></div>
+      <div class="collection-item"><div class="circle ph">Img</div><span>Categoria 4</span></div>
+      <div class="collection-item"><div class="circle ph">Img</div><span>Categoria 5</span></div>
+      <div class="collection-item"><div class="circle ph">Img</div><span>Categoria 6</span></div>
+    </div>
+  </section>
+
+  <!-- Promo banners -->
+  <section>
+    <div class="promo-banners">
+      <div class="promo-card c1">
+        <h3>Categoria A</h3>
+        <p>Texto promocional curto sobre a categoria.</p>
+        <button class="btn">Ver produtos</button>
+      </div>
+      <div class="promo-card c2">
+        <h3>Categoria B</h3>
+        <p>Texto promocional curto sobre a categoria.</p>
+        <button class="btn">Ver produtos</button>
+      </div>
+      <div class="promo-card c3">
+        <h3>Categoria C</h3>
+        <p>Texto promocional curto sobre a categoria.</p>
+        <button class="btn">Ver produtos</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Product grid -->
+  <section>
+    <div class="section-header">
+      <h2>Produtos em destaque</h2>
+    </div>
+    <div class="toolbar">
+      <span>Mostrando 1–8 de 32 produtos</span>
+      <span>Ordenar por: Mais vendidos</span>
+    </div>
+    <div class="product-grid">
+
+      <div class="product-card">
+        <span class="badge new">Novo</span>
+        <div class="thumb ph">Imagem do produto</div>
+        <div class="content">
+          <div class="brand">Marca</div>
+          <div class="title">Nome do produto de exemplo</div>
+          <div class="price"><span class="now">R$ 299,90</span></div>
+          <div class="rating"><span class="stars">★★★★★</span> (12)</div>
+          <div class="stock"><span class="dot"></span> Em estoque, 20 unid.</div>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <span class="badge sale">-20%</span>
+        <div class="thumb ph">Imagem do produto</div>
+        <div class="content">
+          <div class="brand">Marca</div>
+          <div class="title">Nome do produto de exemplo</div>
+          <div class="price"><span class="now">R$ 199,90</span><span class="was">R$ 249,90</span></div>
+          <div class="rating"><span class="stars">★★★★☆</span> (8)</div>
+          <div class="stock"><span class="dot"></span> Em estoque, 5 unid.</div>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <div class="thumb ph">Imagem do produto</div>
+        <div class="content">
+          <div class="brand">Marca</div>
+          <div class="title">Nome do produto de exemplo</div>
+          <div class="price"><span class="now no-sale">R$ 349,90</span></div>
+          <div class="rating"><span class="stars">★★★★★</span> (3)</div>
+          <div class="stock"><span class="dot"></span> Em estoque, 40 unid.</div>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <span class="badge sale">-15%</span>
+        <div class="thumb ph">Imagem do produto</div>
+        <div class="content">
+          <div class="brand">Marca</div>
+          <div class="title">Nome do produto de exemplo</div>
+          <div class="price"><span class="now">R$ 129,90</span><span class="was">R$ 149,90</span></div>
+          <div class="rating"><span class="stars">★★★☆☆</span> (2)</div>
+          <div class="stock"><span class="dot"></span> Em estoque, 12 unid.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="pagination">
+      <span class="page active">1</span>
+      <span class="page">2</span>
+      <span class="page">3</span>
+      <span class="page next">Próxima →</span>
+    </div>
+  </section>
+
+  <!-- Newsletter -->
+  <div class="newsletter">
+    <h2>Assine nossa newsletter</h2>
+    <p>Receba novidades, lançamentos e promoções exclusivas.</p>
+    <div class="newsletter-form">
+      <input type="email" placeholder="Seu e-mail">
+      <button class="btn">Assinar</button>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-cols">
+      <div>
+        <h4>Institucional</h4>
+        <ul>
+          <li>Sobre nós</li>
+          <li>Contato</li>
+          <li>Trabalhe conosco</li>
+        </ul>
+      </div>
+      <div>
+        <h4>Atendimento</h4>
+        <ul>
+          <li>Trocas e devoluções</li>
+          <li>Perguntas frequentes</li>
+          <li>Política de privacidade</li>
+        </ul>
+      </div>
+      <div>
+        <h4>Minha conta</h4>
+        <ul>
+          <li>Meus pedidos</li>
+          <li>Lista de desejos</li>
+          <li>Endereços</li>
+        </ul>
+      </div>
+      <div>
+        <h4>Redes sociais</h4>
+        <ul>
+          <li>Instagram</li>
+          <li>Facebook</li>
+          <li>YouTube</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Sua Loja. Todos os direitos reservados.</span>
+      <span>Visa · Mastercard · Pix · Boleto</span>
+    </div>
+  </footer>
+
+</body>
+</html>

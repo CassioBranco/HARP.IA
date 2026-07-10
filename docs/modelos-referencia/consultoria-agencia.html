@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<!--
+  MODELO DE REFERÊNCIA — Site de Consultoria / Agência (corporativo de serviço)
+  Enviado pelo Cássio em 2026-07-10.
+
+  Este é um WIREFRAME (estrutura + placeholders), não o visual final.
+
+  FAMÍLIA: mesma do landing-servico.html (negócio de serviço, home única), porém
+  com cara mais "corporativa/institucional". Confirma quase tudo que já temos e
+  introduz poucos blocos novos.
+
+  Blocos que compõem este modelo (candidatos a "blocks" do wireframe dinâmico):
+     1. header        — logo + menu + botão "Contact Us"          [JÁ TEMOS: navegação]
+     2. hero-overlay  — foto grande + headline + 2 cards de stat   [ENRIQUECE: hero com números sobrepostos]
+     3. about         — texto + imagem com selo de número flutuante[JÁ TEMOS: about (variante com badge de stat)]
+     4. services      — lista de cards ícone+texto (coluna)        [JÁ TEMOS: services (variante em lista lateral)]
+     5. case-study    — imagem + texto + número de destaque        [NOVO — "prova/resultado"; pode virar variante de about/feature]
+     6. team          — grade de 4 membros (foto + nome + cargo)   [NOVO — bloco de equipe]
+     7. reviews       — depoimento grande + imagem + % de destaque [JÁ TEMOS: testimonials (variante 1-por-vez com foto)]
+     8. clients       — faixa de logos de clientes                 [NOVO — bloco de logos/parceiros]
+     9. blog          — 3 cards de post (categoria + data)         [= bloco "blog-feed" já mapeado no institucional]
+    10. cta           — chamada final split (texto + imagem)       [JÁ TEMOS: bloco de CTA]
+    11. footer        — rodapé multi-coluna + newsletter           [JÁ TEMOS: footer + Leads]
+
+  O QUE ACRESCENTA DE NOVO (3 blocos):
+    - team      : grade de membros (foto + nome + cargo). Pede um tipo de dado novo
+                  (lista de pessoas). Útil pra clínica, escritório, agência.
+    - clients   : faixa de logos ("empresas que confiam"). Simples (lista de imagens),
+                  parente próximo da "gallery" do landing-servico.
+    - case-study: bloco de prova/resultado (imagem + texto + número). Pode nascer
+                  como uma VARIANTE do bloco about/feature, não como tipo novo.
+
+  O QUE CONFIRMA (reforça padrões já vistos):
+    - stats sobrepostos no hero e badge de número no about  => o bloco "stats"
+      (contadores) aparece de novo, agora embutido em outros blocos, não só como
+      faixa. Reforça que "stats" é um bloco base de alto valor.
+    - reviews aqui é 1 depoimento por vez, com foto grande   => outra variante do
+      testimonials, além dos 3-em-grade do landing-servico.
+    - blog em 3 cards com categoria + data                   => mesmo "blog-feed"
+      do institucional; agora visto em 2 modelos, vira prioridade.
+-->
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Wireframe - Recriação (fins acadêmicos)</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: Arial, Helvetica, sans-serif; color:#333; background:#fff; }
+  .wrap { max-width:1200px; margin:0 auto; padding:0 24px; }
+  .img-ph {
+    background: repeating-linear-gradient(45deg, #e3e3e3, #e3e3e3 10px, #ececec 10px, #ececec 20px);
+    border: 1px dashed #aaa;
+    display:flex; align-items:center; justify-content:center;
+    color:#888; font-size:12px; text-align:center;
+  }
+  .bar { background:#d9d9d9; border-radius:3px; height:10px; margin:6px 0; }
+  .bar.w80{width:80%} .bar.w60{width:60%} .bar.w40{width:40%} .bar.w30{width:30%} .bar.w20{width:20%}
+  .label { font-size:11px; letter-spacing:2px; color:#999; text-transform:uppercase; border-bottom:1px solid #ccc; display:inline-block; padding-bottom:4px; margin-bottom:8px;}
+  .btn { display:inline-block; border:1px solid #333; border-radius:20px; padding:8px 18px; font-size:12px; text-align:center; }
+  .btn.solid { background:#222; color:#fff; border-color:#222; }
+  .section { padding:48px 0; border-top:1px dashed #ccc; }
+  h1,h2,h3 { margin:6px 0; color:#555; }
+  .grid { display:grid; gap:20px; }
+  .flex { display:flex; gap:20px; }
+  .card { border:1px solid #ddd; border-radius:6px; padding:16px; }
+  .icon-ph { width:48px; height:48px; border:1px dashed #aaa; border-radius:6px; }
+  .avatar-ph { width:64px; height:64px; border-radius:50%; }
+  .note { font-size:11px; color:#999; }
+  header.top { border-bottom:1px solid #ddd; }
+</style>
+</head>
+<body>
+
+<!-- HEADER / NAV -->
+<header class="top">
+  <div class="wrap flex" style="align-items:center; justify-content:space-between; padding:16px 24px;">
+    <div class="img-ph" style="width:100px;height:28px;">LOGO</div>
+    <nav class="flex" style="gap:24px; font-size:12px; color:#666;">
+      <span>ABOUT</span><span>SERVICES</span><span>CASE STUDY</span><span>BLOGS</span><span>TEAM</span><span>REVIEW</span>
+    </nav>
+    <div class="flex" style="align-items:center; gap:10px;">
+      <div class="icon-ph" style="width:36px;height:36px;"></div>
+      <div class="btn solid">Contact Us</div>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="img-ph" style="height:520px; position:relative; margin:0;">
+  HERO IMAGE (foto equipe)
+  <div style="position:absolute; left:24px; bottom:120px; max-width:520px;">
+    <h1 style="color:#444;">HEADLINE DE IMPACTO (3 linhas)</h1>
+  </div>
+  <div style="position:absolute; left:24px; bottom:60px; display:flex; gap:12px;">
+    <div class="btn solid" style="background:#fff;color:#000;border-color:#000;">Read More</div>
+    <div class="btn" style="background:#fff;">Our Services</div>
+  </div>
+  <div class="flex" style="position:absolute; right:24px; bottom:40px;">
+    <div style="padding:20px 28px; border:1px solid #ddd; background:#fff;">
+      <div style="font-size:26px; font-weight:bold;">500+</div>
+      <div class="bar w80"></div>
+      <div class="note">texto descritivo curto</div>
+    </div>
+    <div style="padding:20px 28px; background:#dfe3d4; border:1px solid #ddd;">
+      <div style="font-size:26px; font-weight:bold;">100+</div>
+      <div class="bar w80"></div>
+      <div class="note">texto descritivo curto</div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section class="section">
+  <div class="wrap flex" style="align-items:center;">
+    <div style="flex:1;">
+      <div class="label">About Us</div>
+      <h2>Título de duas ou três linhas sobre a proposta de valor</h2>
+      <div class="bar w60"></div>
+      <div class="bar w40"></div>
+      <div style="margin:20px 0;">
+        <div class="bar w30"></div>
+        <div style="height:6px;background:#eee;border-radius:3px;">
+          <div style="width:80%;height:6px;background:#999;border-radius:3px;"></div>
+        </div>
+      </div>
+      <div class="btn solid">About Us</div>
+    </div>
+    <div style="flex:1; position:relative;">
+      <div class="img-ph" style="height:280px;">IMAGEM</div>
+      <div style="position:absolute; bottom:-20px; right:-20px; background:#2b2f2b; color:#fff; padding:16px; width:160px;">
+        <div style="font-size:20px;font-weight:bold;">85k+</div>
+        <div class="note" style="color:#ccc;">texto curto</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section class="section" style="background:#f4f6f4;">
+  <div class="wrap flex" style="align-items:flex-start;">
+    <div style="flex:1;">
+      <div class="label">What We Do</div>
+      <h2>Our Services</h2>
+      <div class="bar w80"></div>
+      <div class="bar w60"></div>
+      <div class="btn solid" style="margin-top:16px;">View All Services</div>
+    </div>
+    <div style="flex:1.4;" class="grid">
+      <!-- repetir este bloco de card para cada um dos 5 serviços -->
+      <div class="card flex" style="align-items:flex-start; background:#fff;">
+        <div class="icon-ph"></div>
+        <div style="flex:1;">
+          <h3 style="font-size:16px;">Serviço 1</h3>
+          <div class="bar w80"></div>
+          <div class="bar w60"></div>
+        </div>
+      </div>
+      <!-- ... Serviço 2, 3, 4, 5 ... -->
+    </div>
+  </div>
+</section>
+
+<!-- CASE STUDY -->
+<section class="section" style="background:#dfe3d4; padding:0;">
+  <div class="flex" style="align-items:center;">
+    <div class="img-ph" style="flex:1; height:420px; position:relative;">
+      IMAGEM
+      <div style="position:absolute; left:20px; bottom:20px; background:#fff; padding:16px 24px;">
+        <div style="font-size:22px; font-weight:bold;">100+</div>
+        <div class="note">texto curto</div>
+      </div>
+    </div>
+    <div style="flex:1; padding:40px;">
+      <div class="label">Case Study</div>
+      <h2>Título do case de duas linhas</h2>
+      <div class="bar w80"></div>
+      <div class="bar w60"></div>
+      <div style="margin:16px 0;">
+        <div class="bar w40"></div>
+        <div class="bar w40"></div>
+        <div class="bar w30"></div>
+      </div>
+      <div class="btn solid">Explore All Case Studies</div>
+    </div>
+  </div>
+</section>
+
+<!-- TEAM -->
+<section class="section" style="background:#f4f6f4;">
+  <div class="wrap">
+    <div class="flex" style="justify-content:space-between; align-items:center;">
+      <div>
+        <div class="label">Our Values</div>
+        <h2>Meet the consultation team</h2>
+      </div>
+      <div class="btn solid">View All</div>
+    </div>
+    <div class="grid" style="grid-template-columns:repeat(4,1fr); margin-top:24px;">
+      <!-- repetir para cada um dos 4 membros -->
+      <div>
+        <div class="img-ph" style="height:220px;">FOTO</div>
+        <div class="bar w60" style="margin-top:12px;"></div>
+        <div class="bar w40"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- REVIEWS -->
+<section class="section" style="padding:0;">
+  <div class="flex" style="align-items:center;">
+    <div style="flex:1; padding:40px;">
+      <div class="label">Review</div>
+      <h2>What our Customer Say ?</h2>
+      <div class="bar w60"></div>
+      <div class="flex" style="justify-content:space-between; align-items:center; margin:16px 0;">
+        <div class="icon-ph" style="border-radius:50%;"></div>
+        <div class="note">estrelas</div>
+      </div>
+      <div class="bar w80"></div>
+      <div class="bar w80"></div>
+      <div class="bar w60"></div>
+      <div class="flex" style="justify-content:space-between; align-items:center; border-top:1px solid #ddd; margin-top:16px; padding-top:16px;">
+        <div class="flex" style="align-items:center;">
+          <div class="avatar-ph img-ph"></div>
+          <div>
+            <div class="bar w40"></div>
+            <div class="bar w60"></div>
+          </div>
+        </div>
+        <div class="flex">
+          <div class="icon-ph" style="width:32px;height:32px;border-radius:50%;"></div>
+          <div class="icon-ph" style="width:32px;height:32px;border-radius:50%;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="img-ph" style="flex:1; height:420px; position:relative;">
+      IMAGEM
+      <div style="position:absolute; left:20px; bottom:20px;">
+        <div style="font-size:30px; font-weight:bold;">98%</div>
+        <div>texto curto</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CLIENTS -->
+<section class="section" style="background:#f4f6f4;">
+  <div class="wrap">
+    <div class="label">Client</div>
+    <h2>Those Who Trusted Us</h2>
+    <div class="flex" style="margin-top:20px;">
+      <!-- repetir para 5 logos -->
+      <div class="img-ph" style="flex:1;height:70px;">logo</div>
+    </div>
+  </div>
+</section>
+
+<!-- BLOG -->
+<section class="section">
+  <div class="wrap">
+    <div class="flex" style="justify-content:space-between; align-items:center;">
+      <div>
+        <div class="label">Blog</div>
+        <h2>Insights & Resources</h2>
+      </div>
+      <div class="btn solid">View All</div>
+    </div>
+    <div class="grid" style="grid-template-columns:repeat(3,1fr); margin-top:24px;">
+      <!-- repetir para 3 posts -->
+      <div>
+        <div class="img-ph" style="height:180px; position:relative;">
+          IMAGEM
+          <div style="position:absolute; left:10px; bottom:10px; background:#dfe3d4; font-size:10px; padding:4px 8px;">data</div>
+        </div>
+        <div class="note" style="margin-top:8px;">categoria</div>
+        <div class="bar w80"></div>
+        <div class="bar w60"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section style="background:#dfe3d4;">
+  <div class="flex" style="align-items:center;">
+    <div style="flex:1; padding:40px;">
+      <div class="label">CTA</div>
+      <h2>Chamada para ação de duas linhas</h2>
+      <div class="bar w80"></div>
+      <div class="flex" style="margin-top:16px;">
+        <div class="btn solid">Get Started</div>
+        <div class="btn" style="background:#fff;">Our Services</div>
+      </div>
+    </div>
+    <div class="img-ph" style="flex:1; height:260px;">IMAGEM</div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer style="background:#1c1c1c; color:#ccc; padding:48px 0 16px;">
+  <div class="wrap flex" style="align-items:flex-start; justify-content:space-between;">
+    <div style="flex:1.5;">
+      <div class="bar w80" style="background:#444;"></div>
+      <div class="bar w60" style="background:#444;"></div>
+      <div class="label" style="color:#888; border-color:#444;">Newsletter</div>
+      <div class="flex">
+        <div style="flex:1;border:1px solid #444;height:32px;"></div>
+        <div class="btn solid" style="background:#444;border-color:#444;">ok</div>
+      </div>
+    </div>
+    <div>
+      <div class="note" style="color:#888;">Pages</div>
+      <div class="bar w60" style="background:#444;"></div>
+      <div class="bar w60" style="background:#444;"></div>
+      <div class="bar w60" style="background:#444;"></div>
+      <div class="bar w60" style="background:#444;"></div>
+    </div>
+    <div>
+      <div class="note" style="color:#888;">Resources</div>
+      <div class="bar w60" style="background:#444;"></div>
+      <div class="bar w60" style="background:#444;"></div>
+      <div class="bar w60" style="background:#444;"></div>
+    </div>
+    <div>
+      <div class="note" style="color:#888;">Location</div>
+      <div class="bar w80" style="background:#444;"></div>
+      <div class="note" style="color:#888; margin-top:16px;">Contact</div>
+      <div class="bar w60" style="background:#444;"></div>
+    </div>
+    <div>
+      <div class="note" style="color:#888;">Follow Us</div>
+      <div class="flex" style="margin-top:8px;">
+        <div class="icon-ph" style="width:28px;height:28px;border-radius:50%;background:#333;"></div>
+        <div class="icon-ph" style="width:28px;height:28px;border-radius:50%;background:#333;"></div>
+        <div class="icon-ph" style="width:28px;height:28px;border-radius:50%;background:#333;"></div>
+        <div class="icon-ph" style="width:28px;height:28px;border-radius:50%;background:#333;"></div>
+      </div>
+    </div>
+  </div>
+  <div class="wrap flex" style="justify-content:space-between; border-top:1px solid #333; margin-top:24px; padding-top:16px;">
+    <div class="img-ph" style="width:90px;height:24px;background:#333;">LOGO</div>
+    <div class="note">copyright - link - link</div>
+  </div>
+</footer>
+
+</body>
+</html>

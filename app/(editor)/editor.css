@@ -5,9 +5,16 @@
    Token-based: claro/escuro automáticos. Escopado em .painel-shell.
    ============================================================ */
 
-/* layout raiz: rail | painel | palco — tela cheia, sem scroll no body */
+/* layout raiz: rail | painel-conteudo | palco | painel-design — tela cheia,
+   sem scroll no body. As duas laterais não são mais espremidas num painel só:
+   esquerda = conteúdo, direita = design/ajustes, preview grande no meio.
+   Colunas explícitas pra ordem visual não depender da ordem no DOM. */
 .painel-shell .ed{position:relative;z-index:2;height:100vh;display:grid;
-  grid-template-columns:76px 344px 1fr;overflow:hidden}
+  grid-template-columns:76px 320px minmax(0,1fr) 320px;overflow:hidden}
+.painel-shell .ed-rail{grid-column:1}
+.painel-shell .ed-panel-l{grid-column:2}
+.painel-shell .ed-stage{grid-column:3}
+.painel-shell .ed-panel-r{grid-column:4}
 
 /* ── Rail de ícones (esquerda) ── */
 .painel-shell .ed-rail{display:flex;flex-direction:column;align-items:center;gap:.4rem;
@@ -23,16 +30,19 @@
 .painel-shell .ed-tab.on{background:hsl(var(--accent) / .1);color:var(--ink);box-shadow:inset 0 0 0 1px hsl(var(--accent) / .4)}
 .painel-shell .ed-rail .foot{margin-top:auto;display:flex;flex-direction:column;gap:.4rem;align-items:center}
 
-/* ── Painel central (controles) ── */
-.painel-shell .ed-panel{display:flex;flex-direction:column;min-height:0;
-  border-right:1px solid var(--line);background:var(--surf)}
+/* ── Painéis de controle (esquerda = conteúdo, direita = design) ── */
+.painel-shell .ed-panel{display:flex;flex-direction:column;min-height:0;background:var(--surf)}
+.painel-shell .ed-panel-l{border-right:1px solid var(--line)}
+.painel-shell .ed-panel-r{border-left:1px solid var(--line)}
 .painel-shell .ed-ph{display:flex;align-items:center;justify-content:space-between;gap:.6rem;
   padding:1rem 1.1rem;border-bottom:1px solid var(--line)}
 .painel-shell .ed-ph h2{margin:0;font-family:var(--font-mono),monospace;font-size:.66rem;font-weight:600;text-transform:uppercase;
   letter-spacing:.09em;color:var(--muted)}
 .painel-shell .ed-ph .sub{font-size:.7rem;color:hsl(var(--destructive));font-weight:700;margin-top:.15rem}
-.painel-shell .ed-subtabs{display:flex;gap:.15rem;padding:.5rem .8rem 0;border-bottom:1px solid var(--line)}
-.painel-shell .ed-subtab{flex:1;padding:.55rem 0;font-family:var(--font-mono),monospace;font-size:.66rem;text-transform:uppercase;letter-spacing:.04em;
+/* abas quebram em várias linhas em vez de espremer (antes: 9 abas de 34px
+   ilegíveis num painel só). Agora são poucas por painel e ainda assim wrap. */
+.painel-shell .ed-subtabs{display:flex;flex-wrap:wrap;gap:.1rem .3rem;padding:.5rem .8rem 0;border-bottom:1px solid var(--line)}
+.painel-shell .ed-subtab{flex:1 1 auto;min-width:58px;padding:.5rem .3rem;font-family:var(--font-mono),monospace;font-size:.66rem;text-transform:uppercase;letter-spacing:.03em;
   font-weight:600;color:var(--muted);background:none;border:0;border-bottom:2px solid transparent;cursor:pointer;transition:color .14s}
 .painel-shell .ed-subtab:hover{color:var(--ink)}
 .painel-shell .ed-subtab.on{color:var(--ink);border-bottom-color:var(--red)}
@@ -195,8 +205,16 @@
 .painel-shell .ed-gal-btn.on{background:var(--navy);border-color:var(--navy);color:hsl(var(--primary-foreground))}
 .painel-shell .ed-gal-alt{font-size:.6rem;line-height:1.3;color:var(--muted2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 
-@media(max-width:1100px){
-  .painel-shell .ed{grid-template-columns:64px 300px 1fr}
+@media(max-width:1280px){
+  .painel-shell .ed{grid-template-columns:64px 280px minmax(0,1fr) 280px}
+}
+/* telas estreitas: some com a lateral direita (design) pra o preview respirar;
+   mantém rail + conteúdo + preview. Base funcional — refinar depois. */
+@media(max-width:1024px){
+  .painel-shell .ed{grid-template-columns:60px 280px minmax(0,1fr)}
+  .painel-shell .ed-panel-r{display:none}
+  .painel-shell .ed-panel-l{grid-column:2}
+  .painel-shell .ed-stage{grid-column:3}
 }
 
 /* easing suave nos controles do editor */
@@ -205,3 +223,15 @@
 .painel-shell .ed-acc,
 .painel-shell .ed-gal-card,
 .painel-shell .ed-img{transition-timing-function:cubic-bezier(.22,1,.36,1)}
+
+/* ── Skeleton loaders (shimmer) — tema-aware ── */
+.painel-shell .ed-skel{
+  background:linear-gradient(90deg,
+    hsl(var(--muted) / .45) 25%,
+    hsl(var(--muted) / .85) 37%,
+    hsl(var(--muted) / .45) 63%);
+  background-size:400% 100%;
+  animation:edSkel 1.4s ease infinite;
+}
+@keyframes edSkel{0%{background-position:100% 50%}100%{background-position:0 50%}}
+@media(prefers-reduced-motion:reduce){.painel-shell .ed-skel{animation:none}}

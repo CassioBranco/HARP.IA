@@ -1,5 +1,6 @@
 import type { SiteContent } from '@/lib/templates/example-content'
 import SiteBrand from '../shared/SiteBrand'
+import Icon from '../shared/Icon'
 import type { PaletteColors } from '@/lib/templates/palettes'
 
 function cssVars(p: PaletteColors) {
@@ -70,7 +71,7 @@ const templateCSS = `
 /* values */
 .ac .values { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2.5rem; }
 .ac .value { text-align: center; }
-.ac .value .ic { font-size: 2.2rem; }
+.ac .value .ic { font-size: 2.2rem; color: var(--sp); display: inline-flex; }
 .ac .value h3 { font-size: 1.3rem; margin: .8rem 0 .5rem; font-weight: 600; font-family: var(--font-heading); }
 .ac .value p { color: var(--sm); font-size: 1rem; line-height: 1.65; margin: 0; }
 
@@ -151,13 +152,11 @@ export default function AcolhedorLayout({ c, p, preview: _preview }: { c: SiteCo
       {/* HERO */}
       <header className="hero">
         <div className="wrap">
-          {c.heroImage && (
-            <img
-              className="avatar"
-              src={c.heroImage}
-              alt={`${c.businessName}, ${c.city}/${c.state}`}
-            />
-          )}
+          <img
+            className="avatar"
+            src={c.heroImage ?? `https://picsum.photos/seed/${c.businessName}-av/240/240`}
+            alt={`${c.businessName}, ${c.city}/${c.state}`}
+          />
           <span className="kicker">{c.tagline || `${c.city}/${c.state}`}</span>
           <h1>{c.heroHeadline}</h1>
           <p>{c.heroSub}</p>
@@ -205,17 +204,17 @@ export default function AcolhedorLayout({ c, p, preview: _preview }: { c: SiteCo
             </div>
             <div className="values">
               <div className="value">
-                <div className="ic">🤝</div>
+                <div className="ic"><Icon name="chat" size={38} /></div>
                 <h3>Tempo de ouvir</h3>
                 <p>Atendimento sem pressa para entender você por inteiro, sem relógio em cima.</p>
               </div>
               <div className="value">
-                <div className="ic">🌿</div>
+                <div className="ic"><Icon name="leaf" size={38} /></div>
                 <h3>Cuidado contínuo</h3>
                 <p>Histórico completo compartilhado entre os profissionais. Você nunca recomeça do zero.</p>
               </div>
               <div className="value">
-                <div className="ic">❤️</div>
+                <div className="ic"><Icon name="heart" size={38} /></div>
                 <h3>Acolhimento real</h3>
                 <p>Da recepção ao atendimento, um ambiente pensado para você se sentir em casa.</p>
               </div>
@@ -255,7 +254,7 @@ export default function AcolhedorLayout({ c, p, preview: _preview }: { c: SiteCo
               <div className="values" style={{ gridTemplateColumns: `repeat(${Math.min(c.services.length, 3)}, 1fr)` }}>
                 {c.services.map((svc, i) => (
                   <div className="value" key={i}>
-                    <div className="ic">{svc.icon}</div>
+                    <div className="ic">{svc.image ? <img src={svc.image} alt="" style={{ width: 48, height: 48, borderRadius: 10, objectFit: 'cover' }} /> : svc.icon}</div>
                     <h3>{svc.name}</h3>
                     <p>{svc.description}</p>
                   </div>

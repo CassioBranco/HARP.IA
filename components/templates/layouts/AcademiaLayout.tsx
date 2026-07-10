@@ -1,5 +1,6 @@
 import type { SiteContent } from '@/lib/templates/example-content'
 import SiteBrand from '../shared/SiteBrand'
+import Icon from '../shared/Icon'
 import type { PaletteColors } from '@/lib/templates/palettes'
 
 function cssVars(p: PaletteColors) {
@@ -250,7 +251,7 @@ export default function AcademiaLayout({ c, p, preview }: { c: SiteContent; p: P
               1ª aula<br />grátis<span>sem compromisso</span>
             </div>
             <div className="ac-chip">
-              💬 Conversa desde o dia 1
+              <Icon name="chat" size={16} /> Conversa desde o dia 1
             </div>
           </div>
         </div>
@@ -350,15 +351,15 @@ export default function AcademiaLayout({ c, p, preview }: { c: SiteContent; p: P
                 {courses.map((course, i) => (
                   <article key={i} className="ac-course">
                     <div className="ac-ctop">
-                      <span style={{ fontSize: '1.8rem' }}>📚</span>
+                      <span className="ac-ico" style={{ fontSize: '1.8rem' }}><Icon name="book" size={28} /></span>
                       <span className={modalityClass(course.modality)}>{course.modality}</span>
                     </div>
                     <div className="ac-cbody">
                       <h3>{course.name}</h3>
                       <p>{course.description}</p>
                       <div className="ac-meta">
-                        <span>⏱ {course.hours}h</span>
-                        <span>👥 até 6 alunos</span>
+                        <span><Icon name="clock" size={15} /> {course.hours}h</span>
+                        <span><Icon name="users" size={15} /> até 6 alunos</span>
                       </div>
                       <div className="ac-cfoot">
                         <a href={href(whatsapp)} className="ac-btn">Quero me matricular</a>
@@ -373,15 +374,15 @@ export default function AcademiaLayout({ c, p, preview }: { c: SiteContent; p: P
                 {services.map((svc, i) => (
                   <article key={i} className="ac-course">
                     <div className="ac-ctop">
-                      <span style={{ fontSize: '1.8rem' }}>{svc.icon}</span>
+                      <span style={{ fontSize: '1.8rem' }}>{svc.image ? <img src={svc.image} alt="" style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'cover', display: 'block' }} /> : svc.icon}</span>
                       <span className="ac-modality ac-m-pres">Presencial</span>
                     </div>
                     <div className="ac-cbody">
                       <h3>{svc.name}</h3>
                       <p>{svc.description}</p>
                       <div className="ac-meta">
-                        <span>⏱ 2x/semana</span>
-                        <span>👥 até 6 alunos</span>
+                        <span><Icon name="clock" size={15} /> 2x/semana</span>
+                        <span><Icon name="users" size={15} /> até 6 alunos</span>
                       </div>
                       <div className="ac-cfoot">
                         <a href={href(whatsapp)} className="ac-btn">Quero me matricular</a>
@@ -394,8 +395,9 @@ export default function AcademiaLayout({ c, p, preview }: { c: SiteContent; p: P
           </div>
         </section>
 
-        {/* DEPOIMENTO DESTAQUE */}
-        {bestTestimonial && (
+        {/* DEPOIMENTO DESTAQUE — bestTestimonial tem fallback vazio, então
+            guarda pelo .text pra não renderizar seção sem depoimento real */}
+        {bestTestimonial.text && (
           <section className="ac-testi">
             <div className="ac-wrap">
               <span className="ac-kicker" style={{ color: 'var(--sa)' }}>Quem estudou, fala</span>
@@ -458,7 +460,7 @@ export default function AcademiaLayout({ c, p, preview }: { c: SiteContent; p: P
               <h2>Sua primeira aula é <span className="ac-mark">grátis</span></h2>
               <p>Agende o nivelamento sem compromisso e sinta como é aprender conversando.</p>
               <a href={href(whatsapp)} className="ac-btn ac-btn-amber" style={{ padding: '1.1rem 2.4rem', fontSize: '1.05rem' }}>
-                &#128172; Agendar aula grátis
+                <Icon name="whatsapp" size={18} /> Agendar aula grátis
               </a>
             </div>
           </div>

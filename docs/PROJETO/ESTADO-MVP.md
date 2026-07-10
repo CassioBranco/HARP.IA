@@ -14,18 +14,81 @@
 ---
 
 ## 0. PRÓXIMA AÇÃO DECIDIDA (retomar por aqui)
-**Endurecimento de backend FEITO** (2026-07-04): webhook assinado + sanitizador
-de blog + SSRF + JSON-LD + auditoria das 9 rotas novas (todas sólidas;
-integridade de preço do checkout confirmada correta). Tudo LOCAL, tsc verde,
-não commitado. Detalhe na seção 6.
+**🚀 DEPLOY FEITO (2026-07-05).** Commit `fe81441` na `master`, buildado e no ar
+na Vercel (deployment `dpl_ACptq…`, state READY, produção). As **7 migrations**
+da leva foram **aplicadas em produção** e verificadas (tabelas leads/booking/
+partner_* + colunas). Auditoria adversarial do Fable 5 rodada e 3 correções
+aplicadas antes do push. Páginas legais limpas ao vivo (sem placeholders/notas
+internas; "em atualização durante o beta"). Confirmado via WebFetch em
+`ancoreo.com.br/termos`.
 
-**Retomar por:** destravar o que depende do Cássio —
-1. **Q1 (decisão):** lançar **pago já** ou **beta grátis primeiro**? → destrava
-   o billing da assinatura (única peça de backend que falta construir).
-2. **Config (Cássio põe as chaves):** `MERCADOPAGO_ACCESS_TOKEN` +
-   `MERCADOPAGO_WEBHOOK_SECRET` no ambiente pra loja processar de verdade.
-3. **Infra de e-mail (Resend):** notificar o dono em lead/agendamento/pedido —
-   precisa `RESEND_API_KEY` + domínio verificado. Construir quando configurado.
+**✅ LOGIN DO CLIENTE JÁ FUNCIONA** (confirmado pelo Cássio 2026-07-05): auth
+self-serve (email+senha / Google) + provisionamento automático de tenant já
+estão de pé; a confirmação de e-mail no Supabase já foi configurada em sessão
+anterior. NÃO retomar "config de login/Supabase" — está resolvido.
+
+**Retomar por:** o que ainda depende do Cássio —
+1. **Chaves do Mercado Pago:** `MERCADOPAGO_ACCESS_TOKEN` +
+   `MERCADOPAGO_WEBHOOK_SECRET` na **Vercel** (env de produção) pra loja
+   processar de verdade. Precisa do acesso do Dove à conta MP. Enquanto ausente,
+   webhook cai em `unconfigured` (loja dormente).
+2. **E-mail (Resend):** `RESEND_API_KEY` + domínio verificado → liga as
+   notificações (módulo já fiado, dormente).
+3. **CNPJ/legal:** quando sair, commit de 2 min preenche razão social + CNPJ +
+   sede reais em /termos e /privacidade (hoje "em atualização durante o beta").
+4. **Bug visual pendente:** divisor de ondas da landing (`.anc .deep`/`.foot` em
+   `app/landing.css`) está com o escalope invertido (côncavo). Fix = trocar o
+   círculo do `radial-gradient` de `transparent`→`var(--ink)` (convexo). NÃO
+   aplicado — aguardava confirmação de direção do Cássio.
+5. **Q1 (decisão, PÓS-beta):** billing da assinatura (Q1 = beta grátis, fora da
+   v1).
+
+---
+
+## 0.1 EM CURSO — Wireframe do editor + anti-fabricação (2026-07-09)
+> **Princípio do Cássio (2026-07-09):** primeiro o **wireframe funcional e limpo**,
+> estilo/beleza **depois**. Régua atual = funciona e é organizado, não bonito.
+> Fonte de ícones/animações pra fase de ESTILO (não agora): **uiverse.io** +
+> Phosphor (`public/icons`). Tudo abaixo é **LOCAL, tsc OK, NÃO deployado**.
+
+- ✅ **IA parou de inventar (anti-"enche-linguiça").** Reescrito o user-prompt de
+  `app/api/generate/site/route.ts` com "REGRA DE FATOS" no topo: só escreve com
+  fato do perfil; onde falta, deixa marcador `[ ]` em vez de inventar;
+  `testimonials` **sempre `[]`**; removidas as cotas que forçavam padding
+  (2-3 parágrafos / cidade 2x). **Pendente:** o prompt de SISTEMA no banco
+  (`seed_prompt_templates.sql:63`) ainda diz "testimonials: 3 fictícios" — some
+  a contradição. Corrigir via **migration** (mexe em prod → GATE do Cássio).
+- ✅ **Editor reorganizado em 2 laterais** (Cássio: "muito melhor"). Antes: 9 abas
+  de ~34px espremidas num painel só. Agora: **esquerda = Conteúdo** (Textos,
+  Imagens, Marca) · **direita = Design & Ajustes** (Modelo, Cores, Fontes, SEO,
+  Agenda, Leads) · preview grande no meio. Arqs: `app/(editor)/editor.css` (grid
+  4 col + wrap das abas), `CustomizationPanel.tsx` (2 painéis, `leftTab`/`rightTab`),
+  `editor/[siteId]/page.tsx`.
+- ✅ **Campo de depoimentos REAIS** no editor (`SectionEditor.tsx` + `SECTIONS`):
+  nome (obrigatório), texto, nota, **foto (opcional, reusa `/api/images/upload`)**,
+  **data (opcional)**. A IA nunca toca em depoimento (botões de IA escondidos).
+  Dado flui: `build-site-content.ts` (photo_url→photoUrl, date) + tipo em
+  `example-content.ts`. **Seção vazia agora some** em todos os layouts (guardas
+  corrigidas em CleanLayout + AcademiaLayout; os outros 7 já ok). Foto/data
+  renderizados no **CleanLayout** (modelo padrão).
+- ✅ **Bug de arraste de imagem corrigido.** (a) Dropzone do painel
+  (`ImageUploader.tsx`) virou alvo de drop de verdade: `<div>` com
+  dragEnter/Over/Leave/Drop + destaque visual "Solte a foto pra enviar" (antes
+  era `<button>` sem feedback, parecia morto). (b) Modelos Jovem/Tech
+  renderizavam `<img src={c.heroImage}>` sem fallback (quebrada quando vazia) e
+  Acolhedor renderizava a imagem condicional (sem alvo pra 1ª foto) — agora todos
+  têm placeholder picsum como os demais modelos, então sempre há onde soltar.
+- ✅ **Imagem por serviço** (resolve o "espaços limitados"): cada serviço aceita
+  foto opcional no editor (`SectionEditor` services + `uploadSvcPhoto`). Dado flui
+  (`ServiceItem.image` → `build-site-content` → `SiteContent.services.image`) e é
+  **renderizado nos 8 modelos** que têm seção de serviços: nos com ícone a foto
+  substitui o emoji; nos sem ícone (Clean/Bold/Profissional) entra como miniatura.
+  Sem foto = comportamento antigo (ícone/número). Antes só havia 2 slots
+  (hero/about); agora tem 1 por serviço também.
+- ⏳ **Falta neste bloco (fase de estilo / gates):**
+  1. **Foto/data dos depoimentos nos outros 8 layouts** (só Clean renderiza hoje).
+  2. Migration do prompt de sistema no banco (contradição "3 fictícios" — gate).
+  3. Galeria dedicada / mais slots ainda podem entrar se o Cássio quiser.
 
 ---
 

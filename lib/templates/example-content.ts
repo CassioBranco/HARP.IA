@@ -43,11 +43,11 @@ export type SiteContent = {
   ctaPhone: string
   city: string
   state: string
-  services: Array<{ name: string; description: string; icon: string }>
+  services: Array<{ name: string; description: string; icon: string; image?: string }>
   about: string
   yearsExperience: number
   credential: string
-  testimonials: Array<{ name: string; text: string; rating: number }>
+  testimonials: Array<{ name: string; text: string; rating: number; photoUrl?: string; date?: string }>
   faqs: Array<{ question: string; answer: string }>
   address: string
   whatsapp: string

@@ -1,5 +1,6 @@
 import type { SiteContent } from '@/lib/templates/example-content'
 import SiteBrand from '../shared/SiteBrand'
+import Icon from '../shared/Icon'
 import type { PaletteColors } from '@/lib/templates/palettes'
 import SiteFAQ from '../shared/SiteFAQ'
 import SiteBlog from '../shared/SiteBlog'
@@ -76,7 +77,7 @@ export default function JovemLayout({ c, p, preview }: { c: SiteContent; p: Pale
                 boxShadow: '4px 4px 0 var(--ink)', transform: 'rotate(-3deg)',
                 fontSize: '.8rem', marginBottom: '1.2rem',
               }}>
-                ⚡ {c.tagline ?? c.city} · {c.city}
+                <Icon name="bolt" size={14} /> {c.tagline ?? c.city} · {c.city}
               </span>
 
               {/* H1 — tipografia tripla */}
@@ -133,7 +134,7 @@ export default function JovemLayout({ c, p, preview }: { c: SiteContent; p: Pale
                 transform: 'rotate(2deg)', overflow: 'hidden', position: 'relative',
               }}>
                 <img
-                  src={c.heroImage}
+                  src={c.heroImage ?? `https://picsum.photos/seed/${c.businessName}-hero/640/800`}
                   alt={`${c.businessName} – ${c.city}`}
                   width={640} height={800}
                   style={{ width: '100%', aspectRatio: '4/5', objectFit: 'cover', display: 'block', filter: 'grayscale(1) contrast(1.2)', mixBlendMode: 'multiply' }}
@@ -211,7 +212,7 @@ export default function JovemLayout({ c, p, preview }: { c: SiteContent; p: Pale
                     position: 'absolute', inset: 0, mixBlendMode: 'screen', opacity: .15,
                     background: i % 4 === 0 ? 'var(--sp)' : i % 4 === 1 ? 'var(--ss)' : i % 4 === 2 ? 'var(--sa)' : 'var(--sp)',
                   }} />
-                  <div style={{ fontSize: '2.5rem', marginBottom: '.75rem', position: 'relative', zIndex: 2 }}>{svc.icon}</div>
+                  <div style={{ fontSize: '2.5rem', marginBottom: '.75rem', position: 'relative', zIndex: 2 }}>{svc.image ? <img src={svc.image} alt="" style={{ width: 56, height: 56, borderRadius: 10, objectFit: 'cover' }} /> : svc.icon}</div>
                   <h3 style={{ ...smash, fontSize: '1rem', margin: '0 0 .5rem', textAlign: 'center', position: 'relative', zIndex: 2 }}>{svc.name}</h3>
                   <p style={{ ...mono, fontSize: '.7rem', textAlign: 'center', lineHeight: 1.4, margin: 0, position: 'relative', zIndex: 2, opacity: .8 }}>{svc.description}</p>
                   {/* Label bottom */}
@@ -345,12 +346,13 @@ export default function JovemLayout({ c, p, preview }: { c: SiteContent; p: Pale
               <p style={{ ...mono, fontSize: '1rem', lineHeight: 1.7, marginBottom: '1.5rem' }}>{c.about}</p>
               {c.credential && (
                 <div style={{
-                  display: 'inline-block', backgroundColor: 'var(--sa)', color: 'var(--ink)',
+                  backgroundColor: 'var(--sa)', color: 'var(--ink)',
                   ...mono, fontWeight: 700, fontSize: '.8rem', textTransform: 'uppercase',
                   padding: '.4rem .9rem', border: '2.5px solid var(--ink)',
                   boxShadow: '4px 4px 0 var(--ink)',
+                  display: 'inline-flex', alignItems: 'center', gap: '.4rem',
                 }}>
-                  🏅 {c.credential}
+                  <Icon name="award" size={15} /> {c.credential}
                 </div>
               )}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1.5rem' }}>
@@ -392,7 +394,7 @@ export default function JovemLayout({ c, p, preview }: { c: SiteContent; p: Pale
               boxShadow: '6px 6px 0 var(--sp)', ...smash,
               fontSize: '1.1rem', textDecoration: 'none',
             }}>
-              Chamar no WhatsApp →
+              Chamar no WhatsApp <Icon name="arrow-right" size={18} />
             </a>
           </div>
         </section>

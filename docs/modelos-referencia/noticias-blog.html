@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<!--
+  MODELO DE REFERÊNCIA — Site/Portal de Notícias (layout de blog)
+  Enviado pelo Cássio em 2026-07-10.
+
+  Este é um WIREFRAME (estrutura + placeholders), não o visual final.
+
+  DIFERENÇA-CHAVE dos outros dois modelos salvos:
+    - institucional.html e ecommerce-loja.html são HOMES de site.
+    - este é uma PÁGINA DE LISTAGEM DE CONTEÚDO (índice do blog / portal).
+  Por isso o valor dele NÃO é virar um tema de home inteiro, e sim doar
+  "posicionamentos de elemento" para a LISTAGEM do módulo de blog do ANCOREO
+  e para blocos de destaque de post. Foi assim que o Cássio pediu: aproveitar
+  os arranjos mais compatíveis, não copiar o portal todo.
+
+  Blocos que compõem este modelo (candidatos a "blocks" do wireframe dinâmico):
+     1. utility-bar   — faixa fina com data/edição               [NOVO — decorativo, opcional]
+     2. header        — logo + menu + botão                       [JÁ TEMOS: navegação]
+     3. ticker        — manchetes rolando                         [NOVO — decorativo, baixa prioridade]
+     4. hero-editorial— 1 destaque grande + 3 secundárias (2fr/1fr)[NOVO — ÓTIMO p/ topo do blog: "post em destaque + recentes"]
+     5. section-heading— marcador + título + "Ver tudo"           [NOVO — padrão reutilizável de cabeçalho de seção/categoria]
+     6. two-col-cards — 2 cards grandes lado a lado               [NOVO — variante de grade de posts]
+     7. category-lists— 2 colunas de listas por categoria         [NOVO — bom p/ blog com categorias]
+     8. wide-banner   — banner largo com overlay de texto          [NOVO — destaque de 1 post]
+     9. social-cta    — faixa de chamada social                    [JÁ TEMOS ~ faixa de CTA/Leads]
+    10. grid-4 / grid-3— grades de cards de post                   [NOVO — variantes de grade da listagem de blog]
+    11. dark-section  — seção escura agrupando cards               [variação VISUAL, não um bloco novo de dado]
+    12. authors       — avatares dos autores                       [NOVO — só útil se o cliente tiver múltiplos autores]
+    13. featured-editorial— imagem + texto + botão                 [JÁ TEMOS ~ about/feature com imagem]
+    14. cta-full      — CTA largura total com overlay              [JÁ TEMOS ~ bloco de CTA]
+    15. newsletter    — captura de e-mail                          [JÁ TEMOS: feature de Leads (leads_enabled)]
+    16. footer        — rodapé em 4 colunas                        [JÁ TEMOS: footer (variante 4 colunas é NOVA)]
+
+  ONDE ISSO ENTRA NO ANCOREO (recomendação):
+    - hero-editorial (4), section-heading (5), two-col-cards (6), grid-4/grid-3 (10)
+      => são exatamente os arranjos que faltam na LISTAGEM do módulo de blog.
+      Hoje o blog do ANCOREO lista posts de forma simples; esses posicionamentos
+      dão a ele cara de "portal" sem inventar tipo de dado novo (tudo é post).
+    - authors (12) só vale se o cliente tiver mais de um autor — a maioria não tem.
+    - ticker (3) e utility-bar (1) são enfeite; deixar por último.
+-->
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>NewsPoint - Template de site de notícias</title>
+<style>
+  :root {
+    --navy: #0d0b4d;
+    --accent: #e8563f;
+    --cream: #fdfbf3;
+    --text-dark: #1a1a1a;
+    --text-gray: #6b6b6b;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, Helvetica, sans-serif; background: var(--cream); color: var(--text-dark); }
+  .container { max-width: 1400px; margin: 0 auto; padding: 0 24px; }
+  a { text-decoration: none; color: inherit; }
+
+  /* Utility bar */
+  .utility-bar { background: var(--navy); color: #fff; font-size: 13px; }
+  .utility-bar .container { display: flex; justify-content: space-between; padding: 10px 24px; }
+
+  /* Header */
+  header { background: var(--navy); color: #fff; }
+  header .container { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; }
+  .logo { font-size: 28px; font-weight: 800; }
+  nav ul { list-style: none; display: flex; gap: 24px; }
+  nav a { font-size: 14px; }
+  .header-actions { display: flex; align-items: center; gap: 16px; }
+  .btn-primary { background: #fff; color: var(--navy); padding: 10px 20px; border-radius: 4px; font-weight: 600; font-size: 14px; }
+
+  /* Ticker */
+  .ticker { background: var(--accent); color: #fff; overflow: hidden; white-space: nowrap; padding: 10px 0; font-size: 14px; }
+  .ticker span { margin-right: 40px; }
+
+  /* Section heading */
+  .section-heading { display: flex; align-items: center; gap: 10px; margin: 50px 0 20px; }
+  .section-heading .marker { width: 14px; height: 14px; background: var(--accent); }
+  .section-heading h2 { font-size: 24px; }
+  .section-heading .see-all { margin-left: auto; color: var(--accent); font-size: 14px; font-weight: 600; }
+
+  /* Hero */
+  .hero { display: grid; grid-template-columns: 2fr 1fr; gap: 30px; margin-top: 30px; }
+  .hero-main { position: relative; }
+  .hero-main img, .card img { width: 100%; display: block; aspect-ratio: 4/3; object-fit: cover; background: #ccc; }
+  .tag { position: absolute; bottom: 90px; left: 0; background: var(--accent); color: #fff; padding: 6px 14px; font-size: 13px; font-weight: 600; }
+  .hero-main h1 { font-size: 26px; margin-top: 16px; }
+  .meta { color: var(--text-gray); font-size: 13px; margin-top: 10px; }
+
+  .hero-list { display: flex; flex-direction: column; gap: 20px; }
+  .hero-list .item { display: flex; gap: 12px; border-bottom: 1px solid #e5e5e5; padding-bottom: 16px; }
+  .hero-list img { width: 90px; height: 70px; object-fit: cover; background: #ccc; }
+  .hero-list .cat { color: var(--accent); font-size: 12px; font-weight: 600; }
+  .hero-list h3 { font-size: 15px; margin-top: 4px; }
+  .hero-list .date { color: var(--text-gray); font-size: 12px; }
+
+  /* Two-column grid */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+  .card h3 { font-size: 17px; margin: 12px 0 6px; }
+
+  /* Double section side by side */
+  .double-section { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+  .row-item { display: flex; gap: 12px; border-bottom: 1px solid #e5e5e5; padding: 12px 0; }
+  .row-item img { width: 70px; height: 60px; object-fit: cover; background: #ccc; }
+
+  /* 4-column grid */
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+
+  /* Wide banner */
+  .wide-banner { position: relative; margin-top: 40px; }
+  .wide-banner img { width: 100%; aspect-ratio: 21/6; object-fit: cover; background: #999; }
+  .wide-banner .overlay { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.8)); padding: 30px; color: #fff; }
+
+  /* Social CTA */
+  .social-cta { background: #f3ece2; padding: 60px 0; margin-top: 50px; }
+  .social-cta h2 { font-size: 32px; max-width: 500px; }
+  .social-cta h2 span { color: var(--accent); }
+  .social-cta p { color: var(--text-gray); margin-top: 16px; max-width: 500px; }
+
+  /* Dark section */
+  .dark-section { background: var(--navy); color: #fff; padding: 50px 0; margin-top: 50px; }
+  .dark-section .section-heading h2 { color: #fff; }
+  .dark-section .row-item, .dark-section .card { color: #fff; }
+
+  /* Authors */
+  .authors { display: flex; gap: 40px; margin-top: 20px; flex-wrap: wrap; }
+  .author { display: flex; align-items: center; gap: 12px; }
+  .avatar { width: 60px; height: 60px; border-radius: 50%; background: #ccc; }
+  .author h4 { font-size: 16px; }
+  .author p { font-size: 13px; color: var(--text-gray); }
+
+  /* Featured editorial (image + text) */
+  .featured-editorial { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 20px; }
+  .featured-editorial img { width: 100%; aspect-ratio: 4/3; object-fit: cover; background: #ccc; }
+  .featured-editorial h2 { font-size: 24px; margin: 12px 0; }
+  .btn-secondary { background: #6c6ca0; color: #fff; padding: 14px 28px; display: inline-block; margin-top: 16px; font-weight: 600; }
+
+  /* CTA full width */
+  .cta-full { position: relative; margin-top: 50px; }
+  .cta-full img { width: 100%; aspect-ratio: 21/6; object-fit: cover; background: #345; }
+  .cta-full .overlay { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: #fff; }
+  .cta-full h2 { font-size: 36px; }
+
+  /* Newsletter */
+  .newsletter { background: var(--navy); color: #fff; padding: 40px 0; margin-top: 50px; }
+  .newsletter .container { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
+  .newsletter h2 { font-size: 26px; max-width: 500px; }
+  .newsletter form { display: flex; gap: 12px; }
+  .newsletter input { padding: 14px; border: none; width: 260px; background: #1a1866; color: #fff; }
+  .newsletter button { background: #fff; color: var(--navy); padding: 14px 24px; border: none; font-weight: 600; }
+
+  /* Footer */
+  footer { background: var(--navy); color: #ccc; padding: 50px 0 30px; }
+  .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 30px; }
+  footer h3 { color: #fff; margin-bottom: 16px; }
+  footer ul { list-style: none; }
+  footer li { margin-bottom: 10px; font-size: 14px; }
+  .social-icons { display: flex; gap: 14px; margin-top: 16px; }
+  .social-icons div { width: 34px; height: 34px; background: #1a1866; border-radius: 50%; }
+
+  @media (max-width: 900px) {
+    .hero, .two-col, .double-section, .featured-editorial, .grid-4, .grid-3, .footer-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="utility-bar">
+    <div class="container">
+      <span>Segunda-feira, 10 de julho de 2026</span>
+      <span>Vol. 1, Nº 1 · R$ 9,90</span>
+    </div>
+  </div>
+
+  <header>
+    <div class="container">
+      <div class="logo">NewsPoint</div>
+      <nav>
+        <ul>
+          <li><a href="#">Início</a></li>
+          <li><a href="#">Sobre</a></li>
+          <li><a href="#">Assinatura</a></li>
+          <li><a href="#">Autores</a></li>
+          <li><a href="#">Contato</a></li>
+        </ul>
+      </nav>
+      <div class="header-actions">
+        <span>🛒 0</span>
+        <a href="#" class="btn-primary">Assinar</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="ticker">
+    <div class="container">
+      <span>Manchete de exemplo 1</span>
+      <span>Manchete de exemplo 2</span>
+      <span>Manchete de exemplo 3</span>
+      <span>Manchete de exemplo 4</span>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-main">
+        <img src="https://via.placeholder.com/800x600" alt="">
+        <span class="tag">Categoria</span>
+        <h1>Título principal da matéria de destaque vai aqui</h1>
+        <div class="meta">Autor Exemplo · 10 de julho de 2026</div>
+      </div>
+      <div class="hero-list">
+        <div class="item">
+          <img src="https://via.placeholder.com/90x70" alt="">
+          <div>
+            <div class="cat">Tecnologia</div>
+            <h3>Título curto de notícia secundária</h3>
+            <div class="date">10 de julho de 2026</div>
+          </div>
+        </div>
+        <div class="item">
+          <img src="https://via.placeholder.com/90x70" alt="">
+          <div>
+            <div class="cat">Negócios</div>
+            <h3>Outro título curto de exemplo</h3>
+            <div class="date">10 de julho de 2026</div>
+          </div>
+        </div>
+        <div class="item">
+          <img src="https://via.placeholder.com/90x70" alt="">
+          <div>
+            <div class="cat">Meio ambiente</div>
+            <h3>Mais um título de exemplo</h3>
+            <div class="date">10 de julho de 2026</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION: Duas colunas de card grande -->
+    <div class="section-heading"><div class="marker"></div><h2>Notícias do Mundo</h2></div>
+    <section class="two-col">
+      <div class="card">
+        <img src="https://via.placeholder.com/500x350" alt="">
+        <h3>Título de matéria em destaque</h3>
+        <div class="meta">Autor · Data</div>
+      </div>
+      <div class="card">
+        <img src="https://via.placeholder.com/500x350" alt="">
+        <h3>Outro título de matéria em destaque</h3>
+        <div class="meta">Autor · Data</div>
+      </div>
+    </section>
+
+    <!-- SECTION: duas colunas paralelas -->
+    <section class="double-section" style="margin-top:50px;">
+      <div>
+        <div class="section-heading"><div class="marker"></div><h2>Economia</h2><a class="see-all" href="#">Ver tudo →</a></div>
+        <div class="row-item"><img src="https://via.placeholder.com/70x60" alt=""><div><h4>Título curto de economia</h4></div></div>
+        <div class="row-item"><img src="https://via.placeholder.com/70x60" alt=""><div><h4>Outro título curto</h4></div></div>
+      </div>
+      <div>
+        <div class="section-heading"><div class="marker"></div><h2>Tecnologia</h2><a class="see-all" href="#">Ver tudo →</a></div>
+        <div class="row-item"><img src="https://via.placeholder.com/70x60" alt=""><div><h4>Título curto de tecnologia</h4></div></div>
+        <div class="row-item"><img src="https://via.placeholder.com/70x60" alt=""><div><h4>Outro título curto</h4></div></div>
+      </div>
+    </section>
+
+    <!-- Wide banner -->
+    <div class="wide-banner">
+      <img src="https://via.placeholder.com/1400x400" alt="">
+      <div class="overlay">
+        <span class="tag" style="position:static;">Destaque</span>
+        <h2 style="margin-top:10px;">Título de destaque largo vai aqui</h2>
+        <div class="meta" style="color:#ddd;">Autor · Data</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Social CTA -->
+  <div class="social-cta">
+    <div class="container">
+      <h2>Siga-nos para <span>atualizações em tempo real</span> e notícias urgentes.</h2>
+      <p>Fique informado onde estiver — junte-se à nossa comunidade de leitores.</p>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- Grid 4 colunas -->
+    <div class="section-heading"><div class="marker"></div><h2>Ciência</h2></div>
+    <section class="grid-4">
+      <div class="card"><img src="https://via.placeholder.com/300x220" alt=""><h3 style="font-size:14px;">Título curto de ciência</h3></div>
+      <div class="card"><img src="https://via.placeholder.com/300x220" alt=""><h3 style="font-size:14px;">Outro título curto</h3></div>
+      <div class="card"><img src="https://via.placeholder.com/300x220" alt=""><h3 style="font-size:14px;">Mais um título</h3></div>
+      <div class="card"><img src="https://via.placeholder.com/300x220" alt=""><h3 style="font-size:14px;">Último título</h3></div>
+    </section>
+  </div>
+
+  <!-- Dark section: Esportes -->
+  <div class="dark-section">
+    <div class="container">
+      <div class="section-heading"><h2>Esportes e Entretenimento</h2></div>
+      <div class="two-col">
+        <div class="wide-banner" style="margin-top:0;">
+          <img src="https://via.placeholder.com/650x300" alt="">
+          <div class="overlay"><h3>Título de esporte em destaque</h3></div>
+        </div>
+        <div class="wide-banner" style="margin-top:0;">
+          <img src="https://via.placeholder.com/650x300" alt="">
+          <div class="overlay"><h3>Título de entretenimento</h3></div>
+        </div>
+      </div>
+      <section class="grid-3" style="margin-top:30px;">
+        <div class="card"><img src="https://via.placeholder.com/400x300" alt=""><h3>Título curto</h3><div class="meta" style="color:#ccc;">Tag · Data</div></div>
+        <div class="card"><img src="https://via.placeholder.com/400x300" alt=""><h3>Título curto</h3><div class="meta" style="color:#ccc;">Tag · Data</div></div>
+        <div class="card"><img src="https://via.placeholder.com/400x300" alt=""><h3>Título curto</h3><div class="meta" style="color:#ccc;">Tag · Data</div></div>
+      </section>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- Autores -->
+    <div class="section-heading"><div class="marker"></div><h2>Principais autores</h2></div>
+    <div class="authors">
+      <div class="author"><div class="avatar"></div><div><h4>Nome do Autor</h4><p>Veículo</p></div></div>
+      <div class="author"><div class="avatar"></div><div><h4>Nome do Autor</h4><p>Veículo</p></div></div>
+      <div class="author"><div class="avatar"></div><div><h4>Nome do Autor</h4><p>Veículo</p></div></div>
+      <div class="author"><div class="avatar"></div><div><h4>Nome do Autor</h4><p>Veículo</p></div></div>
+    </div>
+
+    <!-- Grid 4 colunas: estilo de vida -->
+    <div class="section-heading"><div class="marker"></div><h2>Estilo de Vida & Cultura</h2></div>
+    <section class="grid-4">
+      <div class="card"><img src="https://via.placeholder.com/300x220" alt=""><h3 style="font-size:14px;">Título curto</h3></div>
+      <div class="card"><img src="https://via.placeholder.com/300x220" alt=""><h3 style="font-size:14px;">Título curto</h3></div>
+      <div class="card"><img src="https://via.placeholder.com/300x220" alt=""><h3 style="font-size:14px;">Título curto</h3></div>
+      <div class="card"><img src="https://via.placeholder.com/300x220" alt=""><h3 style="font-size:14px;">Título curto</h3></div>
+    </section>
+
+    <!-- Featured editorial -->
+    <div class="section-heading"><div class="marker"></div><h2>Economia / Mercados Globais</h2></div>
+    <section class="featured-editorial">
+      <img src="https://via.placeholder.com/650x480" alt="">
+      <div>
+        <div class="meta">#Tag1 #Tag2 · Data</div>
+        <h2>Título da matéria editorial em destaque</h2>
+        <p style="color:var(--text-gray);">Texto de resumo genérico da matéria vai aqui, com uma ou duas frases descritivas.</p>
+        <a class="btn-secondary" href="#">Ler matéria completa</a>
+      </div>
+    </section>
+    <section class="grid-3" style="margin-top:30px;">
+      <div><h4>Título curto de exemplo</h4><p style="color:var(--text-gray);font-size:14px;margin-top:8px;">Texto de apoio genérico.</p></div>
+      <div><h4>Título curto de exemplo</h4><p style="color:var(--text-gray);font-size:14px;margin-top:8px;">Texto de apoio genérico.</p></div>
+      <div><h4>Título curto de exemplo</h4><p style="color:var(--text-gray);font-size:14px;margin-top:8px;">Texto de apoio genérico.</p></div>
+    </section>
+  </div>
+
+  <!-- CTA full width -->
+  <div class="cta-full">
+    <img src="https://via.placeholder.com/1400x400" alt="">
+    <div class="overlay">
+      <h2>Junte-se a +1M de Leitores<br>que Nunca Perdem uma Manchete</h2>
+      <p>Fique informado onde estiver.</p>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- Outras notícias -->
+    <div class="section-heading"><div class="marker"></div><h2>Outras notícias</h2></div>
+    <section class="grid-3">
+      <div class="card">
+        <img src="https://via.placeholder.com/400x300" alt="">
+        <div class="meta">Autor · Data</div>
+        <h3>Título curto</h3>
+        <div class="meta">#tag1 #tag2</div>
+      </div>
+      <div class="card">
+        <img src="https://via.placeholder.com/400x300" alt="">
+        <div class="meta">Autor · Data</div>
+        <h3>Título curto</h3>
+        <div class="meta">#tag1 #tag2</div>
+      </div>
+      <div class="card">
+        <img src="https://via.placeholder.com/400x300" alt="">
+        <div class="meta">Autor · Data</div>
+        <h3>Título curto</h3>
+        <div class="meta">#tag1 #tag2</div>
+      </div>
+    </section>
+  </div>
+
+  <div class="ticker">
+    <div class="container">
+      <span>Manchete de exemplo 1</span>
+      <span>Manchete de exemplo 2</span>
+      <span>Manchete de exemplo 3</span>
+    </div>
+  </div>
+
+  <!-- Newsletter -->
+  <div class="newsletter">
+    <div class="container">
+      <h2>Assine Nossa Newsletter para Ficar à Frente com <span style="color:#aaa;">manchetes diárias</span></h2>
+      <form>
+        <input type="email" placeholder="Digite seu e-mail">
+        <button type="submit">Assinar</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container footer-grid">
+      <div>
+        <h3 style="font-size:26px;">NewsPoint</h3>
+        <p style="font-size:14px; margin-top:10px;">Texto descritivo curto sobre o site vai aqui.</p>
+        <div class="social-icons">
+          <div></div><div></div><div></div><div></div>
+        </div>
+      </div>
+      <div>
+        <h3>Páginas</h3>
+        <ul>
+          <li>Início</li><li>Sobre nós</li><li>Autores</li><li>Assinatura</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Páginas</h3>
+        <ul>
+          <li>Contato</li><li>Changelog</li><li>Licença</li><li>Erro 404</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Contato</h3>
+        <ul>
+          <li>Endereço: Exemplo, 123</li>
+          <li>Telefone: (00) 0000-0000</li>
+          <li>E-mail: contato@exemplo.com</li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

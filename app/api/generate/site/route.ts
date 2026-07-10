@@ -119,33 +119,47 @@ export async function POST(req: NextRequest) {
   }
 
   const userPrompt = `
-Gere o conteúdo completo do site para o seguinte perfil de negócio.
-Retorne um JSON com a estrutura abaixo — nada além do JSON.
+Gere o conteúdo do site para o perfil de negócio abaixo.
+Retorne SOMENTE um JSON com a estrutura indicada — nada além do JSON.
 
-PERFIL:
+PERFIL (única fonte de verdade — tudo que você escrever precisa sair DAQUI):
 ${serializeProfile(profile)}
+
+════════════════════════════════════════════════════════════════════
+REGRA DE FATOS (inegociável — vale mais que qualquer outra regra abaixo):
+- Escreva APENAS com base no que está no PERFIL acima.
+- É PROIBIDO inventar: números, anos de experiência, preços, garantias,
+  prêmios, certificações, credenciais, nomes de clientes, depoimentos,
+  datas, estatísticas ou qualquer fato que não esteja explícito no perfil.
+- Faltou a informação para um campo? NÃO preencha com suposição. Faça:
+    (a) deixe um marcador entre colchetes para o cliente completar depois,
+        ex: "[Adicione aqui os anos de experiência]"; OU
+    (b) omita o campo (null / string vazia) quando ele for opcional.
+- NUNCA gere depoimentos de clientes. O array "testimonials" é SEMPRE []
+  (vazio). O cliente vai cadastrar os depoimentos reais dele no editor.
+- Prefira um texto curto e verdadeiro a um texto longo e inventado.
+  Se o perfil é enxuto, o conteúdo é enxuto. Não encha linguiça.
+════════════════════════════════════════════════════════════════════
 
 ESTRUTURA DE SAÍDA (JSON):
 {
   "hero": {
-    "headline": "string — keyword primária + cidade, máx 60 chars",
-    "sub": "string — proposta de valor em 1-2 frases, sem gerundismo",
+    "headline": "string — o que o negócio faz + cidade (só cite a cidade se ela estiver no perfil), máx 60 chars",
+    "sub": "string — proposta de valor em 1-2 frases baseada no que o perfil descreve, sem gerundismo",
     "cta_label": "string — verbo de posse, ex: Quero Agendar",
-    "cta_phone": "string"
+    "cta_phone": "string — telefone do perfil, ou string vazia se não houver"
   },
   "about": {
     "title": "string — H2 autossuficiente",
-    "body": "string — 2-3 parágrafos, cidade mencionada ≥2x",
-    "credential": "string | null"
+    "body": "string — texto sobre o negócio usando SÓ fatos do perfil. Onde faltar fato, use um marcador [ ] em vez de inventar. Mencione a cidade se ela estiver no perfil.",
+    "credential": "string com a credencial APENAS se estiver no perfil, senão null"
   },
   "services": [
-    { "name": "string", "description": "string — 2-3 linhas", "icon": "emoji" }
+    { "name": "string — nome do serviço (do perfil)", "description": "string — descrição curta e factual; se o perfil só deu o nome, descreva de forma honesta e genérica SEM inventar preço, prazo, técnica ou garantia específica", "icon": "emoji" }
   ],
-  "testimonials": [
-    { "name": "string", "text": "string", "rating": 5 }
-  ],
+  "testimonials": [],
   "faq": [
-    { "question": "string — pergunta que o cliente real faria", "answer": "string — resposta direta, 2-4 linhas" }
+    { "question": "string — pergunta real que o cliente faria", "answer": "string — resposta baseada em fato do perfil. Se responder com verdade exigir uma info que não está no perfil, escreva '[Complete: ...]' descrevendo o que o cliente precisa informar, em vez de inventar" }
   ],
   "meta": {
     "title": "string — keyword + cidade + nome do negócio, máx 60 chars",
@@ -154,11 +168,12 @@ ESTRUTURA DE SAÍDA (JSON):
   }
 }
 
-REGRAS:
-- faq deve ter EXATAMENTE 6 perguntas (AEO obrigatório)
-- hero.headline deve conter a keyword primária e a cidade
-- Nunca inventar dados — use apenas o que está no perfil
-- Zero em-dashes, zero gerundismo, zero "no mundo atual"
+REGRAS DE FORMATO:
+- "testimonials" SEMPRE vazio ([]). Nunca preencha.
+- "faq": gere 6 perguntas úteis. As perguntas podem ser genéricas do setor,
+  mas as RESPOSTAS seguem a REGRA DE FATOS (marcador quando faltar dado).
+- hero.headline: cite a cidade só se ela existir no perfil.
+- Zero em-dashes, zero gerundismo, zero "no mundo atual".
 - Tom: ${profile.tone ?? 'profissional e acolhedor'}
 `.trim()
 

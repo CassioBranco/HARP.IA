@@ -117,11 +117,11 @@ export async function buildSiteContent(
   const clientWhats = (socialLinks.whatsapp ?? '').replace(/\D/g, '')
   const contactPhone = clientWhats || heroPhone
   const about = sectionMap['about']  as { title?: string; body?: string; credential?: string; image?: string; image_pos?: { x?: number; y?: number } } | undefined
-  const svcs  = sectionMap['services'] as { items?: { name: string; description: string; icon?: string }[] } | undefined
-  const testi = sectionMap['testimonials'] as { items?: { name: string; text: string; rating?: number }[] } | undefined
+  const svcs  = sectionMap['services'] as { items?: { name: string; description: string; icon?: string; image?: string }[] } | undefined
+  const testi = sectionMap['testimonials'] as { items?: { name: string; text: string; rating?: number; photo_url?: string; date?: string }[] } | undefined
   const faqSec = sectionMap['faq']   as { items?: { question: string; answer: string }[] } | undefined
 
-  const rawServices = svcs?.items ?? (profile?.services as { name: string; description: string; icon?: string }[] | null) ?? []
+  const rawServices = svcs?.items ?? (profile?.services as { name: string; description: string; icon?: string; image?: string }[] | null) ?? []
 
   // Imagem: a escolha manual do cliente (section.content.image) vence;
   // senão cai pras imagens enviadas (mais recentes primeiro).
@@ -138,8 +138,16 @@ export async function buildSiteContent(
     ctaPhone:        contactPhone,
     about:           about?.body ?? '',
     credential:      about?.credential ?? (profile?.credentials ?? []).join(', '),
-    services:        rawServices.map(s => ({ name: s.name, description: s.description, icon: s.icon ?? '⭐' })),
-    testimonials:    (testi?.items ?? []).map(t => ({ name: t.name, text: t.text, rating: t.rating ?? 5 })),
+    services:        rawServices.map(s => ({ name: s.name, description: s.description, icon: s.icon ?? '⭐', ...(s.image ? { image: s.image } : {}) })),
+    testimonials:    (testi?.items ?? [])
+                       .filter(t => (t.name ?? '').trim())
+                       .map(t => ({
+                         name: t.name,
+                         text: t.text,
+                         rating: t.rating ?? 5,
+                         ...(t.photo_url ? { photoUrl: t.photo_url } : {}),
+                         ...(t.date ? { date: t.date } : {}),
+                       })),
     faqs:            faqSec?.items ?? [],
     city:            profile?.city ?? '',
     state:           profile?.state ?? '',

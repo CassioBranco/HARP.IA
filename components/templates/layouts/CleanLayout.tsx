@@ -1,5 +1,6 @@
 import type { SiteContent } from '@/lib/templates/example-content'
 import SiteBrand from '../shared/SiteBrand'
+import Icon from '../shared/Icon'
 import type { PaletteColors } from '@/lib/templates/palettes'
 
 function cssVars(p: PaletteColors): string {
@@ -58,13 +59,14 @@ section.cl-block { padding: 6rem 0; }
 .cl-hero-rating { position: absolute; left: -1.8rem; bottom: 3.2rem; background: var(--sb); padding: 1.1rem 1.3rem; box-shadow: 0 18px 40px rgb(0 0 0 / .1); display: flex; align-items: center; gap: .9rem; }
 .cl-hero-rating .cl-num { font-family: var(--serif); font-size: 1.9rem; color: var(--sp); line-height: 1; }
 .cl-hero-rating .cl-lbl { font-size: .76rem; color: var(--sm); line-height: 1.4; }
-.cl-hero-rating .cl-stars { color: var(--sa); font-size: .78rem; letter-spacing: 1px; }
+.cl-stars { display: inline-flex; gap: 2px; align-items: center; }
+.cl-hero-rating .cl-stars { color: var(--sa); }
 
-/* META row */
-.cl-meta { display: grid; grid-template-columns: repeat(3, 1fr); }
+/* STATS row (contadores reais) — número em serifa grande + rótulo mono abaixo */
+.cl-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); border-top: 1px solid var(--line); }
 .cl-meta > div { padding: 2.6rem 0 0; }
-.cl-meta .cl-k { font-family: var(--font-accent, monospace); font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; color: var(--sm); margin-bottom: .8rem; }
-.cl-meta .cl-v { font-family: var(--serif); font-size: 1.7rem; color: var(--st); font-weight: 600; line-height: 1.15; }
+.cl-meta .cl-v { font-family: var(--serif); font-size: 2.1rem; color: var(--sp); font-weight: 600; line-height: 1.05; }
+.cl-meta .cl-k { font-family: var(--font-accent, monospace); font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; color: var(--sm); margin-top: .7rem; }
 
 /* APPROACH */
 .cl-approach { display: grid; grid-template-columns: 0.8fr 2.2fr; gap: 3.5rem; align-items: start; }
@@ -95,8 +97,8 @@ section.cl-block { padding: 6rem 0; }
 .cl-about h2 { font-family: var(--serif); font-size: clamp(1.8rem, 3vw, 2.4rem); margin: 1rem 0 1.3rem; font-weight: 600; letter-spacing: -0.01em; }
 .cl-about p { color: var(--sm); line-height: 1.8; margin: 0 0 1.8rem; }
 .cl-checks { display: flex; flex-direction: column; gap: .8rem; }
-.cl-checks div { display: flex; gap: .8rem; align-items: baseline; font-size: .98rem; }
-.cl-checks .cl-check-icon { color: var(--sp); }
+.cl-checks div { display: flex; gap: .7rem; align-items: center; font-size: .98rem; }
+.cl-checks .cl-check-icon { color: var(--sp); display: inline-flex; flex: none; }
 
 /* TEAM */
 .cl-team-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2.5rem; }
@@ -106,7 +108,7 @@ section.cl-block { padding: 6rem 0; }
 
 /* TESTIMONIALS */
 .cl-testi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3rem; }
-.cl-testi .cl-stars { color: var(--sa); letter-spacing: 2px; font-size: .9rem; }
+.cl-testi .cl-stars { color: var(--sa); }
 .cl-testi p { font-family: var(--serif); font-size: 1.15rem; line-height: 1.55; color: var(--st); margin: 1rem 0 1.1rem; font-weight: 500; }
 .cl-testi cite { font-style: normal; font-size: .85rem; color: var(--sm); }
 
@@ -181,6 +183,7 @@ export default function CleanLayout({ c, p, preview }: { c: SiteContent; p: Pale
   const testimonials = c.testimonials.slice(0, 3)
   const blogPosts = c.blogPosts.slice(0, 3)
   const faqs = c.faqs.slice(0, 8)
+  const stats = c.stats?.slice(0, 4) ?? []
 
   return (
     <>
@@ -215,7 +218,7 @@ export default function CleanLayout({ c, p, preview }: { c: SiteContent; p: Pale
             <p>{c.heroSub}</p>
             <div className="cl-hero-cta">
               <a href={whatsapp} className="cl-btn">{c.ctaLabel}</a>
-              <a href="#sobre" className="cl-text-link">Nossa história →</a>
+              <a href="#sobre" className="cl-text-link">Nossa história <Icon name="arrow-right" size={15} /></a>
             </div>
           </div>
           <figure className="cl-hero-fig">
@@ -224,28 +227,40 @@ export default function CleanLayout({ c, p, preview }: { c: SiteContent; p: Pale
             <div className="cl-hero-rating">
               <div className="cl-num cl-serif">{c.stats?.[3]?.value ?? '4.9'}</div>
               <div>
-                <div className="cl-stars">★★★★★</div>
+                <div className="cl-stars">{Array.from({ length: 5 }).map((_, i) => <Icon key={i} name="star" size={13} />)}</div>
                 <div className="cl-lbl">avaliações<br />no Google</div>
               </div>
             </div>
           </figure>
         </div>
 
-        {/* META row */}
-        <div className="cl-meta">
-          <div>
-            <div className="cl-k">Experiência</div>
-            <div className="cl-v cl-serif">{c.yearsExperience} anos<br />de atuação</div>
+        {/* STATS — contadores reais do negócio (c.stats). Substitui a antiga
+            meta row derivada; se não houver stats, cai no fallback derivado. */}
+        {stats.length > 0 ? (
+          <div className="cl-meta">
+            {stats.map((s, i) => (
+              <div key={i}>
+                <div className="cl-v cl-serif">{s.value}</div>
+                <div className="cl-k">{s.label}</div>
+              </div>
+            ))}
           </div>
-          <div>
-            <div className="cl-k">Especialização</div>
-            <div className="cl-v cl-serif">{services.length} serviços<br />especializados</div>
+        ) : (
+          <div className="cl-meta">
+            <div>
+              <div className="cl-v cl-serif">{c.yearsExperience} anos</div>
+              <div className="cl-k">de atuação</div>
+            </div>
+            <div>
+              <div className="cl-v cl-serif">{services.length} serviços</div>
+              <div className="cl-k">especializados</div>
+            </div>
+            <div>
+              <div className="cl-v cl-serif" style={{ fontSize: '1.1rem' }}>{c.credential}</div>
+              <div className="cl-k">credencial</div>
+            </div>
           </div>
-          <div>
-            <div className="cl-k">Credencial</div>
-            <div className="cl-v cl-serif" style={{ fontSize: '1.1rem' }}>{c.credential}</div>
-          </div>
-        </div>
+        )}
       </header>
 
       <main>
@@ -269,6 +284,10 @@ export default function CleanLayout({ c, p, preview }: { c: SiteContent; p: Pale
             {services.map((svc, i) => (
               <div className="cl-spec" key={i}>
                 <span className="cl-idx">{String(i + 1).padStart(2, '0')}</span>
+                {svc.image && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={svc.image} alt={svc.name} loading="lazy" style={{ width: 56, height: 56, borderRadius: 10, objectFit: 'cover', flex: 'none' }} />
+                )}
                 <div>
                   <h3>{svc.name}</h3>
                   <p>{svc.description}</p>
@@ -293,10 +312,10 @@ export default function CleanLayout({ c, p, preview }: { c: SiteContent; p: Pale
               <h2 className="cl-serif">Conheça {c.businessName}</h2>
               <p>{c.about}</p>
               <div className="cl-checks">
-                <div><span className="cl-check-icon">✓</span> {c.yearsExperience} anos de experiência em {c.city}</div>
-                <div><span className="cl-check-icon">✓</span> {c.credential}</div>
+                <div><span className="cl-check-icon"><Icon name="check" size={16} /></span> {c.yearsExperience} anos de experiência em {c.city}</div>
+                <div><span className="cl-check-icon"><Icon name="check" size={16} /></span> {c.credential}</div>
                 {c.stats?.slice(0, 2).map((s, i) => (
-                  <div key={i}><span className="cl-check-icon">✓</span> {s.value} {s.label}</div>
+                  <div key={i}><span className="cl-check-icon"><Icon name="check" size={16} /></span> {s.value} {s.label}</div>
                 ))}
               </div>
             </div>
@@ -322,7 +341,8 @@ export default function CleanLayout({ c, p, preview }: { c: SiteContent; p: Pale
           </section>
         )}
 
-        {/* TESTIMONIALS */}
+        {/* TESTIMONIALS — só aparece se houver depoimento real cadastrado */}
+        {testimonials.length > 0 && (
         <section className="cl-block cl-wrap">
           <div className="cl-spec-head" style={{ marginBottom: '2.5rem' }}>
             <h2 className="cl-serif">Quem cuida com a gente, recomenda</h2>
@@ -331,20 +351,35 @@ export default function CleanLayout({ c, p, preview }: { c: SiteContent; p: Pale
           <div className="cl-testi-grid">
             {testimonials.map((t, i) => (
               <div className="cl-testi" key={i}>
-                <div className="cl-stars">{'★'.repeat(t.rating)}</div>
+                <div className="cl-stars">{Array.from({ length: t.rating }).map((_, s) => <Icon key={s} name="star" size={14} />)}</div>
                 <p>"{t.text}"</p>
-                <cite>{t.name}</cite>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '.6rem', marginTop: '.5rem' }}>
+                  {t.photoUrl && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={t.photoUrl} alt={t.name} width="40" height="40" loading="lazy"
+                         style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover', flex: 'none' }} />
+                  )}
+                  <span>
+                    <cite>{t.name}</cite>
+                    {t.date && (
+                      <span style={{ display: 'block', fontSize: '.75rem', opacity: .6 }}>
+                        {t.date.split('-').reverse().join('/')}
+                      </span>
+                    )}
+                  </span>
+                </div>
               </div>
             ))}
           </div>
         </section>
+        )}
 
         {/* BLOG */}
         {blogPosts.length > 0 && (
           <section className="cl-block cl-wrap" id="blog" style={{ paddingTop: 0 }}>
             <div className="cl-spec-head" style={{ marginBottom: '2.5rem' }}>
               <h2 className="cl-serif">Do nosso blog</h2>
-              <span className="cl-count" style={{ color: 'var(--sp)' }}>Ver todos →</span>
+              <span className="cl-count" style={{ color: 'var(--sp)' }}>Ver todos <Icon name="arrow-right" size={14} /></span>
             </div>
             <div className="cl-post-grid">
               {blogPosts.map((post, i) => (

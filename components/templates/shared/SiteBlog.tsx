@@ -1,4 +1,5 @@
 import type { SiteContent } from '@/lib/templates/example-content'
+import Icon from './Icon'
 
 type Props = {
   c: SiteContent
@@ -33,7 +34,7 @@ export default function SiteBlog({ c, dark = false, compact = false }: Props) {
             <p style={{ color: mutedColor, fontSize: '0.95rem' }}>Artigos escritos por especialistas para ajudar você a tomar a melhor decisão.</p>
           </div>
           <a href="#" style={{ color: 'var(--sa)', fontWeight: 600, fontSize: '0.875rem', textDecoration: 'none', whiteSpace: 'nowrap' }}>
-            Ver todos os artigos →
+            Ver todos os artigos <Icon name="arrow-right" size={14} />
           </a>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
@@ -58,7 +59,7 @@ export default function SiteBlog({ c, dark = false, compact = false }: Props) {
                   {post.excerpt}
                 </p>
                 <a href={`/blog/${post.slug}`} style={{ color: 'var(--sp)', fontWeight: 600, fontSize: '0.875rem', textDecoration: 'none' }}>
-                  Ler artigo →
+                  Ler artigo <Icon name="arrow-right" size={14} />
                 </a>
               </div>
             </article>

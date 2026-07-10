@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<!--
+  MODELO DE REFERÊNCIA — Site Institucional / Organização
+  Enviado pelo Cássio em 2026-07-10 para servir de base a um layout
+  editável pelo cliente no editor do ANCOREO.
+
+  Este é um WIREFRAME (estrutura + placeholders), não o visual final.
+
+  Blocos que compõem este modelo (candidatos a "blocks" do wireframe dinâmico):
+    1. header       — logo + menu + botão CTA          [JÁ TEMOS: navegação dos layouts]
+    2. hero         — título central + sub + CTA        [JÁ TEMOS: hero]
+    3. stats        — 4 contadores (número + rótulo)     [NOVO bloco reutilizável]
+    4. services     — grade numerada 01/02/03/04         [JÁ TEMOS: services (variante numerada)]
+    5. about        — "Quem Somos" (texto)               [JÁ TEMOS: about]
+    6. testimonials — depoimento(s)                      [JÁ TEMOS: testimonials]
+    7. blog-feed    — 3 cards de notícia/artigo          [NOVO bloco — liga ao módulo de blog do ANCOREO]
+    8. newsletter   — captura de e-mail                  [JÁ TEMOS: feature de Leads (leads_enabled)]
+    9. footer       — rodapé                             [JÁ TEMOS]
+
+  NOTA ARQUITETURAL: diferente do e-commerce, este modelo é do MESMO tipo dos
+  layouts atuais (negócio de serviço/institucional). Reaproveita hero, about,
+  services, testimonials e o newsletter vira a faixa de Leads. Só introduz dois
+  blocos novos: "stats" (contadores) e "blog-feed" (últimas do blog). É o caso
+  ideal pra validar o sistema de blocks sem precisar de dado novo tipo produto.
+-->
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wireframe - Site Institucional</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, Helvetica, sans-serif; color: #222; line-height: 1.5; }
+  section { padding: 60px 20px; max-width: 1200px; margin: 0 auto; }
+  h1, h2, h3 { margin-bottom: 16px; }
+  .btn { display: inline-block; padding: 12px 24px; background: #222; color: #fff; text-decoration: none; border-radius: 4px; }
+
+  /* Header */
+  header { display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; border-bottom: 1px solid #eee; }
+  nav ul { list-style: none; display: flex; gap: 24px; }
+  nav a { text-decoration: none; color: #222; }
+
+  /* Hero */
+  .hero { text-align: center; padding: 100px 20px; background: #f7f7f7; }
+  .hero h1 { font-size: 2.5rem; max-width: 700px; margin: 0 auto 20px; }
+
+  /* Stats */
+  .stats { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; text-align: center; }
+  .stat { flex: 1; min-width: 150px; }
+  .stat .number { font-size: 2rem; font-weight: bold; }
+
+  /* Services grid */
+  .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+  .service-card { border: 1px solid #eee; border-radius: 8px; padding: 24px; }
+  .service-card .icon-number { font-weight: bold; color: #888; margin-bottom: 8px; }
+
+  /* Testimonials */
+  .testimonial { background: #f7f7f7; padding: 40px; border-radius: 8px; max-width: 700px; margin: 0 auto; text-align: center; }
+
+  /* Blog */
+  .blog-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; }
+  .blog-card img { width: 100%; height: 160px; background: #ddd; border-radius: 8px; margin-bottom: 12px; }
+
+  /* Newsletter */
+  .newsletter { background: #222; color: #fff; text-align: center; padding: 60px 20px; }
+  .newsletter form { display: flex; justify-content: center; gap: 12px; margin-top: 20px; flex-wrap: wrap; }
+  .newsletter input { padding: 12px; border-radius: 4px; border: none; min-width: 250px; }
+
+  /* Footer */
+  footer { padding: 40px 20px; background: #111; color: #ccc; text-align: center; font-size: 0.9rem; }
+</style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="logo"><strong>SUA MARCA</strong></div>
+    <nav>
+      <ul>
+        <li><a href="#">Início</a></li>
+        <li><a href="#servicos">Soluções</a></li>
+        <li><a href="#sobre">Sobre</a></li>
+        <li><a href="#contato">Contato</a></li>
+      </ul>
+    </nav>
+    <a href="#contato" class="btn">Fale Conosco</a>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero">
+    <h1>Construindo soluções para um mundo em transformação</h1>
+    <p>Impulsionando iniciativas em diferentes áreas com foco em impacto social.</p>
+    <a href="#servicos" class="btn">Conheça o Projeto</a>
+  </section>
+
+  <!-- Quem somos / Stats -->
+  <section id="sobre">
+    <h2>Quem Somos</h2>
+    <p>Atuamos em diversas frentes para gerar valor duradouro para comunidades e parceiros.</p>
+    <div class="stats">
+      <div class="stat"><div class="number">10+</div><div>Anos de Atuação</div></div>
+      <div class="stat"><div class="number">500+</div><div>Pessoas Impactadas</div></div>
+      <div class="stat"><div class="number">95%</div><div>Satisfação</div></div>
+      <div class="stat"><div class="number">30+</div><div>Parceiros</div></div>
+    </div>
+  </section>
+
+  <!-- Serviços / Áreas de Atuação -->
+  <section id="servicos">
+    <h2>Áreas de Atuação</h2>
+    <div class="services-grid">
+      <div class="service-card">
+        <div class="icon-number">01</div>
+        <h3>Educação</h3>
+        <p>Programas voltados ao desenvolvimento educacional das comunidades.</p>
+      </div>
+      <div class="service-card">
+        <div class="icon-number">02</div>
+        <h3>Sustentabilidade</h3>
+        <p>Iniciativas ambientais e de uso consciente de recursos.</p>
+      </div>
+      <div class="service-card">
+        <div class="icon-number">03</div>
+        <h3>Saúde</h3>
+        <p>Apoio a projetos que ampliam o acesso à saúde básica.</p>
+      </div>
+      <div class="service-card">
+        <div class="icon-number">04</div>
+        <h3>Inclusão Social</h3>
+        <p>Ações que promovem oportunidades para grupos vulneráveis.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Depoimentos -->
+  <section>
+    <h2>O que dizem sobre nós</h2>
+    <div class="testimonial">
+      <p>"O apoio recebido foi fundamental para o crescimento do nosso projeto comunitário."</p>
+      <p><strong>Nome do Depoente</strong> — Parceiro Local</p>
+    </div>
+  </section>
+
+  <!-- Blog -->
+  <section>
+    <h2>Últimas Notícias</h2>
+    <div class="blog-grid">
+      <div class="blog-card">
+        <img src="" alt="">
+        <h3>Título do Artigo 1</h3>
+        <p>Resumo breve do conteúdo do artigo.</p>
+      </div>
+      <div class="blog-card">
+        <img src="" alt="">
+        <h3>Título do Artigo 2</h3>
+        <p>Resumo breve do conteúdo do artigo.</p>
+      </div>
+      <div class="blog-card">
+        <img src="" alt="">
+        <h3>Título do Artigo 3</h3>
+        <p>Resumo breve do conteúdo do artigo.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Newsletter -->
+  <section class="newsletter" id="contato">
+    <h2>Fique por dentro</h2>
+    <p>Receba novidades sobre nossos projetos e iniciativas.</p>
+    <form>
+      <input type="email" placeholder="Seu e-mail">
+      <button class="btn" type="submit">Inscrever</button>
+    </form>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p>© 2026 Sua Organização. Todos os direitos reservados.</p>
+  </footer>
+
+</body>
+</html>

@@ -1,5 +1,6 @@
 import type { SiteContent } from '@/lib/templates/example-content'
 import SiteBrand from '../shared/SiteBrand'
+import Icon from '../shared/Icon'
 import type { PaletteColors } from '@/lib/templates/palettes'
 
 function cssVars(p: PaletteColors) {
@@ -111,7 +112,7 @@ const templateCSS = `
 .cv .reviews { background: var(--sf); }
 .cv .reviews .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; }
 .cv .review { background: var(--sb); border: 1px solid var(--line); border-radius: 14px; padding: 1.4rem; }
-.cv .review .stars { color: var(--sa); font-size: .95rem; letter-spacing: 1px; }
+.cv .review .stars { color: var(--sa); display: inline-flex; gap: 2px; align-items: center; }
 .cv .review p { font-size: .92rem; line-height: 1.6; margin: .7rem 0 .8rem; }
 .cv .review .who { font-size: .82rem; color: var(--sm); font-weight: 600; display: flex; align-items: center; gap: .4rem; }
 .cv .review .who .chk { color: var(--green); }
@@ -212,25 +213,25 @@ export default function ConversaoLayout({ c, p, preview: _preview }: { c: SiteCo
           <div>
             <div className="badge-row">
               {c.yearsExperience > 0 && (
-                <span className="badge">⚡ {c.yearsExperience} anos de experiência</span>
+                <span className="badge"><Icon name="bolt" size={14} /> {c.yearsExperience} anos de experiência</span>
               )}
-              <span className="badge">🕐 Atendimento rápido</span>
-              <span className="badge">⭐ {c.city}/{c.state}</span>
+              <span className="badge"><Icon name="clock" size={14} /> Atendimento rápido</span>
+              <span className="badge"><Icon name="star" size={14} /> {c.city}/{c.state}</span>
             </div>
             <h1>{c.heroHeadline}</h1>
             <p className="sub">{c.heroSub}</p>
             <div className="hero-cta">
-              <a href={whatsapp} className="wa">💬 {c.ctaLabel}</a>
-              <a href={tel} className="call">📞 Ligar agora</a>
+              <a href={whatsapp} className="wa"><Icon name="whatsapp" size={20} /> {c.ctaLabel}</a>
+              <a href={tel} className="call"><Icon name="phone" size={18} /> Ligar agora</a>
             </div>
             <div className="reassure">
-              <span><span className="tick">✔</span> Orçamento na hora</span>
-              <span><span className="tick">✔</span> Profissional identificado</span>
-              <span><span className="tick">✔</span> Sem surpresa no preço</span>
+              <span><span className="tick"><Icon name="check" size={15} /></span> Orçamento na hora</span>
+              <span><span className="tick"><Icon name="check" size={15} /></span> Profissional identificado</span>
+              <span><span className="tick"><Icon name="check" size={15} /></span> Sem surpresa no preço</span>
             </div>
           </div>
           <aside className="quote-card">
-            <h3>⚡ Nossos serviços</h3>
+            <h3><Icon name="bolt" size={18} /> Nossos serviços</h3>
             {c.services.slice(0, 3).map((svc, i) => (
               <div className="price-row" key={i}>
                 <span>{svc.name}</span>
@@ -238,7 +239,7 @@ export default function ConversaoLayout({ c, p, preview: _preview }: { c: SiteCo
               </div>
             ))}
             <p className="note">Valor confirmado antes de iniciar. Você aprova, a gente resolve.</p>
-            <a href={whatsapp} className="wa">💬 Pedir meu orçamento</a>
+            <a href={whatsapp} className="wa"><Icon name="whatsapp" size={20} /> Pedir meu orçamento</a>
           </aside>
         </div>
       </header>
@@ -254,9 +255,9 @@ export default function ConversaoLayout({ c, p, preview: _preview }: { c: SiteCo
           )) : (
             <>
               <div><div className="n">{c.yearsExperience > 0 ? `+${c.yearsExperience} anos` : '24h'}</div><div className="l">de experiência</div></div>
-              <div><div className="n">⭐ 4,9</div><div className="l">nota no Google</div></div>
-              <div><div className="n">✅ 100%</div><div className="l">comprometimento</div></div>
-              <div><div className="n">📍 {c.city}</div><div className="l">atendimento local</div></div>
+              <div><div className="n"><Icon name="star" size={18} /> 4,9</div><div className="l">nota no Google</div></div>
+              <div><div className="n"><Icon name="check" size={18} /> 100%</div><div className="l">comprometimento</div></div>
+              <div><div className="n"><Icon name="map-pin" size={18} /> {c.city}</div><div className="l">atendimento local</div></div>
             </>
           )}
         </div>
@@ -270,18 +271,18 @@ export default function ConversaoLayout({ c, p, preview: _preview }: { c: SiteCo
               <h2 className="blk-title">Antes de resolver sozinho, leia isto</h2>
               <div className="ps-grid">
                 <div className="col prob">
-                  <h3><span>✗</span> Tentando resolver sozinho</h3>
+                  <h3><span className="icon"><Icon name="x" size={18} /></span> Tentando resolver sozinho</h3>
                   <ul>
                     {(c.problemStatement ?? '').split('.').filter(Boolean).slice(0, 4).map((item, i) => (
-                      <li key={i}><span className="icon">✗</span>{item.trim()}.</li>
+                      <li key={i}><span className="icon"><Icon name="x" size={16} /></span>{item.trim()}.</li>
                     ))}
                   </ul>
                 </div>
                 <div className="col sol">
-                  <h3><span>✔</span> Com {c.businessName}</h3>
+                  <h3><span className="icon"><Icon name="check" size={18} /></span> Com {c.businessName}</h3>
                   <ul>
                     {(c.solutionStatement ?? '').split('.').filter(Boolean).slice(0, 4).map((item, i) => (
-                      <li key={i}><span className="icon">✔</span>{item.trim()}.</li>
+                      <li key={i}><span className="icon"><Icon name="check" size={16} /></span>{item.trim()}.</li>
                     ))}
                   </ul>
                 </div>
@@ -298,7 +299,7 @@ export default function ConversaoLayout({ c, p, preview: _preview }: { c: SiteCo
               <div className="svc-grid" style={{ gridTemplateColumns: `repeat(${Math.min(c.services.length, 4)}, 1fr)` }}>
                 {c.services.map((svc, i) => (
                   <div className="svc" key={i}>
-                    <div className="svc-icon">{svc.icon}</div>
+                    <div className="svc-icon">{svc.image ? <img src={svc.image} alt="" style={{ width: 48, height: 48, borderRadius: 10, objectFit: 'cover' }} /> : svc.icon}</div>
                     <h3>{svc.name}</h3>
                     <p>{svc.description}</p>
                   </div>
@@ -340,9 +341,9 @@ export default function ConversaoLayout({ c, p, preview: _preview }: { c: SiteCo
               <div className="grid">
                 {testimonials.slice(0, 3).map((t, i) => (
                   <div className="review" key={i}>
-                    <div className="stars">{'★'.repeat(t.rating ?? 5)}</div>
+                    <div className="stars">{Array.from({ length: t.rating ?? 5 }).map((_, s) => <Icon key={s} name="star" size={14} />)}</div>
                     <p>"{t.text}"</p>
-                    <div className="who"><span className="chk">✔</span> {t.name}</div>
+                    <div className="who"><span className="chk"><Icon name="check" size={14} /></span> {t.name}</div>
                   </div>
                 ))}
               </div>
@@ -407,7 +408,7 @@ export default function ConversaoLayout({ c, p, preview: _preview }: { c: SiteCo
           <div className="wrap">
             <h2>Não espere mais. Chama agora.</h2>
             <p>Resposta em poucos minutos. Quanto antes você chamar, mais rápido a gente resolve.</p>
-            <a href={whatsapp} className="wa big">💬 {c.ctaLabel}</a>
+            <a href={whatsapp} className="wa big"><Icon name="whatsapp" size={22} /> {c.ctaLabel}</a>
             <div className="note">Atendimento em {c.city} e região</div>
           </div>
         </section>
@@ -429,8 +430,8 @@ export default function ConversaoLayout({ c, p, preview: _preview }: { c: SiteCo
 
       {/* STICKY CTA mobile */}
       <div className="sticky-cta">
-        <a href={tel} className="call">📞 Ligar</a>
-        <a href={whatsapp} className="wa">💬 WhatsApp</a>
+        <a href={tel} className="call"><Icon name="phone" size={18} /> Ligar</a>
+        <a href={whatsapp} className="wa"><Icon name="whatsapp" size={20} /> WhatsApp</a>
       </div>
     </div>
   )

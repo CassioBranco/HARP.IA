@@ -1,5 +1,6 @@
 import type { SiteContent } from '@/lib/templates/example-content'
 import SiteBrand from '../shared/SiteBrand'
+import Icon from '../shared/Icon'
 import type { PaletteColors } from '@/lib/templates/palettes'
 
 function cssVars(p: PaletteColors): string {
@@ -89,8 +90,8 @@ section.p-block { padding: 5.5rem 0; }
 .p-about h2 { font-size: clamp(1.8rem, 3vw, 2.4rem); font-weight: 700; margin: .9rem 0 1.2rem; letter-spacing: -0.01em; }
 .p-about p { color: var(--sm); line-height: 1.75; margin: 0 0 1.5rem; }
 .p-checks { display: flex; flex-direction: column; gap: .7rem; }
-.p-checks div { display: flex; gap: .7rem; align-items: baseline; font-size: .96rem; }
-.p-checks span { color: var(--sa); font-weight: 700; }
+.p-checks div { display: flex; gap: .6rem; align-items: center; font-size: .96rem; }
+.p-checks span { color: var(--sa); font-weight: 700; display: inline-flex; flex: none; }
 
 /* cta */
 .p-cta-band { background: var(--sa); color: #2a2308; }
@@ -256,6 +257,10 @@ export default function ProfissionalLayout({
               {c.services.map((svc, i) => (
                 <div className="p-svc" key={i}>
                   <span className="p-idx">{String(i + 1).padStart(2, '0')}</span>
+                  {svc.image && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={svc.image} alt={svc.name} loading="lazy" style={{ width: 52, height: 52, borderRadius: 10, objectFit: 'cover', flex: 'none' }} />
+                  )}
                   <div>
                     <h3>{svc.name}</h3>
                     <p>{svc.description}</p>
@@ -291,13 +296,13 @@ export default function ProfissionalLayout({
               <p>{c.about}</p>
               <div className="p-checks">
                 {c.credential && (
-                  <div><span>✓</span> {c.credential}</div>
+                  <div><span><Icon name="check" size={16} /></span> {c.credential}</div>
                 )}
-                <div><span>✓</span> {c.yearsExperience}+ anos de história em {c.city}</div>
+                <div><span><Icon name="check" size={16} /></span> {c.yearsExperience}+ anos de história em {c.city}</div>
                 {c.services.slice(0, 2).map((svc, i) => (
-                  <div key={i}><span>✓</span> {svc.name}</div>
+                  <div key={i}><span><Icon name="check" size={16} /></span> {svc.name}</div>
                 ))}
-                <div><span>✓</span> Atendimento em {c.address}</div>
+                <div><span><Icon name="check" size={16} /></span> Atendimento em {c.address}</div>
               </div>
             </div>
           </div>
@@ -315,7 +320,7 @@ export default function ProfissionalLayout({
                   <span className="p-kicker">Blog · Saúde em dia</span>
                   <h2 style={{ marginBottom: 0 }}>Conteúdo de quem cuida de você</h2>
                 </div>
-                <a href="#blog" style={{ color: 'var(--sp)', fontWeight: 600 }}>Ver todos os artigos →</a>
+                <a href="#blog" style={{ color: 'var(--sp)', fontWeight: 600 }}>Ver todos os artigos <Icon name="arrow-right" size={14} /></a>
               </div>
               <div className="p-post-grid">
                 {c.blogPosts.slice(0, 3).map((post, i) => (

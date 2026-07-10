@@ -1,5 +1,6 @@
 import type { SiteContent } from '@/lib/templates/example-content'
 import SiteBrand from '../shared/SiteBrand'
+import Icon from '../shared/Icon'
 import type { PaletteColors } from '@/lib/templates/palettes'
 
 function cssVars(p: PaletteColors) {
@@ -193,7 +194,7 @@ export default function MagazineLayout({ c, p, preview }: { c: SiteContent; p: P
           <div className="mag-layout mag-block">
             <section id="prevencao">
               <div className="mag-sec-label">
-                Conteúdo &amp; Serviços <a className="mag-more" href={href('#')}>Ver tudo →</a>
+                Conteúdo &amp; Serviços <a className="mag-more" href={href('#')}>Ver tudo <Icon name="arrow-right" size={13} /></a>
               </div>
               <div className="mag-articles">
                 {posts.slice(0, 4).map((post, i) => (
@@ -234,7 +235,7 @@ export default function MagazineLayout({ c, p, preview }: { c: SiteContent; p: P
                 <h3>{c.ctaLabel}</h3>
                 <p>Atendimento em {c.city}. Fale com a gente.</p>
                 <a href={href(whatsapp)} className="mag-wa">
-                  &#128172; Agendar no WhatsApp
+                  <Icon name="whatsapp" size={16} /> Agendar no WhatsApp
                 </a>
               </div>
             </aside>
@@ -251,7 +252,7 @@ export default function MagazineLayout({ c, p, preview }: { c: SiteContent; p: P
               <div className={`mag-specs-grid ${specsCols}`}>
                 {services.map((svc, i) => (
                   <div key={i} className="mag-spec">
-                    <div className="mag-ic">{svc.icon}</div>
+                    <div className="mag-ic">{svc.image ? <img src={svc.image} alt="" style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'cover' }} /> : svc.icon}</div>
                     <div className="mag-n">{svc.name}</div>
                   </div>
                 ))}

@@ -1,5 +1,6 @@
 import type { SiteContent } from '@/lib/templates/example-content'
 import SiteBrand from '../shared/SiteBrand'
+import Icon from '../shared/Icon'
 import type { PaletteColors } from '@/lib/templates/palettes'
 
 function cssVars(p: PaletteColors): string {
@@ -102,8 +103,8 @@ section.bd-block.bd-alt { background: var(--dark-1); }
 .bd-about img { aspect-ratio: 4/5; object-fit: cover; width: 100%; border-radius: 6px; }
 .bd-about h2 { font-family: var(--font-heading); font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 800; line-height: 1.02; letter-spacing: -0.02em; margin: 1rem 0 1.4rem; text-transform: uppercase; }
 .bd-about p { color: var(--ink-2); line-height: 1.75; margin: 0 0 1.4rem; }
-.bd-tick { display: flex; gap: .8rem; align-items: baseline; font-size: .95rem; margin-bottom: .7rem; }
-.bd-tick span { color: var(--sa); font-weight: 800; }
+.bd-tick { display: flex; gap: .7rem; align-items: center; font-size: .95rem; margin-bottom: .7rem; }
+.bd-tick span { color: var(--sa); font-weight: 800; display: inline-flex; flex: none; }
 
 /* BLOG cards */
 .bd-post-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
@@ -204,13 +205,13 @@ export default function BoldLayout({ c, p, preview }: { c: SiteContent; p: Palet
           <p className="bd-sub">{c.heroSub}</p>
           <div className="bd-hero-cta">
             <a href={whatsapp} className="bd-btn">{c.ctaLabel}</a>
-            <a href="#especialidades" className="bd-btn bd-btn-outline">Explorar ↓</a>
+            <a href="#especialidades" className="bd-btn bd-btn-outline">Explorar <Icon name="arrow-down" size={16} /></a>
           </div>
         </div>
         <div className="bd-hero-meta">
           <b>{c.city}</b> · {c.state}<br />
           {c.address}<br />
-          ★ {stats[3]?.value ?? '4.9'} · avaliações Google
+          <Icon name="star" size={13} /> {stats[3]?.value ?? '4.9'} · avaliações Google
         </div>
       </header>
 
@@ -245,6 +246,10 @@ export default function BoldLayout({ c, p, preview }: { c: SiteContent; p: Palet
               {services.map((svc, i) => (
                 <div className="bd-svc-row" key={i}>
                   <span className="bd-idx">{String(i + 1).padStart(2, '0')}</span>
+                  {svc.image && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={svc.image} alt={svc.name} loading="lazy" style={{ width: 52, height: 52, borderRadius: 10, objectFit: 'cover', flex: 'none' }} />
+                  )}
                   <h3>{svc.name}</h3>
                   <p>{svc.description}</p>
                 </div>
@@ -265,7 +270,7 @@ export default function BoldLayout({ c, p, preview }: { c: SiteContent; p: Palet
             </div>
             <div className="bd-ov" />
             <div className="bd-inner">
-              <span className="bd-kicker">{'★'.repeat(firstTestimonial.rating)} · avaliações Google</span>
+              <span className="bd-kicker">{Array.from({ length: firstTestimonial.rating }).map((_, s) => <Icon key={s} name="star" size={12} />)} · avaliações Google</span>
               <blockquote>"{firstTestimonial.text}"</blockquote>
               <cite>{firstTestimonial.name}</cite>
             </div>
@@ -279,10 +284,10 @@ export default function BoldLayout({ c, p, preview }: { c: SiteContent; p: Palet
               <span className="bd-kicker">Sobre nós</span>
               <h2>{c.businessName}</h2>
               <p>{c.about}</p>
-              <div className="bd-tick"><span>→</span> {c.yearsExperience} anos de experiência em {c.city}</div>
-              <div className="bd-tick"><span>→</span> {c.credential}</div>
+              <div className="bd-tick"><span><Icon name="arrow-right" size={16} /></span> {c.yearsExperience} anos de experiência em {c.city}</div>
+              <div className="bd-tick"><span><Icon name="arrow-right" size={16} /></span> {c.credential}</div>
               {stats.slice(0, 2).map((s, i) => (
-                <div className="bd-tick" key={i}><span>→</span> {s.value} {s.label}</div>
+                <div className="bd-tick" key={i}><span><Icon name="arrow-right" size={16} /></span> {s.value} {s.label}</div>
               ))}
             </div>
             <img
@@ -302,7 +307,7 @@ export default function BoldLayout({ c, p, preview }: { c: SiteContent; p: Palet
                   <span className="bd-kicker">Blog</span>
                   <h2 style={{ marginBottom: 0 }}>Informação de quem cuida.</h2>
                 </div>
-                <a href="/blog" style={{ color: 'var(--sa)', fontWeight: 700, fontSize: '.85rem', letterSpacing: '.15em', textTransform: 'uppercase' }}>Todos os artigos →</a>
+                <a href="/blog" style={{ color: 'var(--sa)', fontWeight: 700, fontSize: '.85rem', letterSpacing: '.15em', textTransform: 'uppercase' }}>Todos os artigos <Icon name="arrow-right" size={13} /></a>
               </div>
               <div className="bd-post-grid">
                 {blogPosts.map((post, i) => (

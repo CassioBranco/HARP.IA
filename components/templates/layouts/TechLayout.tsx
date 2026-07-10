@@ -1,5 +1,6 @@
 import type { SiteContent } from '@/lib/templates/example-content'
 import SiteBrand from '../shared/SiteBrand'
+import Icon from '../shared/Icon'
 import type { PaletteColors } from '@/lib/templates/palettes'
 import SiteFAQ from '../shared/SiteFAQ'
 import SiteBlog from '../shared/SiteBlog'
@@ -115,7 +116,7 @@ export default function TechLayout({ c, p, preview }: { c: SiteContent; p: Palet
                 {c.heroSub}
               </p>
               <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-                <a href={href(whatsapp)} style={btn}>{c.ctaLabel} →</a>
+                <a href={href(whatsapp)} style={btn}>{c.ctaLabel} <Icon name="arrow-right" size={17} /></a>
                 <a href={href(`tel:${c.ctaPhone.replace(/\D/g, '')}`)} style={btnGhost}>{c.ctaPhone}</a>
               </div>
             </div>
@@ -123,7 +124,7 @@ export default function TechLayout({ c, p, preview }: { c: SiteContent; p: Palet
             {/* Hero card */}
             <div style={{ position: 'relative', aspectRatio: '3/4', borderRadius: '28px', overflow: 'hidden', boxShadow: '0 30px 60px color-mix(in srgb, var(--sp) 30%, transparent)' }}>
               <img
-                src={c.heroImage}
+                src={c.heroImage ?? `https://picsum.photos/seed/${c.businessName}-hero/640/854`}
                 alt={`${c.businessName} – ${c.city}`}
                 width={640} height={854}
                 style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
@@ -218,7 +219,7 @@ export default function TechLayout({ c, p, preview }: { c: SiteContent; p: Palet
               </h2>
               <p style={{ color: 'var(--sm)', lineHeight: 1.7, margin: '0 0 1.4rem' }}>{c.about}</p>
               {c.credential && (
-                <p style={{ color: 'var(--sa)', fontWeight: 700, fontSize: '.9rem' }}>🏅 {c.credential}</p>
+                <p style={{ color: 'var(--sa)', fontWeight: 700, fontSize: '.9rem', display: 'flex', alignItems: 'center', gap: '.4rem' }}><Icon name="award" size={16} /> {c.credential}</p>
               )}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '.7rem', marginTop: '1.2rem' }}>
                 {c.services.slice(0, 3).map((svc, i) => (
@@ -267,7 +268,7 @@ export default function TechLayout({ c, p, preview }: { c: SiteContent; p: Palet
               Atendemos em {c.city} e região. Agende agora e venha sentir a diferença.
             </p>
             <a href={href(whatsapp)} style={{ ...btn, padding: '1.2rem 3rem', fontSize: '1.1rem' }}>
-              {c.ctaLabel} no WhatsApp →
+              {c.ctaLabel} no WhatsApp <Icon name="arrow-right" size={18} />
             </a>
           </div>
         </section>

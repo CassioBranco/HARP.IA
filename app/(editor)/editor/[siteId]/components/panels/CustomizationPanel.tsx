@@ -7,6 +7,8 @@ import ImageUploader from './ImageUploader'
 import SectionEditor from './SectionEditor'
 import BrandPanel from './BrandPanel'
 import SeoPanel from './SeoPanel'
+import { Tip } from '../Tooltip'
+import { clearSiteSectionCache } from '@/lib/editor/editor-cache'
 import {
   MODELS,
   PALETTES,
@@ -16,11 +18,12 @@ import {
 } from '@/app/templates/model-data'
 import { FONT_PAIRS } from '@/lib/templates/fonts'
 
-const SECTIONS = ['hero', 'about', 'services', 'faq']
+const SECTIONS = ['hero', 'about', 'services', 'testimonials', 'faq']
 const SECTION_LABELS: Record<string, string> = {
   hero: 'Hero (cabeçalho)',
   about: 'Sobre o negócio',
   services: 'Serviços',
+  testimonials: 'Depoimentos',
   faq: 'Perguntas frequentes',
 }
 
@@ -30,7 +33,11 @@ type Props = {
   onSave: (updated: Partial<SiteData>) => void
 }
 
-type SubTab = 'modelo' | 'cores' | 'fontes' | 'imagens' | 'marca' | 'textos' | 'seo' | 'agenda' | 'leads'
+// Duas famílias de abas, uma por painel:
+//   esquerda (conteúdo) = o que o site diz  → Textos, Imagens, Marca
+//   direita  (design)    = como o site é     → Modelo, Cores, Fontes, SEO, Agenda, Leads
+type LeftTab = 'textos' | 'imagens' | 'marca'
+type RightTab = 'modelo' | 'cores' | 'fontes' | 'seo' | 'agenda' | 'leads'
 
 // Entrada da pilha de undo — guarda o estado ANTERIOR de cada mudança
 // de personalização (padrão dos editores top: Framer/Webflow têm undo).
@@ -40,7 +47,8 @@ type UndoEntry =
   | { type: 'template'; id: string }
 
 export default function CustomizationPanel({ site, siteId, onSave }: Props) {
-  const [subTab, setSubTab] = useState<SubTab>('cores')
+  const [leftTab, setLeftTab] = useState<LeftTab>('textos')
+  const [rightTab, setRightTab] = useState<RightTab>('cores')
   const [selectedName, setSelectedName] = useState(site.palette_name ?? 'Original')
   const [custom, setCustom] = useState<string[]>(
     site.palette_name === 'Personalizada' && site.palette?.colors?.length === 7
@@ -51,6 +59,7 @@ export default function CustomizationPanel({ site, siteId, onSave }: Props) {
   const [selectedTemplate, setSelectedTemplate] = useState(site.template ?? 'clean')
   const [expandedSection, setExpandedSection] = useState<string | null>('hero')
   const [saving, setSaving] = useState(false)
+  const [saveErr, setSaveErr] = useState(false)
   const [bookingOn, setBookingOn] = useState(Boolean(site.booking_enabled))
   const [leadsOn, setLeadsOn] = useState(Boolean(site.leads_enabled))
 
@@ -71,9 +80,9 @@ export default function CustomizationPanel({ site, siteId, onSave }: Props) {
       if (e.origin !== window.location.origin) return
       const d = e.data as { source?: string; kind?: string; sectionType?: string } | null
       if (!d || d.source !== 'ancoreo-preview') return
-      if (d.kind === 'image') setSubTab('imagens')
+      if (d.kind === 'image') setLeftTab('imagens')
       else if (d.kind === 'text') {
-        setSubTab('textos')
+        setLeftTab('textos')
         if (d.sectionType && SECTIONS.includes(d.sectionType)) setExpandedSection(d.sectionType)
       }
     }
@@ -105,6 +114,8 @@ export default function CustomizationPanel({ site, siteId, onSave }: Props) {
         const { done } = await reader.read()
         if (done) break
       }
+      // a IA reescreveu todas as seções no banco: limpa o cache pra releitura fresca
+      clearSiteSectionCache(siteId)
       onSave({})
     } catch {
       setAiError('Falha de conexão ao gerar o conteúdo.')
@@ -113,15 +124,32 @@ export default function CustomizationPanel({ site, siteId, onSave }: Props) {
     }
   }
 
+  // grava um patch em sites e diz se deu certo (base do rollback otimista)
+  async function persist(patch: Record<string, unknown>): Promise<boolean> {
+    const supabase = createBrowserClient()
+    const { error } = await supabase.from('sites').update(patch).eq('id', siteId)
+    return !error
+  }
+
   async function savePaletteByName(name: string, colors: string[] | null, group: string, record = true) {
+    const prevName = selectedName
+    const prevLast = lastPalette.current
     if (record) setHistory(h => [...h, { type: 'palette', ...lastPalette.current }])
     lastPalette.current = { name, colors, group }
     setSelectedName(name)
     setSaving(true)
+    setSaveErr(false)
     const palette = colors && colors.length >= 7 ? { name, group, colors } : null
-    const supabase = createBrowserClient()
-    await supabase.from('sites').update({ palette, palette_name: name }).eq('id', siteId)
+    const ok = await persist({ palette, palette_name: name })
     setSaving(false)
+    if (!ok) {
+      // rollback otimista: desfaz a troca na tela se o banco recusou
+      setSaveErr(true)
+      setSelectedName(prevName)
+      lastPalette.current = prevLast
+      if (record) setHistory(h => h.slice(0, -1))
+      return
+    }
     onSave({ palette, palette_name: name })
   }
 
@@ -140,24 +168,42 @@ export default function CustomizationPanel({ site, siteId, onSave }: Props) {
   // e seções continuam os mesmos. onSave atualiza o estado e recarrega o preview.
   async function saveTemplate(templateId: string, record = true) {
     if (templateId === selectedTemplate) return
+    const prev = selectedTemplate
+    const prevLast = lastTemplate.current
     if (record) setHistory(h => [...h, { type: 'template', id: lastTemplate.current }])
     lastTemplate.current = templateId
     setSelectedTemplate(templateId)
     setSaving(true)
-    const supabase = createBrowserClient()
-    await supabase.from('sites').update({ template: templateId }).eq('id', siteId)
+    setSaveErr(false)
+    const ok = await persist({ template: templateId })
     setSaving(false)
+    if (!ok) {
+      setSaveErr(true)
+      setSelectedTemplate(prev)
+      lastTemplate.current = prevLast
+      if (record) setHistory(h => h.slice(0, -1))
+      return
+    }
     onSave({ template: templateId })
   }
 
   async function saveFont(fontId: string, record = true) {
+    const prev = selectedFont
+    const prevLast = lastFont.current
     if (record) setHistory(h => [...h, { type: 'font', id: lastFont.current }])
     lastFont.current = fontId
     setSelectedFont(fontId)
     setSaving(true)
-    const supabase = createBrowserClient()
-    await supabase.from('sites').update({ font_pair: fontId }).eq('id', siteId)
+    setSaveErr(false)
+    const ok = await persist({ font_pair: fontId })
     setSaving(false)
+    if (!ok) {
+      setSaveErr(true)
+      setSelectedFont(prev)
+      lastFont.current = prevLast
+      if (record) setHistory(h => h.slice(0, -1))
+      return
+    }
     onSave({ font_pair: fontId })
   }
 
@@ -179,25 +225,28 @@ export default function CustomizationPanel({ site, siteId, onSave }: Props) {
     }
   }
 
-  const SUB_TABS: { id: SubTab; label: string }[] = [
-    { id: 'modelo',  label: 'Modelo' },
-    { id: 'cores',   label: 'Cores' },
-    { id: 'fontes',  label: 'Fontes' },
-    { id: 'imagens', label: 'Imagens' },
-    { id: 'marca',   label: 'Marca' },
-    { id: 'textos',  label: 'Textos' },
-    { id: 'seo',     label: 'SEO' },
-    { id: 'agenda',  label: 'Agenda' },
-    { id: 'leads',   label: 'Leads' },
+  const LEFT_TABS: { id: LeftTab; label: string; tip: string }[] = [
+    { id: 'textos',  label: 'Textos',  tip: 'Edite os textos de cada seção do site.' },
+    { id: 'imagens', label: 'Imagens', tip: 'Suba e organize as fotos do seu negócio.' },
+    { id: 'marca',   label: 'Marca',   tip: 'Logo, favicon e links das suas redes sociais.' },
+  ]
+  const RIGHT_TABS: { id: RightTab; label: string; tip: string }[] = [
+    { id: 'modelo',  label: 'Modelo', tip: 'Troque o visual do site sem perder o conteúdo.' },
+    { id: 'cores',   label: 'Cores',  tip: 'Escolha a paleta de cores do site.' },
+    { id: 'fontes',  label: 'Fontes', tip: 'Escolha o par de fontes (título e texto).' },
+    { id: 'seo',     label: 'SEO',    tip: 'Título e descrição que aparecem no Google.' },
+    { id: 'agenda',  label: 'Agenda', tip: 'Botão de agendamento no site publicado.' },
+    { id: 'leads',   label: 'Leads',  tip: 'Faixa que captura contatos de interessados.' },
   ]
 
   // Liga/desliga o widget de agendamento no site publicado (sites.booking_enabled).
   async function saveBooking(on: boolean) {
     setBookingOn(on)
     setSaving(true)
-    const supabase = createBrowserClient()
-    await supabase.from('sites').update({ booking_enabled: on }).eq('id', siteId)
+    setSaveErr(false)
+    const ok = await persist({ booking_enabled: on })
     setSaving(false)
+    if (!ok) { setSaveErr(true); setBookingOn(!on); return }
     onSave({ booking_enabled: on })
   }
 
@@ -205,43 +254,115 @@ export default function CustomizationPanel({ site, siteId, onSave }: Props) {
   async function saveLeads(on: boolean) {
     setLeadsOn(on)
     setSaving(true)
-    const supabase = createBrowserClient()
-    await supabase.from('sites').update({ leads_enabled: on }).eq('id', siteId)
+    setSaveErr(false)
+    const ok = await persist({ leads_enabled: on })
     setSaving(false)
+    if (!ok) { setSaveErr(true); setLeadsOn(!on); return }
     onSave({ leads_enabled: on })
   }
 
   return (
     <>
-      <div className="ed-ph">
-        <h2>Personalizar</h2>
-        <button
-          className="btn glass sm"
-          onClick={undo}
-          disabled={history.length === 0 || saving}
-          title="Desfaz a última mudança de modelo, cor ou fonte"
-        >
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 14 4 9l5-5" /><path d="M4 9h10a6 6 0 0 1 0 12h-3" /></svg>
-          Desfazer
-        </button>
-      </div>
+      {/* ═══════════ PAINEL ESQUERDO — Conteúdo do site ═══════════ */}
+      <aside className="ed-panel ed-panel-l">
+        <div className="ed-ph">
+          <h2>Conteúdo</h2>
+        </div>
 
-      <div className="ed-subtabs">
-        {SUB_TABS.map(t => (
+        <div className="ed-subtabs">
+          {LEFT_TABS.map(t => (
+            <Tip key={t.id} label={t.tip} side="bottom" style={{ flex: 1 }}>
+              <button
+                onClick={() => setLeftTab(t.id)}
+                className={`ed-subtab ${leftTab === t.id ? 'on' : ''}`}
+                style={{ width: '100%' }}
+              >
+                {t.label}
+              </button>
+            </Tip>
+          ))}
+        </div>
+
+        <div className="ed-scroll">
+
+          {/* ── TEXTOS ── */}
+          {leftTab === 'textos' && (
+            <>
+              <button onClick={runAiFill} disabled={aiFilling} className="ed-ai">
+                {aiFilling ? 'Escrevendo seu site…' : <><i className="ph-fill ph-sparkle ai-spark" /> Preencher tudo com IA</>}
+              </button>
+              {aiError && <p className="ed-err">{aiError}</p>}
+              <p className="ed-hint">Edite cada seção do site. Use a IA para reescrever ou melhorar.</p>
+              {SECTIONS.map(sec => (
+                <div key={sec} className="ed-acc">
+                  <button
+                    onClick={() => setExpandedSection(expandedSection === sec ? null : sec)}
+                    className="ed-acc-h"
+                  >
+                    {SECTION_LABELS[sec]}
+                    <svg
+                      width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+                      style={{ transform: expandedSection === sec ? 'rotate(180deg)' : 'none', transition: 'transform .15s' }}
+                    >
+                      <polyline points="6 9 12 15 18 9" />
+                    </svg>
+                  </button>
+                  {expandedSection === sec && (
+                    <div className="ed-acc-b">
+                      <SectionEditor
+                        siteId={siteId}
+                        sectionType={sec}
+                        niche={site.niche}
+                        onSaved={() => startTransition(() => {})}
+                      />
+                    </div>
+                  )}
+                </div>
+              ))}
+            </>
+          )}
+
+          {/* ── IMAGENS ── */}
+          {leftTab === 'imagens' && <ImageUploader siteId={siteId} niche={site.niche} onAssigned={() => onSave({})} />}
+
+          {/* ── MARCA (logo, favicon, redes) ── */}
+          {leftTab === 'marca' && <BrandPanel siteId={siteId} />}
+        </div>
+      </aside>
+
+      {/* ═══════════ PAINEL DIREITO — Design & Ajustes ═══════════ */}
+      <aside className="ed-panel ed-panel-r">
+        <div className="ed-ph">
+          <h2>Design &amp; Ajustes</h2>
           <button
-            key={t.id}
-            onClick={() => setSubTab(t.id)}
-            className={`ed-subtab ${subTab === t.id ? 'on' : ''}`}
+            className="btn glass sm"
+            onClick={undo}
+            disabled={history.length === 0 || saving}
+            title="Desfaz a última mudança de modelo, cor ou fonte"
           >
-            {t.label}
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 14 4 9l5-5" /><path d="M4 9h10a6 6 0 0 1 0 12h-3" /></svg>
+            Desfazer
           </button>
-        ))}
-      </div>
+        </div>
 
-      <div className="ed-scroll">
+        <div className="ed-subtabs">
+          {RIGHT_TABS.map(t => (
+            <Tip key={t.id} label={t.tip} side="bottom" style={{ flex: 1 }}>
+              <button
+                onClick={() => setRightTab(t.id)}
+                className={`ed-subtab ${rightTab === t.id ? 'on' : ''}`}
+                style={{ width: '100%' }}
+              >
+                {t.label}
+              </button>
+            </Tip>
+          ))}
+        </div>
+
+        <div className="ed-scroll">
 
         {/* ── MODELO (troca o layout do site) ── */}
-        {subTab === 'modelo' && (
+        {rightTab === 'modelo' && (
           <>
             <p className="ed-hint">Troque o modelo do site. Seus textos, imagens e seções continuam — só muda o visual.</p>
             <div className="ed-pal-grid">
@@ -262,11 +383,12 @@ export default function CustomizationPanel({ site, siteId, onSave }: Props) {
               ))}
             </div>
             {saving && <p className="ed-saving">Salvando…</p>}
+            {saveErr && <p className="ed-err">Não consegui salvar. A mudança foi desfeita, tente de novo.</p>}
           </>
         )}
 
         {/* ── CORES ── */}
-        {subTab === 'cores' && (
+        {rightTab === 'cores' && (
           <>
             <p className="ed-hint">Escolha a paleta de cores do site.</p>
 
@@ -329,11 +451,12 @@ export default function CustomizationPanel({ site, siteId, onSave }: Props) {
             </div>
 
             {saving && <p className="ed-saving">Salvando…</p>}
+            {saveErr && <p className="ed-err">Não consegui salvar. A mudança foi desfeita, tente de novo.</p>}
           </>
         )}
 
         {/* ── FONTES ── */}
-        {subTab === 'fontes' && (
+        {rightTab === 'fontes' && (
           <>
             <p className="ed-hint">Par tipográfico para títulos e texto do site.</p>
             {FONT_PAIRS.map(fp => (
@@ -353,20 +476,15 @@ export default function CustomizationPanel({ site, siteId, onSave }: Props) {
               </button>
             ))}
             {saving && <p className="ed-saving">Salvando…</p>}
+            {saveErr && <p className="ed-err">Não consegui salvar. A mudança foi desfeita, tente de novo.</p>}
           </>
         )}
 
-        {/* ── IMAGENS ── */}
-        {subTab === 'imagens' && <ImageUploader siteId={siteId} niche={site.niche} onAssigned={() => onSave({})} />}
-
-        {/* ── MARCA (logo, favicon, redes) ── */}
-        {subTab === 'marca' && <BrandPanel siteId={siteId} />}
-
         {/* ── SEO (score ao vivo da página + título/meta do Google) ── */}
-        {subTab === 'seo' && <SeoPanel siteId={siteId} onSaved={() => onSave({})} />}
+        {rightTab === 'seo' && <SeoPanel siteId={siteId} onSaved={() => onSave({})} />}
 
         {/* ── AGENDA (widget de agendamento no site) ── */}
-        {subTab === 'agenda' && (
+        {rightTab === 'agenda' && (
           <>
             <p className="ed-hint">
               Botão &quot;Agendar&quot; flutuante no site: o visitante pede um horário
@@ -403,11 +521,12 @@ export default function CustomizationPanel({ site, siteId, onSave }: Props) {
               Não é reserva automática — quem confirma o horário é você.
             </p>
             {saving && <p className="ed-saving">Salvando…</p>}
+            {saveErr && <p className="ed-err">Não consegui salvar. A mudança foi desfeita, tente de novo.</p>}
           </>
         )}
 
         {/* ── LEADS (faixa de captura de contato no site) ── */}
-        {subTab === 'leads' && (
+        {rightTab === 'leads' && (
           <>
             <p className="ed-hint">
               Faixa discreta &quot;Fique por dentro&quot; no fim do site: o visitante
@@ -445,46 +564,12 @@ export default function CustomizationPanel({ site, siteId, onSave }: Props) {
               O visitante pode dispensar a faixa — ela não volta no mesmo dia.
             </p>
             {saving && <p className="ed-saving">Salvando…</p>}
+            {saveErr && <p className="ed-err">Não consegui salvar. A mudança foi desfeita, tente de novo.</p>}
           </>
         )}
 
-        {/* ── TEXTOS ── */}
-        {subTab === 'textos' && (
-          <>
-            <button onClick={runAiFill} disabled={aiFilling} className="ed-ai">
-              {aiFilling ? 'Escrevendo seu site…' : <><i className="ph-fill ph-sparkle ai-spark" /> Preencher tudo com IA</>}
-            </button>
-            {aiError && <p className="ed-err">{aiError}</p>}
-            <p className="ed-hint">Edite cada seção do site. Use a IA para reescrever ou melhorar.</p>
-            {SECTIONS.map(sec => (
-              <div key={sec} className="ed-acc">
-                <button
-                  onClick={() => setExpandedSection(expandedSection === sec ? null : sec)}
-                  className="ed-acc-h"
-                >
-                  {SECTION_LABELS[sec]}
-                  <svg
-                    width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
-                    style={{ transform: expandedSection === sec ? 'rotate(180deg)' : 'none', transition: 'transform .15s' }}
-                  >
-                    <polyline points="6 9 12 15 18 9" />
-                  </svg>
-                </button>
-                {expandedSection === sec && (
-                  <div className="ed-acc-b">
-                    <SectionEditor
-                      siteId={siteId}
-                      sectionType={sec}
-                      niche={site.niche}
-                      onSaved={() => startTransition(() => {})}
-                    />
-                  </div>
-                )}
-              </div>
-            ))}
-          </>
-        )}
-      </div>
+        </div>
+      </aside>
     </>
   )
 }

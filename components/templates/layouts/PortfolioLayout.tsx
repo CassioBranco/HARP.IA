@@ -1,5 +1,6 @@
 import type { SiteContent } from '@/lib/templates/example-content'
 import SiteBrand from '../shared/SiteBrand'
+import Icon from '../shared/Icon'
 import type { PaletteColors } from '@/lib/templates/palettes'
 
 function cssVars(p: PaletteColors): string {
@@ -344,7 +345,7 @@ export default function PortfolioLayout({
             <div className="f-gal-head">
               <h2>Do nosso blog</h2>
               <a className="f-lbl" href="#blog" style={{ color: 'var(--sp)' }}>
-                Ver todos os artigos →
+                Ver todos os artigos <Icon name="arrow-right" size={13} />
               </a>
             </div>
             <div className="f-post-grid">
