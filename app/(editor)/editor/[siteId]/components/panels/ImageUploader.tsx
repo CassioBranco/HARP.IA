@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { createBrowserClient } from '@/lib/supabase/client'
 import { AiHelp } from '@/components/draft/AiHelp'
-import { Skeleton } from '../Skeleton'
 
 type Props = {
   siteId: string
@@ -31,7 +30,6 @@ export default function ImageUploader({ siteId, niche, onAssigned }: Props) {
   const [error, setError] = useState<string | null>(null)
   // mapa section_type -> webp_url atualmente usado, pra marcar o que está aplicado
   const [assigned, setAssigned] = useState<Record<string, string>>({})
-  const [dragOver, setDragOver] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
   const load = useCallback(async () => {
@@ -121,27 +119,21 @@ export default function ImageUploader({ siteId, niche, onAssigned }: Props) {
         <AiHelp>A IA escreve o alt text (SEO) de cada foto</AiHelp>
       </div>
 
-      <div
-        role="button"
-        tabIndex={0}
-        aria-disabled={uploading}
-        onClick={() => { if (!uploading) inputRef.current?.click() }}
-        onKeyDown={e => { if ((e.key === 'Enter' || e.key === ' ') && !uploading) { e.preventDefault(); inputRef.current?.click() } }}
-        onDragEnter={e => { e.preventDefault(); if (!uploading) setDragOver(true) }}
-        onDragOver={e => { e.preventDefault(); if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy' }}
-        onDragLeave={e => { if (e.currentTarget === e.target) setDragOver(false) }}
-        onDrop={e => { e.preventDefault(); setDragOver(false); if (!uploading) handleFiles(e.dataTransfer.files) }}
+      <button
+        onClick={() => inputRef.current?.click()}
+        onDragOver={e => e.preventDefault()}
+        onDrop={e => { e.preventDefault(); handleFiles(e.dataTransfer.files) }}
+        disabled={uploading}
         className="ed-drop"
-        style={dragOver ? { borderStyle: 'solid', borderColor: 'var(--navy)', background: 'hsl(var(--ring) / .08)', color: 'var(--ink)' } : undefined}
       >
         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" />
         </svg>
-        <b style={{ fontSize: '.82rem', fontWeight: 700 }}>
-          {uploading ? progress ?? 'Enviando…' : dragOver ? 'Solte a foto pra enviar' : 'Clique ou arraste fotos aqui'}
+        <b style={{ fontSize: '.82rem', fontWeight: 700, color: '#fff' }}>
+          {uploading ? progress ?? 'Enviando…' : 'Clique ou arraste fotos aqui'}
         </b>
         <span style={{ fontSize: '.72rem' }}>JPG, PNG, WebP — máx 10 MB</span>
-      </div>
+      </button>
 
       <input ref={inputRef} type="file" accept="image/*" multiple style={{ display: 'none' }} onChange={e => handleFiles(e.target.files)} />
 
@@ -150,14 +142,6 @@ export default function ImageUploader({ siteId, niche, onAssigned }: Props) {
       <p className="ed-cap" style={{ marginTop: '.2rem' }}>
         {loading ? 'Carregando galeria…' : images.length ? `Suas fotos (${images.length})` : 'Nenhuma foto ainda'}
       </p>
-
-      {loading && (
-        <div className="ed-gal">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} h={104} r={11} />
-          ))}
-        </div>
-      )}
 
       {!loading && images.length > 0 && (
         <div className="ed-gal">

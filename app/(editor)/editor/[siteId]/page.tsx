@@ -6,8 +6,6 @@ import { createBrowserClient } from '@/lib/supabase/client'
 import EditorSidebar from './components/EditorSidebar'
 import CustomizationPanel from './components/panels/CustomizationPanel'
 import { useEditBridge } from './components/useEditBridge'
-import { EditorSkeleton } from './components/Skeleton'
-import { clearSiteSectionCache } from '@/lib/editor/editor-cache'
 
 export type ViewMode = 'desktop' | 'mobile'
 
@@ -106,7 +104,6 @@ export default function EditorPage() {
       }
       if (errMsg) { setGen({ state: 'error', msg: errMsg }); return }
       setGen({ state: 'idle' })
-      clearSiteSectionCache(siteId)
       refreshPreview()
     } catch {
       setGen({ state: 'error', msg: 'Falha de conexão ao gerar o conteúdo.' })
@@ -170,17 +167,15 @@ export default function EditorPage() {
     return (
       <div className="painel-shell">
         <div className="aura" />
-        {loadError ? (
-          <div className="ed-loading">
+        <div className="ed-loading">
+          {loadError ? (
             <div style={{ textAlign: 'center', maxWidth: 360 }}>
               <p style={{ color: '#ff9b9b', fontWeight: 600 }}>Não consegui abrir o editor.</p>
               <p style={{ color: 'var(--muted)', fontSize: '.8rem', marginTop: '.4rem' }}>{loadError}</p>
               <a href="/sites" className="btn glass sm" style={{ marginTop: '1rem' }}>Voltar pros meus sites</a>
             </div>
-          </div>
-        ) : (
-          <EditorSkeleton />
-        )}
+          ) : 'Carregando editor…'}
+        </div>
       </div>
     )
   }
@@ -193,13 +188,14 @@ export default function EditorPage() {
         {/* Rail de ícones */}
         <EditorSidebar site={site} />
 
-        {/* Painéis de edição — esquerda (conteúdo) + direita (design).
-            O CustomizationPanel devolve as duas <aside> já posicionadas na grade. */}
-        <CustomizationPanel
-          site={site}
-          siteId={siteId}
-          onSave={(updated) => { setSite(s => s ? { ...s, ...updated } : s); refreshPreview() }}
-        />
+        {/* Painel de controles — edição do site */}
+        <div className="ed-panel">
+          <CustomizationPanel
+            site={site}
+            siteId={siteId}
+            onSave={(updated) => { setSite(s => s ? { ...s, ...updated } : s); refreshPreview() }}
+          />
+        </div>
 
         {/* Palco / preview */}
         <div className="ed-stage">
