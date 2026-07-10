@@ -24,9 +24,10 @@
 | F12 | ponytail vendorizado (AGENTS.md + CLAUDE.md) | QA |
 | F13 | Preview de template lazy (IntersectionObserver) | Front |
 | F14 | Ícones SVG inline (`Icon.tsx`, currentColor) nos 10 layouts + `SiteBlog` + banda de stats — substitui emojis | Front |
-| F15 | Melhorias do editor (painéis customização/imagem/seção, Skeleton, Tooltip, cache) | Front |
 
-> **Deploy 2026-07-10** — commit `59b4e48` empurrado no `master` (Vercel), COM OK explícito do Cássio (D14). 30 arquivos: F14 + F15 + wireframes de referência (`docs/modelos-referencia/`). `tsc` verde + `next build` OK · sem migration nova (só código).
+> **Deploy 2026-07-10** — commit `59b4e48` empurrado no `master` (Vercel), COM OK do Cássio (D14). 30 arquivos: ícones (F14) + reescrita do editor + wireframes (`docs/modelos-referencia/`). `tsc` verde + `next build` OK · sem migration.
+>
+> **⚠️ Hotfix 2026-07-10** — a reescrita do editor (4 colunas + skeletons) que subiu junto **travou o `SectionEditor` em loading em produção** (barras cinzas, sem campos). Revertida no commit `820909b` (editor volta pra versão da beta). `tsc` verde + `next build` OK. `next build`/`tsc` NÃO pegaram o bug (é runtime) → lição: editor exige teste no navegador antes de shipar. Reescrita preservada em `59b4e48`; correção = task aberta `task_478c2504`. Ícones (F14) seguem no ar, intactos.
 
 ---
 
