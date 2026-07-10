@@ -2,7 +2,7 @@
 
 > Dono: Product Owner. Atualizado a cada cartão fechado.
 > Status: `📥 BACKLOG` → `🎯 SPRINT` → `🔨 EM ANDAMENTO` → `👀 EM REVISÃO` → `✅ FEITO` · `🚫 BLOQUEADO`
-> Última atualização: 2026-06-30
+> Última atualização: 2026-07-10
 
 ---
 
@@ -23,6 +23,10 @@
 | F11 | Onboarding: opção "Loja" (Tela 1) + sub-modo checkout/catálogo | Backend |
 | F12 | ponytail vendorizado (AGENTS.md + CLAUDE.md) | QA |
 | F13 | Preview de template lazy (IntersectionObserver) | Front |
+| F14 | Ícones SVG inline (`Icon.tsx`, currentColor) nos 10 layouts + `SiteBlog` + banda de stats — substitui emojis | Front |
+| F15 | Melhorias do editor (painéis customização/imagem/seção, Skeleton, Tooltip, cache) | Front |
+
+> **Deploy 2026-07-10** — commit `59b4e48` empurrado no `master` (Vercel), COM OK explícito do Cássio (D14). 30 arquivos: F14 + F15 + wireframes de referência (`docs/modelos-referencia/`). `tsc` verde + `next build` OK · sem migration nova (só código).
 
 ---
 

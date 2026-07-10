@@ -25,6 +25,7 @@ Formato: `D## — Decisão — data — motivo curto`
 - **D08 — Esqueleto fixo + skin por template.** — `SiteShell` compartilhado (loja + blog), controlado por paleta (vars CSS `--st-*`). Estrutura fixa (bom p/ SEO); visual troca por template.
 - **D09 — Imagens: Sharp pré-WebP no upload + `<img>` puro. NÃO usar next/image.** — evita custo de otimização da Vercel. Melhoria futura = `srcset`, não trocar de abordagem.
 - **D10 — Visual/náutico é do Claude Design.** — backend/estrutura é minha; cor/tipografia/layout é dele. Tokens CSS primeiro destravam tudo.
+- **D27 — Ícones dos sites publicados = SVG inline (`Icon.tsx`, `currentColor`), NÃO fonte Phosphor.** — 2026-07-10 — nos sites de cliente cada ícone é SVG puro que herda a cor do contexto, sem carregar fonte de ícones (Core Web Vitals/SEO; renderiza no servidor, zero JS). Phosphor continua só no painel/editor. Regra: reutilizar `components/templates/shared/Icon.tsx` em todos os layouts, nunca soltar SVG avulso. Emojis de chrome dos 10 layouts já convertidos; pendências abertas (chips): `svc.icon` de serviço + remoção de código morto (`SiteCTA`/`SiteNav`/`SiteTemplate`).
 
 ### Conteúdo / SEO
 
