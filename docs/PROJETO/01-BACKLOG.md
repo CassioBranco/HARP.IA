@@ -2,7 +2,7 @@
 
 > Dono: Product Owner. Atualizado a cada cartão fechado.
 > Status: `📥 BACKLOG` → `🎯 SPRINT` → `🔨 EM ANDAMENTO` → `👀 EM REVISÃO` → `✅ FEITO` · `🚫 BLOQUEADO`
-> Última atualização: 2026-07-10
+> Última atualização: 2026-07-18 · **Plano-mestre: `04-ROADMAP.md`** (os itens B## abaixo agora têm fase atribuída lá)
 
 ---
 
@@ -24,21 +24,29 @@
 | F12 | ponytail vendorizado (AGENTS.md + CLAUDE.md) | QA |
 | F13 | Preview de template lazy (IntersectionObserver) | Front |
 | F14 | Ícones SVG inline (`Icon.tsx`, currentColor) nos 10 layouts + `SiteBlog` + banda de stats — substitui emojis | Front |
+| F15 | Editor de 2 painéis (Conteúdo + Design) com `load()` blindado — substitui a versão single-panel da beta | Front |
 
 > **Deploy 2026-07-10** — commit `59b4e48` empurrado no `master` (Vercel), COM OK do Cássio (D14). 30 arquivos: ícones (F14) + reescrita do editor + wireframes (`docs/modelos-referencia/`). `tsc` verde + `next build` OK · sem migration.
 >
 > **⚠️ Hotfix 2026-07-10** — a reescrita do editor (4 colunas + skeletons) que subiu junto **travou o `SectionEditor` em loading em produção** (barras cinzas, sem campos). Revertida no commit `820909b` (editor volta pra versão da beta). `tsc` verde + `next build` OK. `next build`/`tsc` NÃO pegaram o bug (é runtime) → lição: editor exige teste no navegador antes de shipar. Reescrita preservada em `59b4e48`; correção = task aberta `task_478c2504`. Ícones (F14) seguem no ar, intactos.
+>
+> **✅ Deploy 2026-07-16** — editor de **2 painéis** (Conteúdo à esquerda, Design & Ajustes à direita) foi pra produção. Construído sobre o core da beta (que funciona) + `SectionEditor` com `load()` endurecido (try/catch/finally, sem loading eterno). Testado localmente antes do merge. Branch `editor-2paineis` (`4862bc3`) → merge `057d538` no `master`. Deploy Vercel `dpl_7Ef6...` = READY. `tsc` verde. Substitui a versão single-panel da beta. Encerra o problema do hotfix acima.
 
 ---
 
-## 🎯 SPRINT ATUAL (até 10/07) — ver `02-SPRINT-ATUAL.md`
+## 🎯 SPRINT ATUAL (18/07 → 31/07) — ver `02-SPRINT-ATUAL.md`
 
 | # | Cartão | Cargo | Status |
 |---|---|---|---|
-| S01 | Finalizar rename ANCOREO (painéis + refs no código) | Backend + 🚫 Cássio | 🔨 EM ANDAMENTO |
-| S02 | **Telemetria de funil** (onboarding + criação de site), LGPD-safe | Backend | 🎯 SPRINT |
-| S03 | **Termo de Uso + Política de Privacidade** (LGPD) | Backend | 🎯 SPRINT |
-| S04 | Banner/consentimento de cookies + opt-in telemetria | Backend/Front | 🎯 SPRINT |
+| 0.1 | Auditoria ponta-a-ponta do fluxo do assinante (só leitura) | QA | 🎯 SPRINT |
+| 0.2/0.3 | Aplicar 7 migrations + deploy fila NV1–NV6 | Backend | 🚫 GATE (OK Cássio) |
+| 0.4 | Migration prompt de sistema (anti-fabricação) | Backend | 🚫 GATE (OK Cássio) |
+| 0.5 | Legal: dados da empresa + deploy banner (ex-S03/S04, código pronto) | 🚫 Cássio | 👀 EM REVISÃO |
+| 0.6 | Junction da memória (Desktop → Documents) | 🚫 Cássio | 🚫 BLOQUEADO |
+| 0.7 | Limpar tenant de QA (ex-B11) | Backend | 🎯 SPRINT |
+| 2.1 | Wireframe do site builder (fluxo completo + telas de loja) | Design | 🎯 SPRINT |
+
+> Sprint anterior (30/06→10/07) encerrada em 18/07 — resumo do que fechou no topo do `02-SPRINT-ATUAL.md`. S01/S02/S05 ✅ FEITO; S03/S04 viraram o cartão 0.5.
 
 ---
 

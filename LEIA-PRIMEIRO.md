@@ -13,8 +13,10 @@ Assim, toda sessão já carrega: as skills do projeto + a memória do projeto. F
 |-------|------|-----------|
 | **Documento fundacional** | [CLAUDE.md](CLAUDE.md) | Visão, stack, banco, agentes, decisões. Ler antes de mexer. |
 | **Foco imutável** | [NORTH-STAR.md](NORTH-STAR.md) | SEO + GEO + AEO. Filtro de toda feature. |
-| **Roadmap / cronograma** | [docs/CRONOGRAMA.md](docs/CRONOGRAMA.md) | Onde viemos, onde estamos, o que falta. Fonte da verdade do estado. |
-| **Handoff** | [HANDOFF.md](HANDOFF.md) | Estado de entrega entre sessões. |
+| **Roadmap VIVO** | [docs/PROJETO/04-ROADMAP.md](docs/PROJETO/04-ROADMAP.md) | Fases, o que falta pro MVP, pós-MVP estratégico. Fonte da verdade do plano. |
+| **Estado real do MVP** | [docs/PROJETO/ESTADO-MVP.md](docs/PROJETO/ESTADO-MVP.md) | Leia-me primeiro em toda sessão. |
+| **Planos e preços** | [docs/PROJETO/05-PLANOS-PRECOS.md](docs/PROJETO/05-PLANOS-PRECOS.md) | 4 níveis + custos + proposta de preço (valores finais: Cássio/Dove). |
+| **Handoff** | [HANDOFF-COWORK.md](HANDOFF-COWORK.md) | Estado de entrega entre sessões / infra. |
 | **Memória viva** | `memoria/` | Fatos do projeto. O Claude lê/escreve aqui (via junction). Fora do git. |
 | **Skills do projeto** | `.claude/skills/` | 13 skills. Carregam sozinhas ao abrir aqui. |
 | **Agentes de dev** | `.claude/agents/` | backend-dev, frontend-dev, designer |
@@ -41,5 +43,5 @@ Mais usadas:
 
 ## 📌 Como a memória funciona agora
 - A pasta `memoria/` é a **fonte única**.
-- O harness procura a memória em `~/.claude/projects/C--Users-cassio-Desktop-ANCOREO/memory`, que é uma **junction** apontando pra `memoria/`. Ou seja: o que o Claude lê/escreve cai aqui, versionável e visível.
+- ⚠️ **CONFERIR A JUNCTION (2026-07-18):** a doc antiga apontava a junction do harness pra `~/.claude/projects/C--Users-cassio-Desktop-ANCOREO/memory` — mas o projeto hoje vive em `Documents\ancoreo`, não no Desktop. Se a junction ainda referencia o caminho do Desktop, a memória do Claude pode estar caindo num lugar órfão. Verificar com `dir /AL` no `~/.claude/projects/` e refazer a junction pra apontar pra `C:\Users\cassio\Documents\ancoreo\memoria` se necessário.
 - Memória de **outros projetos** (SUORT, Encontro do Mundo, pipeline Dove) continua no porão antigo — não se mistura mais com ANCOREO.

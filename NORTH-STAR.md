@@ -1,7 +1,7 @@
 # NORTH STAR — Projeto ANCOREO
-> **Documento imutável.** Não reabrir, não relativizar, não diluir.
+> **Documento imutável no PRINCÍPIO, atualizável no ESCOPO.** O foco (SEO+GEO+AEO) não reabre, não relativiza, não dilui.
 > Toda decisão de produto, arquitetura, prompt e código serve a este foco. Se uma feature não serve a isto, ela não entra.
-> Última revisão do princípio: 2026-06-02
+> Última revisão do princípio: 2026-06-02 · Última atualização de escopo: 2026-07-18 (e-commerce no MVP, D21)
 
 ---
 
@@ -106,7 +106,8 @@ Antes de construir qualquer coisa, perguntar:
 Exemplos de aplicação do filtro:
 - Editor de blog com 3 modos → **sim** (mais conteúdo indexável e citável)
 - Score SEO/GEO/AEO visível → **sim** (mede e melhora o cerco)
-- E-commerce com checkout → **não** (não serve ao foco — e está fora de escopo de propósito)
+- E-commerce com checkout → **sim, com condição** (D21): a loja só vale se for a que mais aparece na busca — JSON-LD Product/Offer, answer-first, feed pra Google Merchant/ChatGPT Shopping
+- Gerador de logotipo / cartão de visita → **não** (não ajuda o site a aparecer na busca)
 - Tema dark mode bonito → **indireto** (UX, não o foco) — só se sobrar tempo
 
 ---
@@ -117,7 +118,7 @@ Exemplos de aplicação do filtro:
 - Não é "ter presença digital" genérica. É aparecer na **busca com intenção de compra/contratação**.
 - Não é vaidade de design. Site bonito que não aparece na busca é fracasso do produto.
 
-**Sobre e-commerce:** por ora o ANCOREO gera landing/institucional/catálogo e a conversão é por contato (WhatsApp, telefone, agendamento, visita). E-commerce (checkout, carrinho) é uma **feature futura possível** — não está descartada, apenas está fora do MVP atual. A arquitetura é mantida aberta pra essa evolução (abstração de `Product`, `PaymentProvider` planejado). O que **não** muda nunca é o foco em SEO/GEO/AEO — mesmo um site de e-commerce no futuro só faz sentido no ANCOREO se for o e-commerce que mais aparece na busca.
+**Sobre e-commerce (ATUALIZADO 2026-07-18, decisão D21 de 2026-07-04):** e-commerce **ENTROU no MVP**. O ANCOREO gera landing/institucional/catálogo **e loja com checkout real** (Mercado Pago via abstração `PaymentProvider`; dois modos — `checkout` ou `catalogo` com CTA WhatsApp, D07). O que **não** muda nunca é o foco em SEO/GEO/AEO — a loja só faz sentido no ANCOREO se for o e-commerce que mais aparece na busca (JSON-LD Product/Offer, descrição answer-first, feed de produto pra Google Merchant e ChatGPT Shopping). Conversão por contato continua sendo o modo padrão pra quem não vende online.
 
 ---
 

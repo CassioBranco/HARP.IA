@@ -1,7 +1,9 @@
 # CLAUDE.md — Projeto ANCOREO
 > Documento fundacional do projeto. Leia inteiro antes de qualquer ação.
 > **Nome oficial do projeto:** ANCOREO
-> Última atualização: 2026-06-19
+> Última atualização: 2026-07-18 (reconciliação geral — e-commerce no MVP, stack real, planos e roadmap movidos pra `docs/PROJETO/`)
+>
+> ⚠️ **HIERARQUIA DA VERDADE (regra anti-contradição):** quando este arquivo divergir de `docs/PROJETO/`, **`docs/PROJETO/` manda** (é o board vivo). Ordem de leitura: `docs/PROJETO/ESTADO-MVP.md` → `03-DECISOES.md` → `04-ROADMAP.md` → este arquivo (contexto de fundo). Planos/preços: `docs/PROJETO/05-PLANOS-PRECOS.md`. Se você (IA) encontrar contradição entre documentos, aponte na hora — não escolha silenciosamente.
 > Owner do produto: Anderson Dove (Anderson Marques) — Sorocaba/SP
 > Operador técnico (decisões operacionais + orquestração de agentes de dev): Cássio Branco
 > Modelo de execução: Cássio decide e orquestra agentes (Claude Code + Cursor); Dove decide pontos-chave de produto e visão.
@@ -66,10 +68,10 @@ Regras universais (detalhadas no Bloco 0):
 - Estrutura HTML, CTAs e schema mudam por intent
 - Keyword research e tom de voz se adaptam
 
-### Tipo de site gerado — escopo ATUAL
-O ANCOREO é um **serviço de criação de sites cujo foco principal é o melhor SEO/GEO/AEO do mercado mundial** (ver `NORTH-STAR.md`). No escopo atual, a plataforma gera **landing pages, sites institucionais e catálogos** (listagem de serviços ou produtos para exibição). Por ora não tem checkout, carrinho, pagamento online integrado, gestão de estoque ou frete — a conversão é por **contato** (WhatsApp, telefone, formulário, agendamento, visita presencial).
+### Tipo de site gerado — escopo ATUAL (atualizado 2026-07-18, D21)
+O ANCOREO é um **serviço de criação de sites cujo foco principal é o melhor SEO/GEO/AEO do mercado mundial** (ver `NORTH-STAR.md`). A plataforma gera **landing pages, sites institucionais, catálogos e LOJAS com checkout real** — e-commerce **ENTROU no MVP** (D21, 2026-07-04). Dois modos de loja (D07): `checkout` (venda online via Mercado Pago, abstração `PaymentProvider`, preço sempre do banco — D06) e `catalogo` (CTA vira WhatsApp). Para quem não vende online, a conversão segue por **contato** (WhatsApp, telefone, formulário, agendamento, visita).
 
-**E-commerce é uma feature FUTURA possível — não descartada, apenas fora do MVP atual.** Não tratar e-commerce como proibido; tratar como evolução no horizonte. A arquitetura é mantida aberta a isso (abstração de `Product`, `PaymentProvider` planejado). O que não muda nunca é o foco em SEO/GEO/AEO.
+O que não muda nunca é o foco em SEO/GEO/AEO — a loja só vale se for a que mais aparece na busca (JSON-LD Product/Offer, answer-first, feed de produto). Fora do escopo por ora: gestão de estoque avançada, frete integrado, marketplace.
 
 Quando alguma referência do mercado (Shopify, etc.) for citada na arquitetura, é **apenas como inspiração de UX do painel administrativo** — nunca como modelo de features de loja.
 
@@ -78,19 +80,21 @@ Palestras presenciais gratuitas do Anderson Dove → demo ao vivo da plataforma 
 
 ---
 
-## 2. STACK TÉCNICO (DECISÕES FECHADAS — NÃO ALTERAR SEM JUSTIFICATIVA)
+## 2. STACK TÉCNICO — O QUE RODA DE VERDADE (atualizado 2026-07-18)
 
-| Camada | Tecnologia | Justificativa |
+| Camada | Tecnologia REAL (no código hoje) | Observação |
 |--------|-----------|---------------|
-| Frontend | Next.js 14 (App Router) | SSR nativo para SEO, React Server Components, rotas de API |
-| Banco de dados | Supabase (PostgreSQL) | Multi-tenant com RLS nativo, auth integrado, realtime |
-| IA | Claude API (claude-sonnet-4-20250514) | Qualidade de geração de texto em PT-BR, streaming via SSE |
-| Imagens | Sharp | Conversão WebP automática, resize, otimização |
-| Pagamentos | Stripe | Assinatura recorrente, trial 14 dias, webhooks |
-| Deploy | Vercel | Zero config Next.js, preview branches, Edge Functions |
-| CSS | Tailwind CSS + shadcn/ui | Tokens via config, componentes como código-fonte |
-| Componentes | Storybook | Documentação e isolamento — proteção contra alteração por IA |
-| Orquestração IA | LangGraph | Grafos de estado cíclicos, streaming de estado, checkpointing |
+| Frontend | Next.js 14.2 (App Router) + React 18.3 + TS 5.7 strict | SSR nativo para SEO, Server Components |
+| Banco de dados | Supabase (Postgres 17) | Multi-tenant com RLS (`auth_tenant_id()`), auth integrado |
+| IA | Claude API direto (`@anthropic-ai/sdk`) — **Haiku 4.5 primário, Sonnet 4.6 qualidade/backup** (D22, model-agnostic) | Sem LangGraph — geração single-shot via SSE |
+| Imagens | Sharp (WebP no upload) + `<img>` puro + Supabase Storage | **NÃO usar next/image** (D09) |
+| Pagamentos | **Mercado Pago** (Checkout Pro) via abstração `PaymentProvider` (D04/D05) | Stripe/ACP = adapters futuros |
+| Deploy | Vercel (app + sites dos clientes via rota `/[domain]`) | Cloudflare fica pra escala |
+| CSS | Tailwind 3.4, design tokens | shadcn/Storybook = backlog, não usados ainda |
+| E-mail | Resend (dormente até ter chave) | |
+| Telemetria | Tabela própria `analytics_events` (D17), LGPD-safe | Não PostHog |
+
+> A tabela de INTENÇÃO original (LangGraph, Stripe, Cloudflare Pages, Inngest, Storybook) está preservada no histórico do git e nos ADRs abaixo. Regra: **se o código divergir do documento, o código manda** — e esta tabela deve ser atualizada.
 
 ### ⚠️ STACK REAL IMPLEMENTADO (atualizado 2026-06-21) — LEIA ANTES DOS ADRs
 Os ADRs abaixo descreviam a INTENÇÃO inicial. O que o **código realmente faz hoje** (decisão: manter simples pro MVP/beta — ver decisão 2026-06-21 no log):
@@ -114,34 +118,23 @@ Regra: **se o código divergir do ADR, o código manda** — e este bloco deve s
 
 ---
 
-## 3. PLANOS E REGRAS DE NEGÓCIO
+## 3. PLANOS E REGRAS DE NEGÓCIO (atualizado 2026-07-18)
 
-| Plano | Preço | Features |
-|-------|-------|----------|
-| Starter | R$97/mês | 1 site, 1 usuário, blog (4 posts/mês IA — 1/semana), GBP básico, sem e-commerce |
-| Pro | R$197/mês | 3 sites, 3 usuários, blog (20 posts/mês IA), GBP completo, score SEO/GEO/AEO, multilíngue |
-| Agency | R$297/mês | Sites ilimitados, blog ilimitado (fair use), white-label, painel de clientes, API access, suporte prioritário |
+> ⚠️ **A tabela antiga Starter/Pro/Agency (R$97/197/297) foi APOSENTADA.** A estrutura vigente é de **4 níveis** (D26): **Inicial · Médio · Avançado · E-commerce (add-on)** — detalhe, custos e preços propostos em **`docs/PROJETO/05-PLANOS-PRECOS.md`** (fonte da verdade de planos). Valores finais = decisão do Cássio/Dove, ainda não travados.
 
-- **Trial:** 7 dias gratuitos com acesso ao plano **Pro completo**. Cartão solicitado no **Day 6** (não no signup) — reduz fricção no momento da palestra. Sem cartão até Day 7, conta entra em modo leitura por 30 dias.
-- **Cancelamento:** downgrade no fim do período, dados preservados por 30 dias
+Regras que continuam valendo independente do plano:
+- **Fase atual: BETA GRÁTIS** (Q1 resolvida em 2026-07-04) — billing da assinatura fica pra pós-beta; as lojas dos clientes já processam vendas reais via MP.
+- **Cancelamento:** downgrade no fim do período, dados preservados por 30 dias (política de inadimplência: 14d retries + 30d leitura + 60d pausa + arquiva)
 - **Onboarding bloqueante:** o site só é gerado após o onboarding estar ≥ 70% completo
+- **Filosofia de quota:** fair use abundante + soft caps; hard cap diário só como anti-abuso (bot/scraping), nunca atinge cliente real. Os números por plano serão fixados junto com os preços em `05-PLANOS-PRECOS.md`.
 
 ### Quotas de geração por IA
 
 Filosofia: **fair use abundante + soft caps**. O cliente nunca encara "limite de IA" — quota natural é o tempo dele, não nosso custo. Hard caps existem apenas como proteção anti-abuso técnico (bot/scraping), nunca atingem cliente real.
 
-| Recurso | Starter | Pro | Agency |
-|---------|---------|-----|--------|
-| Sites | 1 | 3 | ilimitado |
-| Blog posts/mês | 4 | 20 | ilimitado (fair use) |
-| GBP posts/mês | 30 | ilimitado | ilimitado |
-| Auditorias/mês | 1 | 4 (semanal opcional) | semanal automática |
-| Multilíngue | ❌ | ✅ (5/mês) | ✅ ilimitado |
-| Hard cap diário (anti-abuso) | 5 | 15 | 50 |
-
-- **Soft cap:** ao se aproximar do limite mensal, banner sugere upgrade. Não bloqueia geração no Pro/Agency — apenas avisa.
-- **Hard cap mensal:** bloqueia no Starter (gera upgrade natural). Pro/Agency não têm cap mensal nos recursos marcados como ilimitados.
+- **Soft cap:** ao se aproximar do limite mensal, banner sugere upgrade — avisa, não bloqueia (exceto no plano de entrada, onde o cap mensal gera upgrade natural).
 - **Hard cap diário:** sempre ativo, defende contra bot/scraping. Não atinge cliente real.
+- **Números por plano:** tabela vigente em `docs/PROJETO/05-PLANOS-PRECOS.md` (quota de blog/GBP/auditoria por nível é a principal alavanca de margem — o custo variável é IA).
 
 ---
 
@@ -465,8 +458,9 @@ Cada preset tem regras próprias. Exemplos:
 
 ---
 
-## 7. OS 14 PRESETS (TEMPLATES)
+## 7. PRESETS (TEMPLATES) — 8 NO BANCO HOJE, 14 NO CATÁLOGO-ALVO
 
+> ⚠️ **Reconciliação 2026-07-18:** o schema do banco (`sites.preset`) aceita **8 presets** hoje: `clinica`, `imobiliaria`, `servicos`, `institucional`, `restaurante`, `salao`, `escola`, `landing`. Os 14 nichos abaixo são o **catálogo-alvo** — os 6 extras (`advocacia`, `contabilidade`, `psicologia`, `odontologia`, `fisioterapia`, `veterinaria`) exigem migration no CHECK constraint antes de existirem de verdade. Não prometer nicho que o banco não aceita.
 > **Fonte de verdade completa:** `docs/NICHOS.md` — schemas, CTAs, seções, restrições de conteúdo e keywords padrão de cada nicho.
 > ⚠️ Antes de gerar texto para qualquer nicho regulado, consultar OBRIGATORIAMENTE as restrições em `docs/NICHOS.md`.
 
@@ -647,6 +641,8 @@ POST /api/images/process      — processa imagem com Sharp
 ---
 
 ## 12. ROADMAP DE SPRINTS
+
+> ⚠️ **ESTA SEÇÃO É HISTÓRICA (plano original de mai/2026).** O roadmap VIVO está em **`docs/PROJETO/04-ROADMAP.md`** — ler lá, não aqui. O que está abaixo descreve fases que já foram superadas na prática (beta em produção desde 2026-06-30 com editor, blog, e-commerce E1/E2, telemetria e domínio próprio). Mantido só como registro da intenção inicial.
 
 ### Fase A — Orquestramento (Claude.ai) — STATUS: ~90% CONCLUÍDA
 - ✅ Produto, features, roadmap
