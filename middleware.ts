@@ -51,6 +51,10 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    // robots.txt / sitemap.xml / llms.txt são servidos pelos handlers de raiz
+    // (app/robots.ts, app/sitemap.ts, app/llms.txt) e leem o host direto.
+    // Excluídos do rewrite pra que o arquivo GEO/AEO apareça no domínio do
+    // cliente (senão o rewrite pra /[domain]/... nunca acha o handler).
+    '/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|llms.txt|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }

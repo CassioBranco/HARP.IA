@@ -13,9 +13,12 @@ function isAppHost(host: string): boolean {
 
 // Bots de IA generativa — SEMPRE liberados (AEO Regra 1).
 const AI_BOTS = [
-  'GPTBot', 'OAI-SearchBot', 'ChatGPT-User',
-  'Google-Extended', 'Anthropic-AI', 'ClaudeBot', 'Claude-Web',
-  'PerplexityBot', 'Applebot-Extended', 'YouBot', 'cohere-ai',
+  'GPTBot', 'OAI-SearchBot', 'ChatGPT-User',           // OpenAI
+  'Google-Extended', 'Googlebot',                       // Gemini / AI Overviews + busca
+  'Anthropic-AI', 'ClaudeBot', 'Claude-Web', 'Claude-SearchBot', // Claude
+  'PerplexityBot', 'Perplexity-User',                   // Perplexity (crawler + fetch on-demand)
+  'Applebot-Extended', 'YouBot', 'cohere-ai',           // Apple / You.com / Cohere
+  'meta-externalagent', 'Bytespider', 'Amazonbot',      // Meta AI / TikTok / Amazon
 ]
 
 // robots.txt host-aware: site publicado serve o seu; painel serve o do app.

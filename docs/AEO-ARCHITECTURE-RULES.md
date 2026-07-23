@@ -41,6 +41,13 @@ Allow: /
 
 **Onde implementa:** Agente/pipeline de Publicação (Sprint S5). Gerador de `robots.txt` + `sitemap.xml`. A lista de bots vive em config versionada (`seo-rules/ai-bots.yaml`) pra atualizar sem deploy quando surgir bot novo.
 
+**Estado da implementação (2026-07-22):** os três arquivos GEO/AEO são servidos por handlers de raiz **host-aware** — o mesmo host que o visitante acessa decide qual conteúdo sai:
+- `app/robots.ts` → `/robots.txt` — libera a lista `AI_BOTS` + aponta o `sitemap.xml` do próprio domínio do cliente.
+- `app/sitemap.ts` → `/sitemap.xml` — lista só as páginas/artigos publicados DAQUELE site.
+- `app/llms.txt/route.ts` → `/llms.txt` — resumo curado do negócio (ver Regra 2).
+
+**Diretriz de roteamento (não quebrar):** o `middleware.ts` reescreve todo host de cliente pra `/[domain]/...`. Os três arquivos acima estão **excluídos** desse rewrite no `config.matcher` — sem isso o rewrite manda `/llms.txt` pra `/[domain]/llms.txt` (rota inexistente) e o arquivo some no domínio do cliente. Ao mexer no matcher, manter `robots.txt|sitemap.xml|llms.txt` na exclusão.
+
 ---
 
 ## REGRA 2 — JSON-LD é o protocolo principal de comunicação com IAs (não llms.txt)
@@ -57,6 +64,8 @@ Allow: /
 **Impacto no produto:** o schema é gerado **automaticamente por tipo de página**, sem o usuário configurar nada. Já está mapeado no Bloco 0 §7 e CLAUDE.md §6-§7. Esta regra confirma a rota e evita gastar tempo em llms.txt elaborado.
 
 **Onde implementa:** Agentes de geração (todos) + pipeline de publicação. Validação no `seo-validator`.
+
+**llms.txt básico — implementado (2026-07-22):** `app/llms.txt/route.ts`, por tenant, automático (o cliente não configura — default da plataforma, igual ao robots). Deliberadamente **básico** (esta regra manda não over-engineerar): H1 com o nome do negócio + blockquote de resumo + linha E-E-A-T (cidade · anos de experiência · credenciais) + seções `## Páginas`, `## Serviços`, `## Blog`, `## Perguntas frequentes`, `## Contato`. Fonte de dados: `buildSiteContent` + `pages`/`blog_posts` publicados (as mesmas do site e do sitemap — nada duplicado, zero migration). No host do painel serve um llms.txt curto do próprio ANCOREO. **Prioridade continua baixa:** melhorar o JSON-LD antes de investir mais no llms.txt.
 
 ---
 
