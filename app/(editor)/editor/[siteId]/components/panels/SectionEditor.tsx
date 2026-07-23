@@ -13,6 +13,24 @@ type Props = {
 
 type SectionContent = Record<string, unknown>
 
+// Blindagem contra linha malformada: algumas seções antigas gravaram o payload
+// INTEIRO do site (com sub-objetos hero/about/… aninhados) no lugar do objeto
+// plano da própria seção. Nesse caso o editor lia content.headline (=undefined)
+// e mostrava campos vazios (as "barras cinzas"). Se o content tem um sub-objeto
+// com o próprio section_type e NÃO tem as chaves planas esperadas, desaninha.
+// A seção correta nunca tem uma chave igual ao seu tipo, então isto é seguro.
+function unwrapMalformed(sectionType: string, raw: SectionContent): SectionContent {
+  const nested = raw[sectionType]
+  const isNestedObj =
+    !!nested && typeof nested === 'object' && !Array.isArray(nested) &&
+    Object.keys(nested as object).length > 0
+  if (!isNestedObj) return raw
+  const inner = { ...(nested as SectionContent) }
+  // Preserva a imagem que ficou no topo do blob (o aninhado não a tem).
+  if (inner.image == null && raw.image != null) inner.image = raw.image
+  return inner
+}
+
 type FaqItem = { question: string; answer: string }
 
 type ServiceItem = { name: string; description: string; icon?: string }
@@ -59,7 +77,7 @@ export default function SectionEditor({ siteId, sectionType, niche, onSaved }: P
 
         if (!alive) return
         const section = sectionRows?.[0]
-        if (section?.content) setContent(section.content as SectionContent)
+        if (section?.content) setContent(unwrapMalformed(sectionType, section.content as SectionContent))
       } catch (e) {
         console.error('[SectionEditor] falha ao carregar a seção', e)
         if (alive) setLoadErr(true)
@@ -75,7 +93,7 @@ export default function SectionEditor({ siteId, sectionType, niche, onSaved }: P
   useEffect(() => {
     const onInline = (e: Event) => {
       const d = (e as CustomEvent).detail as { sectionType?: string; content?: SectionContent } | null
-      if (d?.sectionType === sectionType && d.content) setContent(d.content)
+      if (d?.sectionType === sectionType && d.content) setContent(unwrapMalformed(sectionType, d.content))
     }
     window.addEventListener(EVT_INLINE_CONTENT, onInline)
     return () => window.removeEventListener(EVT_INLINE_CONTENT, onInline)
