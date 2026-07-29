@@ -10,11 +10,90 @@
    direita = design/ajustes, preview grande no meio. Colunas explícitas pra a
    ordem visual não depender da ordem no DOM. */
 .painel-shell .ed{position:relative;z-index:2;height:100vh;display:grid;
-  grid-template-columns:76px 320px minmax(0,1fr) 320px;overflow:hidden}
-.painel-shell .ed-rail{grid-column:1}
-.painel-shell .ed-panel-l{grid-column:2}
-.painel-shell .ed-stage{grid-column:3}
-.painel-shell .ed-panel-r{grid-column:4}
+  grid-template-columns:76px 320px minmax(0,1fr) 320px;
+  grid-template-rows:auto minmax(0,1fr);overflow:hidden}
+.painel-shell .ed-score{grid-column:1 / -1;grid-row:1}
+.painel-shell .ed-rail{grid-column:1;grid-row:2}
+.painel-shell .ed-panel-l{grid-column:2;grid-row:2}
+.painel-shell .ed-stage{grid-column:3;grid-row:2}
+.painel-shell .ed-panel-r{grid-column:4;grid-row:2}
+
+/* ── Barra de score SEO/GEO/AEO (topo — âncora do produto) ── */
+.painel-shell .ed-score{position:relative;display:flex;align-items:center;gap:.9rem;
+  padding:.5rem 1rem;background:var(--surf);border-bottom:1px solid var(--line);min-height:72px}
+.painel-shell .ed-score-ring{position:relative;display:grid;place-items:center;flex:0 0 auto}
+.painel-shell .ed-score-ring span{position:absolute;font-family:var(--font-heading),'Plus Jakarta Sans';
+  font-size:1.05rem;font-weight:800;line-height:1}
+.painel-shell .ed-score-ring.is-empty{width:56px;height:56px;border-radius:50%;
+  border:6px solid var(--line);color:var(--muted2)}
+.painel-shell .ed-score-ring.is-empty span{position:static;font-size:1.1rem}
+.painel-shell .ed-score-cap{font-family:var(--font-mono),monospace;font-size:.58rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.05em;color:var(--muted2);line-height:1.25;flex:0 0 auto}
+.painel-shell .ed-score-empty{font-size:.8rem;color:var(--muted)}
+.painel-shell .ed-score-dims{display:flex;gap:.6rem;flex:1 1 auto;min-width:0}
+.painel-shell .ed-score-dim{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:.2rem;
+  text-align:left;padding:.4rem .6rem;border:1px solid var(--line);border-radius:10px;
+  background:hsl(var(--muted) / .35);cursor:pointer;transition:border-color .15s,background .15s}
+.painel-shell .ed-score-dim:hover{border-color:hsl(var(--ring) / .45)}
+.painel-shell .ed-score-dim.on{border-color:var(--navy);background:hsl(var(--ring) / .06)}
+.painel-shell .ed-score-dim-top{display:flex;align-items:baseline;justify-content:space-between;gap:.4rem}
+.painel-shell .ed-score-dim-top .lbl{font-size:.72rem;font-weight:600;color:var(--ink);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.painel-shell .ed-score-dim-top .val{font-family:var(--font-heading),'Plus Jakarta Sans';
+  font-size:.9rem;font-weight:800;line-height:1}
+.painel-shell .ed-score-track{height:5px;border-radius:999px;background:hsl(var(--muted) / .8);overflow:hidden}
+.painel-shell .ed-score-track i{display:block;height:100%;border-radius:999px;transition:width .5s ease}
+.painel-shell .ed-score-pending{font-size:.62rem;color:var(--muted2)}
+.painel-shell .ed-score-cta{flex:0 0 auto;display:inline-flex;align-items:center;gap:.35rem;
+  padding:.5rem .85rem;border:0;border-radius:999px;cursor:pointer;
+  font-family:var(--font-heading),'Plus Jakarta Sans';font-size:.76rem;font-weight:700;color:#fff;
+  background:linear-gradient(135deg,#0A2239,#D7263D 75%);box-shadow:0 4px 14px rgba(215,38,61,.28)}
+.painel-shell .ed-score-cta:hover{filter:brightness(1.08)}
+.painel-shell .ed-score-cta i{font-size:.95rem}
+.painel-shell .ed-score-pop{position:absolute;top:calc(100% + 6px);right:1rem;z-index:40;width:340px;
+  max-width:calc(100vw - 2rem);background:var(--surf);border:1px solid var(--line);border-radius:12px;
+  box-shadow:0 16px 40px rgba(0,0,0,.22);padding:.85rem .95rem}
+.painel-shell .ed-score-pop-head{display:flex;align-items:baseline;justify-content:space-between;gap:.5rem}
+.painel-shell .ed-score-pop-head b{font-family:var(--font-heading),'Plus Jakarta Sans';font-size:.9rem}
+.painel-shell .ed-score-pop-head span{font-weight:800}
+.painel-shell .ed-score-pop-hint{font-size:.74rem;color:var(--muted);margin:.25rem 0 .6rem;line-height:1.4}
+.painel-shell .ed-score-pop-list{display:flex;flex-direction:column;gap:.4rem}
+.painel-shell .ed-score-pop-list .row{display:flex;align-items:flex-start;gap:.45rem;font-size:.78rem;line-height:1.35}
+.painel-shell .ed-score-pop-list .row i{font-size:.95rem;margin-top:.05rem;flex:0 0 auto}
+.painel-shell .ed-score-pop-list .row.ok{color:var(--muted)}
+.painel-shell .ed-score-pop-list .row.ok i{color:#22c55e}
+.painel-shell .ed-score-pop-list .row.todo{color:var(--ink)}
+.painel-shell .ed-score-pop-list .row.todo i{color:var(--muted2)}
+.painel-shell .ed-score-pop-close{margin-top:.7rem;width:100%;padding:.45rem;border:1px solid var(--line);
+  border-radius:8px;background:transparent;color:var(--muted);font-size:.74rem;cursor:pointer}
+.painel-shell .ed-score-pop-close:hover{color:var(--ink);border-color:hsl(var(--ring) / .45)}
+
+/* Slice 2 — correção inline dos itens pendentes no dropdown do score */
+.painel-shell .ed-score-fix-wrap{display:flex;flex-direction:column}
+.painel-shell .ed-score-pop-list .row.as-btn{width:100%;border:0;background:transparent;
+  cursor:pointer;text-align:left;padding:0;font:inherit}
+.painel-shell .ed-score-pop-list .row.as-btn .caret{margin-left:auto;font-size:.8rem;color:var(--muted2)}
+.painel-shell .ed-score-pop-list .row.as-btn:hover span{color:var(--navy)}
+.painel-shell .ed-score-pop-list .row.as-btn.on .caret{color:var(--navy)}
+.painel-shell .ed-score-fix{margin:.4rem 0 .2rem 1.4rem;padding:.55rem .6rem;
+  border:1px solid var(--line);border-radius:9px;background:hsl(var(--muted) / .35)}
+.painel-shell .ed-score-fix-lbl{display:block;font-size:.68rem;font-weight:600;color:var(--muted);margin-bottom:.35rem}
+.painel-shell .ed-score-fix-row{display:flex;gap:.4rem}
+.painel-shell .ed-score-fix-input{flex:1 1 auto;min-width:0;padding:.4rem .55rem;font-size:.8rem;
+  border:1px solid var(--line);border-radius:7px;background:var(--surf);color:var(--ink)}
+.painel-shell .ed-score-fix-input:focus{outline:0;border-color:hsl(var(--ring) / .55)}
+.painel-shell .ed-score-fix-save{flex:0 0 auto;padding:.4rem .8rem;border:0;border-radius:7px;cursor:pointer;
+  font-family:var(--font-heading),'Plus Jakarta Sans';font-size:.74rem;font-weight:700;color:#fff;
+  background:linear-gradient(135deg,#0A2239,#D7263D 75%)}
+.painel-shell .ed-score-fix-save:hover{filter:brightness(1.08)}
+.painel-shell .ed-score-fix-save:disabled{opacity:.6;cursor:default;filter:none}
+.painel-shell .ed-score-fix-note{font-size:.68rem;color:var(--muted2);margin:.4rem 0 0;line-height:1.4}
+.painel-shell .ed-score-fix-err{font-size:.68rem;color:#ef4444;margin:.4rem 0 0;line-height:1.4}
+
+@media (max-width:920px){
+  .painel-shell .ed-score-cap{display:none}
+  .painel-shell .ed-score-dim-top .lbl{font-size:.66rem}
+}
 
 /* ── Rail de ícones (esquerda) ── */
 .painel-shell .ed-rail{display:flex;flex-direction:column;align-items:center;gap:.4rem;

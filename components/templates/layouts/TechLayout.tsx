@@ -105,7 +105,7 @@ export default function TechLayout({ c, p, preview }: { c: SiteContent; p: Palet
 
           <div style={{ ...wrap, display: 'grid', gridTemplateColumns: '3fr 2fr', gap: '3rem', alignItems: 'center', padding: '4rem 2rem 6rem', position: 'relative', zIndex: 2 }}>
             <div>
-              <span style={kicker}>{c.tagline ?? c.schemaType} · {c.city}/{c.state}</span>
+              <span style={kicker}>{[c.city, c.state].filter(Boolean).join('/') || c.businessName}</span>
               <h1 style={{ ...heading, fontSize: 'clamp(3rem, 7.5vw, 6rem)', lineHeight: .96, letterSpacing: '-0.03em', margin: '1.3rem 0 1.4rem' }}>
                 {c.heroHeadline.split(/[,.]|–/)[0]?.trim() || c.heroHeadline}{' '}
                 <span style={gradText}>
@@ -188,7 +188,7 @@ export default function TechLayout({ c, p, preview }: { c: SiteContent; p: Palet
                 }}>
                   <span style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>{svc.icon}</span>
                   <span style={{ fontSize: '.7rem', textTransform: 'uppercase', letterSpacing: '.14em', fontWeight: 800, color: colorCycle[i % 3] }}>
-                    {c.tagline ?? c.schemaType}
+                    {String(i + 1).padStart(2, '0')}
                   </span>
                   <h3 style={{ ...heading, margin: '.3rem 0 0', fontSize: '1.4rem' }}>{svc.name}</h3>
                   <p style={{ color: 'var(--sm)', fontSize: '.9rem', marginTop: '.5rem', lineHeight: 1.6 }}>{svc.description}</p>

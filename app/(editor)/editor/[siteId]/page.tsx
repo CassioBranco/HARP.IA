@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation'
 import { createBrowserClient } from '@/lib/supabase/client'
 import EditorSidebar from './components/EditorSidebar'
 import CustomizationPanel from './components/panels/CustomizationPanel'
+import ScoreBar from './components/ScoreBar'
 import { useEditBridge } from './components/useEditBridge'
 
 export type ViewMode = 'desktop' | 'mobile'
@@ -184,6 +185,9 @@ export default function EditorPage() {
     <div className="painel-shell">
       <div className="aura" />
       <div className="ed">
+
+        {/* Barra de score SEO/GEO/AEO — âncora do produto, topo da grade */}
+        <ScoreBar siteId={siteId} refreshKey={previewKey} />
 
         {/* Rail de ícones */}
         <EditorSidebar site={site} />
