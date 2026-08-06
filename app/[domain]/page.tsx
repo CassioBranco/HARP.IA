@@ -7,12 +7,13 @@ import { hasSupabaseEnv } from '@/lib/env'
 import { buildSiteContent } from '@/lib/templates/build-site-content'
 import LayoutRenderer from '@/components/templates/LayoutRenderer'
 import { jsonLdScript } from '@/lib/seo/jsonld'
+import SiteAnalytics from './SiteAnalytics'
 import type { SiteContent } from '@/lib/templates/example-content'
 import type { Metadata } from 'next'
 
 type Props = { params: Promise<{ domain: string }> }
 
-const RESERVED = ['localhost', 'harp-ia.vercel.app', 'vercel.app']
+const RESERVED = ['localhost', 'ancoreo.vercel.app', 'vercel.app']
 
 // ── Schema JSON-LD por nicho (AEO Regra 2) ──────────────────────────────────
 function buildJsonLd(site: {
@@ -165,6 +166,8 @@ export default async function PublishedSitePage({ params }: Props) {
           dangerouslySetInnerHTML={{ __html: jsonLdScript(faqSchema) }}
         />
       )}
+
+      <SiteAnalytics kind="home" />
 
       <LayoutRenderer layout={layout} c={content} p={palette} fontPair={fontPair} sections={built.sections} preview={false} />
     </>

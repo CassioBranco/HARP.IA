@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 import { createServerClient } from '@/lib/supabase/server'
 import { validateSiteForPublish } from '@/lib/seo/validator'
 import { ensureInternalLinks } from '@/lib/seo/internal-links'
+import { resolvePublishDomain } from '@/lib/sites/domain'
 
 export const runtime = 'nodejs'
 
@@ -66,8 +67,20 @@ export async function POST(req: NextRequest) {
     }, { status: 422 })
   }
 
-  // Gera domínio padrão se não tiver
-  const domain = site.domain ?? `${site_id.slice(0, 8)}.harp-ia.com`
+  // Domínio de publicação: mantém o já gravado; senão gera subdomínio
+  // legível a partir do nome do negócio do onboarding (fallback: uuid8).
+  let domain = site.domain
+  if (!domain) {
+    const { data: profile } = await supabase
+      .from('onboarding_profiles')
+      .select('business_name')
+      .eq('site_id', site_id)
+      .maybeSingle()
+    domain = await resolvePublishDomain({
+      siteId: site_id,
+      businessName: profile?.business_name as string | null,
+    })
+  }
 
   // Publica: atualiza status + marca página home como published
   const [siteUpdate, pageUpdate] = await Promise.all([
@@ -118,6 +131,7 @@ export async function POST(req: NextRequest) {
   return Response.json({
     ok: true,
     domain,
+    url: `https://${domain}`, // link clicável pro estado pós-publicação do front
     warnings: validation.warnings,
     orphans: internalLinks?.orphans ?? [],
   })

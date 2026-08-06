@@ -1,10 +1,10 @@
 ---
-description: Arquitetura multi-tenant, estrutura de pastas e padrões de camada do Projeto HARPIA.
+description: Arquitetura multi-tenant, estrutura de pastas e padrões de camada do Projeto ANCOREO.
 globs: ["**/*.ts", "**/*.tsx", "app/**/*", "lib/**/*", "supabase/**/*"]
 alwaysApply: true
 ---
 
-# Arquitetura — Projeto HARPIA
+# Arquitetura — Projeto ANCOREO
 
 ## Estrutura de pastas (não alterar sem motivo)
 ```

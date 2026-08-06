@@ -47,7 +47,7 @@ Formato: `D## — Decisão — data — motivo curto`
 
 ### Marca
 
-- **D16 — Nome do projeto: ANCOREO** (era HARPIA/harp-ia). Banco já limpo; falta renomear projeto no painel Vercel + Supabase e ajustar refs `harp-ia.vercel.app` no código.
+- **D16 — Nome do projeto: ANCOREO** (era HARPIA/harp-ia). Banco já limpo; projeto da Vercel renomeado pra `ancoreo` e refs `harp-ia` no código ajustadas (2026-07-31). Falta só o que é externo: renomear o repo GitHub `HARP.IA` e o projeto no painel do Supabase.
 
 ### MVP, custos & IA (fase de fechamento)
 

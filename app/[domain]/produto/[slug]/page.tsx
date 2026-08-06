@@ -8,12 +8,13 @@ import { buildProductJsonLd, buildProductFaqJsonLd } from '@/lib/ecommerce/produ
 import SiteShell from '@/components/site/SiteShell'
 import ProductDetail from '@/components/store/ProductDetail'
 import { jsonLdScript } from '@/lib/seo/jsonld'
+import SiteAnalytics from '../../SiteAnalytics'
 
 // Página de produto (PDP) pública. Esqueleto de loja (StoreShell) + JSON-LD
 // Product/Offer/FAQ. O visual veste a paleta/fonte do template do cliente.
 type Props = { params: Promise<{ domain: string; slug: string }> }
 
-const RESERVED = ['localhost', 'harp-ia.vercel.app', 'vercel.app']
+const RESERVED = ['localhost', 'ancoreo.vercel.app', 'vercel.app']
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { domain, slug } = await params
@@ -71,6 +72,7 @@ export default async function ProductPage({ params }: Props) {
         fontPair={built.fontPair}
         nav={{ label: 'Loja', href: '/loja' }}
       >
+        <SiteAnalytics kind="produto" />
         <ProductDetail product={product} mode={mode} whatsapp={built.content.whatsapp} />
       </SiteShell>
     </>

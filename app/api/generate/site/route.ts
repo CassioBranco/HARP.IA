@@ -288,7 +288,12 @@ async function saveSections(
     { section_type: 'hero',         order_index: 0, content: content.hero },
     { section_type: 'about',        order_index: 1, content: content.about },
     { section_type: 'services',     order_index: 2, content: { items: content.services } },
-    { section_type: 'testimonials', order_index: 3, content: { items: content.testimonials } },
+    // Depoimento é o único bloco que a IA não escreve: nasce vazio e só o dono
+    // preenche, no editor, com depoimento de gente que existe. O prompt já pede
+    // [], mas o que garante isso é esta linha — instrução de prompt é pedido,
+    // não trava. Publicar depoimento inventado é propaganda enganosa no nome do
+    // cliente, então a trava fica no servidor.
+    { section_type: 'testimonials', order_index: 3, content: { items: [] } },
     { section_type: 'faq',          order_index: 4, content: { items: content.faq } },
     { section_type: 'meta',         order_index: 5, content: content.meta },
   ]

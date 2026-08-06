@@ -7,7 +7,7 @@ import { productUrl } from '@/lib/ecommerce/product-jsonld'
 // é E3; aqui geramos o feed legível por máquina.
 export const runtime = 'nodejs'
 
-const RESERVED = ['localhost', 'harp-ia.vercel.app', 'vercel.app']
+const RESERVED = ['localhost', 'ancoreo.vercel.app', 'vercel.app']
 
 const AVAIL_FEED: Record<string, string> = {
   in_stock: 'in stock',

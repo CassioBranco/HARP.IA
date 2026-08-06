@@ -1,10 +1,10 @@
-# ANCOREO — Estado do MVP (LEIA-ME PRIMEIRO / fonte da verdade VIVA)
+# ANCOREO — Estado técnico do MVP (segurança, migrations, decisões)
 
-> Atualizado 2026-07-04. Este doc existe pra **sobreviver a `/clear` e a
-> compactação de contexto**. Qualquer sessão que perca o histórico deve LER
-> ESTE ARQUIVO primeiro, junto com `NORTH-STAR.md` (raiz), `02-SPRINT-ATUAL.md`
-> e `03-DECISOES.md`. Ele **substitui** trechos desatualizados de
-> `STATUS-PROJETO.md` (2026-06-07).
+> **Para o resumo do dia (onde estamos + próximos passos) leia `PAINEL.md` primeiro.**
+> Este doc é o **detalhe técnico fino**: auditoria de segurança, estado das
+> migrations e decisões travadas. Base 2026-07-04 (§0 confirmado correto em 23/07:
+> deploy + 7 migrations aplicados em 05/07). Sobrevive a `/clear`; pares de leitura:
+> `NORTH-STAR.md` (raiz), `02-SPRINT-ATUAL.md`, `03-DECISOES.md`.
 >
 > ⚠️ **Pasta do projeto:** `C:\Users\cassio\Documents\ancoreo` (ANCOREO tem
 > memória própria). Se a sessão abriu na pasta "Marketing GERAL/claude" (o

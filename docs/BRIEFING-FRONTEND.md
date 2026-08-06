@@ -120,7 +120,7 @@ components/templates/layouts/   ← 10 layouts de site dos clientes:
 ## 7. Como rodar e ver
 
 - `npm run dev` → `http://localhost:3000`
-- Deploy: **harp-ia.vercel.app** (auto-deploy no push pro `master`)
+- Deploy: **ancoreo.com.br** (projeto Vercel `ancoreo`, auto-deploy no push pro `master`)
 - O onboarding exige **estar logado** (sem sessão, redireciona pra `/login`). Para testar: criar conta em `/signup` (na fase beta a confirmação de email está desligada no Supabase, então cai direto no onboarding).
 - Repo: `github.com/CassioBranco/HARP.IA` — branch `master`. **Dê `git pull` antes de começar.**
 

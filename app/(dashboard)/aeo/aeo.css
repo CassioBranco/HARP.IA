@@ -1,0 +1,127 @@
+/* ============================================================
+   ANCOREO — Painel AEO (/aeo). Herda os tokens do painel
+   (painel.css: --ink, --muted, --line, --surf, --navy).
+   Cores SEMÂNTICAS (good/warn/crit) são locais e separadas do
+   acento da marca, como manda um dashboard de estado.
+   ============================================================ */
+.aeo{
+  --good:#1f9d64; --warn:#c9820f; --crit:#cf3b34;
+  --good-soft:rgba(31,157,100,.12); --warn-soft:rgba(201,130,15,.14); --crit-soft:rgba(207,59,52,.12);
+  --a-accent:var(--navy);
+  --a-radius:14px;
+}
+.dark .aeo{ --good:#41bd82; --warn:#e0a53a; --crit:#e8635b; }
+
+.aeo .aeo-sample{
+  display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;
+  padding:3px 10px;border-radius:999px;background:var(--warn-soft);color:var(--warn);
+  border:1px solid transparent
+}
+.aeo .aeo-card{
+  background:var(--surf);border:1px solid var(--line);border-radius:var(--a-radius)
+}
+
+/* KPIs */
+.aeo .aeo-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:0 0 16px}
+.aeo .aeo-kpi{padding:16px 18px}
+.aeo .aeo-kpi .lab{font-size:11.5px;color:var(--muted);font-weight:700;letter-spacing:.02em}
+.aeo .aeo-kpi .big{font-size:30px;font-weight:800;letter-spacing:-.02em;margin:6px 0 2px;
+  font-variant-numeric:tabular-nums;color:var(--ink)}
+.aeo .aeo-kpi .big span{font-size:15px;color:var(--muted);font-weight:700}
+.aeo .aeo-kpi .delta{font-size:11.5px;font-weight:700}
+.aeo .delta.up{color:var(--good)} .aeo .delta.down{color:var(--crit)}
+
+/* trend + engines band */
+.aeo .aeo-band{display:grid;grid-template-columns:1.35fr 1fr;gap:14px;margin:0 0 16px}
+.aeo .aeo-band h3{margin:0;font-size:15px;color:var(--ink)}
+.aeo .aeo-trend{padding:16px 20px}
+.aeo .aeo-trend .head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.aeo .aeo-trend .head .rng{color:var(--muted);font-size:11.5px}
+.aeo .aeo-trend .axis{display:flex;justify-content:space-between;color:var(--muted);
+  font-size:10.5px;margin-top:2px;font-variant-numeric:tabular-nums}
+.aeo .aeo-engines{padding:16px 18px}
+.aeo .aeo-engines p{color:var(--muted);font-size:11.5px;margin:2px 0 10px}
+
+/* generic bar rows (competitors + engines) */
+.aeo .crow{display:flex;align-items:center;gap:10px;padding:7px 0}
+.aeo .crow .cname{width:104px;font-size:12.5px;font-weight:600;color:var(--ink);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.aeo .crow .bar{flex:1;height:8px;border-radius:5px;background:var(--line);overflow:hidden}
+.aeo .crow .bar i{display:block;height:100%;border-radius:5px;background:var(--a-accent)}
+.aeo .crow .bar i.rival{background:var(--muted);opacity:.55}
+.aeo .crow .cval{width:40px;text-align:right;font-size:12px;color:var(--muted);
+  font-variant-numeric:tabular-nums}
+
+/* main grid */
+.aeo .aeo-grid{display:grid;grid-template-columns:2fr 1fr;gap:16px}
+.aeo .aeo-col{display:flex;flex-direction:column;gap:16px}
+
+/* monitored prompts */
+.aeo .aeo-prompts{padding:18px 20px}
+.aeo .aeo-prompts .ph{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+.aeo .aeo-prompts h3{margin:0;font-size:15px;color:var(--ink)}
+.aeo .aeo-prompts .desc{color:var(--muted);font-size:12px;margin:0 0 8px}
+.aeo .aeo-row{display:flex;align-items:center;gap:12px;padding:12px 2px;border-bottom:1px solid var(--line)}
+.aeo .aeo-row:last-of-type{border-bottom:0}
+.aeo .qtext{flex:1;font-size:13px;color:var(--ink)}
+.aeo .qtext small{display:block;color:var(--muted);font-size:11px;margin-top:2px}
+.aeo .aeo-stat{font-size:11.5px;font-weight:800;padding:3px 10px;border-radius:999px;white-space:nowrap}
+.aeo .aeo-stat.win{background:var(--good-soft);color:var(--good)}
+.aeo .aeo-stat.part{background:var(--warn-soft);color:var(--warn)}
+.aeo .aeo-stat.miss{background:var(--crit-soft);color:var(--crit)}
+
+/* lock row (paywall) */
+.aeo .aeo-lock{display:flex;align-items:center;gap:10px;background:var(--pbg);
+  border:1px dashed var(--line);border-radius:12px;padding:12px 14px;margin-top:12px;
+  font-size:12.5px;color:var(--muted)}
+.aeo .aeo-lock b{color:var(--ink)}
+.aeo .aeo-lock .btn{margin-left:auto}
+
+/* score ring */
+.aeo .aeo-ring{display:flex;align-items:center;gap:18px;padding:18px 20px}
+.aeo .aeo-ring svg{width:112px;height:112px;flex:none}
+.aeo .aeo-ring .kick{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--a-accent)}
+.aeo .aeo-ring .h{font-weight:700;margin:4px 0 2px;color:var(--ink)}
+.aeo .aeo-ring .p{color:var(--muted);font-size:12px}
+
+/* bots */
+.aeo .aeo-bots{padding:16px 18px}
+.aeo .aeo-bots h3{margin:0 0 10px;font-size:15px;color:var(--ink)}
+.aeo .botrow{display:flex;align-items:center;gap:10px;font-size:12.5px;padding:5px 0}
+.aeo .botrow .bd{width:9px;height:9px;border-radius:3px;background:var(--a-accent);flex:none}
+.aeo .botrow .bn{flex:1;color:var(--ink)}
+.aeo .botrow .bc{font-variant-numeric:tabular-nums;color:var(--muted);font-weight:700}
+
+/* competitors card */
+.aeo .aeo-comp{padding:16px 18px}
+.aeo .aeo-comp h3{margin:0 0 8px;font-size:15px;color:var(--ink)}
+
+/* recommended actions */
+.aeo .aeo-actions{padding:16px 20px;margin-top:16px}
+.aeo .aeo-actions .ah{display:flex;align-items:center;gap:10px;margin-bottom:3px}
+.aeo .aeo-actions h3{margin:0;font-size:15px;color:var(--ink)}
+.aeo .aeo-actions .desc{color:var(--muted);font-size:12px;margin:0 0 10px}
+.aeo .aeo-act{display:flex;align-items:center;gap:14px;padding:12px 2px;border-bottom:1px solid var(--line)}
+.aeo .aeo-act:last-of-type{border-bottom:0}
+.aeo .aeo-imp{flex:none;width:42px;height:42px;border-radius:11px;background:var(--good-soft);
+  color:var(--good);display:grid;place-items:center;font-weight:800;font-size:14px;
+  font-variant-numeric:tabular-nums}
+.aeo .aeo-act .txt{flex:1}
+.aeo .aeo-act .txt b{font-size:13px;display:block;color:var(--ink)}
+.aeo .aeo-act .txt small{color:var(--muted);font-size:11.5px}
+.aeo .aeo-act .btn{flex:none}
+
+/* note */
+.aeo .aeo-note{margin-top:20px;padding:14px 16px;border-left:3px solid var(--a-accent);
+  background:var(--pbg);border-radius:0 12px 12px 0;font-size:12.5px;color:var(--muted)}
+.aeo .aeo-note b{color:var(--ink)}
+
+/* pill (flagship tag) */
+.aeo .aeo-pill{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;
+  padding:3px 10px;border-radius:999px;background:var(--surf);border:1px solid var(--line);color:var(--a-accent)}
+
+@media (max-width:900px){
+  .aeo .aeo-kpis{grid-template-columns:1fr}
+  .aeo .aeo-band{grid-template-columns:1fr}
+  .aeo .aeo-grid{grid-template-columns:1fr}
+}

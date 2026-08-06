@@ -1,10 +1,10 @@
 ---
-description: Stack técnico do Projeto HARPIA e ADRs principais. Aplicar em qualquer arquivo do projeto.
+description: Stack técnico do Projeto ANCOREO e ADRs principais. Aplicar em qualquer arquivo do projeto.
 globs: ["**/*.ts", "**/*.tsx", "**/*.sql", "**/*.json"]
 alwaysApply: true
 ---
 
-# Stack técnico — Projeto HARPIA
+# Stack técnico — Projeto ANCOREO
 
 ## Decisões fechadas (não reabrir sem ADR nova)
 

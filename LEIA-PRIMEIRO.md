@@ -37,7 +37,7 @@ Mais usadas:
 
 ## 🔌 Infra (fatos rápidos)
 - **Repo git:** github.com/CassioBranco/HARP.IA (deploy puxa daqui — mover a pasta não afeta)
-- **Deploy:** harp-ia.vercel.app (Vercel, via GitHub)
+- **Deploy:** ancoreo.com.br (Vercel, projeto `ancoreo`, via GitHub)
 - **Banco:** Supabase (multi-tenant + RLS)
 - **Gate nº 1 pra beta:** DNS/domínio próprio (Sprint S13) — ver CRONOGRAMA.md
 

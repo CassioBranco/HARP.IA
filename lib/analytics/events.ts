@@ -13,6 +13,13 @@
 //  site_created              → site criado de fato (props.layout)
 //
 // Abandono = sessões cujo maior step visto < 7 (não precisa de evento de saída).
+//
+// Telemetria do SITE PUBLICADO do cliente (visitante anônimo, outro host):
+//  site_view                 → visita a uma página do site do cliente.
+//                              tenant_id e props.domain são resolvidos NO SERVIDOR
+//                              a partir do Host da requisição (o visitante não
+//                              consegue forjar visita pro site de outro cliente).
+//                              props.kind = home | blog | post | loja | produto
 
 export const ANALYTICS_EVENTS = [
   'onboarding_start',
@@ -24,6 +31,7 @@ export const ANALYTICS_EVENTS = [
   'template_choose',
   'template_preview',
   'site_created',
+  'site_view',
 ] as const
 
 export type AnalyticsEvent = (typeof ANALYTICS_EVENTS)[number]

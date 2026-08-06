@@ -55,7 +55,7 @@ const nowMs = Date.parse(process.env.POC_NOW || '') || Date.parse('2026-06-17T12
 
 async function fetchNews(query) {
   const url = buildFeedUrl(query)
-  const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0 (HARPIA news PoC)' } })
+  const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0 (ANCOREO news PoC)' } })
   if (!res.ok) throw new Error(`HTTP ${res.status} em ${url}`)
   const xml = await res.text()
   return parseItems(xml)

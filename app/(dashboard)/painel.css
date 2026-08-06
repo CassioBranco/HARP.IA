@@ -230,6 +230,11 @@
 .painel-shell .save-state .dot{width:8px;height:8px;border-radius:50%;background:#22c55e}
 .painel-shell .save-state.dirty .dot{background:#f5a30a}
 .painel-shell .post-grid{display:grid;grid-template-columns:1fr 312px;gap:1.3rem;align-items:start}
+/* coluna lateral gruda no topo pra o feedback de SEO acompanhar a escrita;
+   rola sozinha se passar da altura da tela */
+.painel-shell .post-side{position:sticky;top:1rem;align-self:start;display:flex;flex-direction:column;gap:1.4rem;max-height:calc(100vh - 2rem);overflow:auto;scrollbar-width:thin}
+.painel-shell .soon-note{display:flex;align-items:center;gap:.4rem;font-size:.72rem;color:var(--muted2);margin:.9rem 0 0}
+.painel-shell .soon-note i{font-size:.9rem}
 .painel-shell .doc{padding:0;overflow:hidden}
 .painel-shell .cover{height:180px;background:hsl(var(--muted));position:relative;display:flex;align-items:center;justify-content:center}
 .painel-shell .cover img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
@@ -285,7 +290,7 @@
 .painel-shell .spinner{width:48px;height:48px;border-radius:50%;border:3px solid hsl(var(--muted));border-top-color:hsl(var(--accent));animation:paSpin .8s linear infinite;margin-bottom:1rem}
 @keyframes paSpin{to{transform:rotate(360deg)}}
 .painel-shell .ai-err{font-size:.78rem;color:hsl(var(--destructive));font-weight:600;margin-top:.4rem}
-@media(max-width:980px){.painel-shell .post-grid{grid-template-columns:1fr}}
+@media(max-width:980px){.painel-shell .post-grid{grid-template-columns:1fr}.painel-shell .post-side{position:static;max-height:none;overflow:visible}}
 
 /* ===== Métricas ===== */
 .painel-shell .seo3{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem}

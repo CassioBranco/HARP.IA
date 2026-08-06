@@ -35,22 +35,38 @@ export async function POST(req: NextRequest) {
   const systemPrompt = await buildSystemPrompt('onboarding', niche ?? profile.niche, profile.objetivo ?? undefined).catch(() => null)
   if (!systemPrompt) return Response.json({ error: 'Prompts não configurados' }, { status: 500 })
 
+  // A REGRA DE FATOS aqui é a mesma de /api/generate/site. Esta rota regenera o
+  // site inteiro por cima do que já existe: sem a regra, ela reintroduzia dado
+  // inventado (e depoimento assinado por gente que não existe) num site real.
   const userPrompt = `Regenere o conteúdo completo do site com base no perfil abaixo.
 
-PERFIL:
+PERFIL (única fonte de verdade — tudo que você escrever precisa sair DAQUI):
 ${serializeProfile(profile)}
+
+════════════════════════════════════════════════════════════════════
+REGRA DE FATOS (inegociável — vale mais que qualquer outra regra abaixo):
+- Escreva APENAS com base no que está no PERFIL acima.
+- É PROIBIDO inventar: números, anos de experiência, preços, garantias,
+  prêmios, certificações, credenciais, nomes de clientes, depoimentos,
+  datas, estatísticas ou qualquer fato que não esteja explícito no perfil.
+- Faltou a informação? Deixe um marcador entre colchetes para o cliente
+  completar depois, ex: "[Adicione aqui os anos de experiência]", ou omita
+  o campo quando ele for opcional. Não preencha com suposição.
+- NUNCA gere depoimentos. O array "testimonials" é SEMPRE [] (vazio).
+  O cliente cadastra os depoimentos reais dele no editor.
+════════════════════════════════════════════════════════════════════
 
 Retorne JSON com exatamente esta estrutura:
 {
   "hero": { "headline": "", "sub": "", "cta_label": "", "cta_phone": "" },
   "about": { "title": "", "body": "", "credential": null },
   "services": [{ "name": "", "description": "", "icon": "emoji" }],
-  "testimonials": [{ "name": "", "text": "", "rating": 5 }],
+  "testimonials": [],
   "faq": [{ "question": "", "answer": "" }],
   "meta": { "title": "", "description": "", "keywords": [] }
 }
 
-faq deve ter EXATAMENTE 6 perguntas. Nada além do JSON.`
+faq deve ter EXATAMENTE 6 perguntas. "testimonials" sempre vazio. Nada além do JSON.`
 
   const anthropic = getAnthropicClient()
   let message
@@ -84,11 +100,15 @@ faq deve ter EXATAMENTE 6 perguntas. Nada além do JSON.`
       .single()
 
     if (page?.id) {
+      // Depoimentos ficam FORA da regeneração de propósito. São o único bloco do
+      // site que a IA não escreve: ou o dono cadastrou um depoimento real no
+      // editor, ou o bloco está vazio. Regravar aqui só teria dois desfechos, e
+      // os dois são ruins: apagar o depoimento verdadeiro dele, ou gravar um
+      // inventado. Quem regenera o texto do site não perde a prova social.
       const sections = [
         { section_type: 'hero',         order_index: 0, content: parsed.hero },
         { section_type: 'about',        order_index: 1, content: parsed.about },
         { section_type: 'services',     order_index: 2, content: { items: parsed.services } },
-        { section_type: 'testimonials', order_index: 3, content: { items: parsed.testimonials } },
         { section_type: 'faq',          order_index: 4, content: { items: parsed.faq } },
         { section_type: 'meta',         order_index: 5, content: parsed.meta },
       ]

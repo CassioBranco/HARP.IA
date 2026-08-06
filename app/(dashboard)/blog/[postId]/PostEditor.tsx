@@ -402,8 +402,10 @@ export default function PostEditor({
         />
         </div>
 
-        {/* sidebar */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.4rem' }}>
+        {/* sidebar — ordem = fluxo do trabalho: escrever, otimizar, publicar.
+            Fica sticky (.post-side) pra o feedback de SEO acompanhar a escrita. */}
+        <div className="post-side">
+          {/* 1 · ESCREVER — ponto de partida do artigo */}
           <div className="glass side-card gen-card">
             <div className="gh"><span className="ic"><i className="ph-fill ph-sparkle ai-spark" /></span><b>Escrever com IA</b></div>
             <p>A IA usa o seu conhecimento de especialista pra escrever o artigo, já otimizado.</p>
@@ -412,30 +414,20 @@ export default function PostEditor({
             </button>
           </div>
 
+          {/* 2 · OTIMIZAR — força de SEO ao vivo, reage ao que você digita */}
           <div className="glass side-card">
-            <h3><i className="ph-duotone ph-gear-six" /> Publicação</h3>
-            <div className="row-gap">
-              <label className="lbl">Categoria <span style={{ color: 'var(--muted2)', fontWeight: 400 }}>· em breve</span></label>
-              <select className="field is-disabled" disabled defaultValue="">
-                <option value="">Ainda não disponível</option>
-              </select>
-            </div>
-            <div className="row-gap">
-              <label className="lbl">Resumo (meta description)</label>
-              <textarea
-                className="field"
-                style={{ minHeight: 64, resize: 'none' }}
-                placeholder="Resumo que aparece no Google…"
-                value={data.meta_description}
-                onChange={e => patch({ meta_description: e.target.value })}
-              />
-            </div>
-            <div>
-              <label className="lbl">Palavras-chave <span style={{ color: 'var(--muted2)', fontWeight: 400 }}>· em breve</span></label>
-              <div className="tags"><span className="tag" style={{ opacity: 0.6 }}>edição por artigo em breve</span></div>
+            <div className="seoscore"><span style={{ color: 'var(--ink)' }}>Força de SEO</span><span>{scoreLabel}</span></div>
+            <div className="seobar"><i style={{ width: `${score}%` }} /></div>
+            <div className="seochk">
+              {checks.map((c, i) => (
+                <div className={`ck ${c.ok ? '' : 'todo'}`} key={i}>
+                  <i className={c.ok ? 'ph-fill ph-check-circle' : 'ph-fill ph-circle'} /> {c.label}
+                </div>
+              ))}
             </div>
           </div>
 
+          {/* 2b · OTIMIZAR — links internos sugeridos (some quando não há) */}
           {linkSuggestions.length > 0 && (
             <div className="glass side-card">
               <h3><i className="ph-duotone ph-link" /> Links internos sugeridos</h3>
@@ -460,16 +452,22 @@ export default function PostEditor({
             </div>
           )}
 
+          {/* 3 · PUBLICAR — resumo do Google (o que ainda vem fica num rodapé honesto) */}
           <div className="glass side-card">
-            <div className="seoscore"><span style={{ color: 'var(--ink)' }}>Força de SEO</span><span>{scoreLabel}</span></div>
-            <div className="seobar"><i style={{ width: `${score}%` }} /></div>
-            <div className="seochk">
-              {checks.map((c, i) => (
-                <div className={`ck ${c.ok ? '' : 'todo'}`} key={i}>
-                  <i className={c.ok ? 'ph-fill ph-check-circle' : 'ph-fill ph-circle'} /> {c.label}
-                </div>
-              ))}
+            <h3><i className="ph-duotone ph-gear-six" /> Publicação</h3>
+            <div>
+              <label className="lbl">Resumo (meta description)</label>
+              <textarea
+                className="field"
+                style={{ minHeight: 64, resize: 'none' }}
+                placeholder="Resumo que aparece no Google…"
+                value={data.meta_description}
+                onChange={e => patch({ meta_description: e.target.value })}
+              />
             </div>
+            <p className="soon-note">
+              <i className="ph-duotone ph-clock-countdown" /> Categoria e palavras-chave por artigo chegam em breve.
+            </p>
           </div>
         </div>
       </div>

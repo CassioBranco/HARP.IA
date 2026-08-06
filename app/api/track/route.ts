@@ -9,6 +9,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createServerClient } from '@/lib/supabase/server'
 import { ANALYTICS_EVENT_SET } from '@/lib/analytics/events'
+import { bareHost, isAppHost } from '@/lib/site-host'
 
 export const runtime = 'nodejs'
 
@@ -59,17 +60,59 @@ export async function POST(req: NextRequest) {
   const setSid = !sid
   if (!sid) sid = crypto.randomUUID()
 
-  // tenant opcional (atividade da própria conta) — best-effort, nunca bloqueia
+  const host = req.headers.get('host') ?? ''
+  const fromClientSite = host !== '' && !isAppHost(host)
+
+  // Coerência origem x evento: site_view só existe no site publicado; os eventos
+  // de funil só existem no painel. Sem esta trava, um visitante do site de um
+  // cliente conseguiria injetar evento de onboarding e sujar o funil do produto.
+  // (Em dev, host=localhost conta como painel, então site_view local é ignorado.)
+  if (fromClientSite !== (event === 'site_view')) {
+    return NextResponse.json({ ok: true, skipped: true })
+  }
+
   let tenantId: string | null = null
-  try {
-    const supabase = await createServerClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (user) {
-      const { data } = await supabase.from('users').select('tenant_id').eq('id', user.id).single()
-      tenantId = (data?.tenant_id as string | null) ?? null
+
+  if (fromClientSite) {
+    // Visita ao SITE PUBLICADO de um cliente. O dono do evento vem do Host da
+    // requisição, nunca do corpo: assim ninguém consegue inflar (ou sujar) o
+    // número de outro cliente mandando props forjadas pro /api/track.
+    // O middleware não reescreve /api, então o Host aqui é o domínio real.
+    try {
+      const admin = createAdminClient()
+      const domain = bareHost(host)
+      const { data: site } = await admin
+        .from('sites')
+        .select('id, tenant_id')
+        .eq('domain', domain)
+        .eq('status', 'published')
+        .maybeSingle()
+      if (!site) {
+        // Host desconhecido: descarta em vez de gravar visita órfã.
+        return NextResponse.json({ ok: true, skipped: true })
+      }
+      tenantId = (site.tenant_id as string | null) ?? null
+      // Chaves de identidade são sempre do servidor: apaga o que veio do corpo
+      // antes de gravar, pra não sobrar um "tenant_id" falso dentro do props.
+      delete props.site_id
+      delete props.tenant_id
+      props.site_id = site.id as string
+      props.domain = domain
+    } catch {
+      return NextResponse.json({ ok: true, skipped: true })
     }
-  } catch {
-    /* visitante anônimo — segue sem tenant */
+  } else {
+    // Painel: tenant da conta logada — best-effort, nunca bloqueia.
+    try {
+      const supabase = await createServerClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const { data } = await supabase.from('users').select('tenant_id').eq('id', user.id).single()
+        tenantId = (data?.tenant_id as string | null) ?? null
+      }
+    } catch {
+      /* visitante anônimo — segue sem tenant */
+    }
   }
 
   try {

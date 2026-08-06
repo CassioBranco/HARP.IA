@@ -46,7 +46,7 @@
   },
   "env": {
     "PROJECT_CODENAME": "ANCOREO",
-    "PROJECT_PHASE": "Fase C — Build (núcleo pronto, pré-beta; gate nº1 = DNS/S13)",
+    "PROJECT_PHASE": "Fase C \u2014 Build (n\u00facleo pronto, pr\u00e9-beta; gate n\u00ba1 = DNS/S13)",
     "AUTONOMY_LEVEL": "semi-autonomous",
     "REQUIRE_HUMAN_APPROVAL": "commit,push,deploy,migration_apply"
   },
@@ -54,7 +54,30 @@
     "SessionStart": [
       {
         "hooks": [
-          { "type": "command", "command": "bash .claude/hooks/session-start.sh" }
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/session-start.sh"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash|Grep",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "graphify hook-guard search"
+          }
+        ]
+      },
+      {
+        "matcher": "Read|Glob",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "graphify hook-guard read"
+          }
         ]
       }
     ]

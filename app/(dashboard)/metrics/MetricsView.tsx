@@ -1,9 +1,12 @@
 'use client'
 
 // Métricas (client). Anéis + "o que melhorar" = reais (/api/score/[siteId]).
-// Visitas e ranking = "em breve" (sem fonte de dado no beta — não fabricar).
+// Visitas = reais, da telemetria própria. Ranking = "em breve" (sem Search
+// Console no beta). Nada aqui é número fabricado: sem dado, mostra zero.
 import { useEffect, useState } from 'react'
 import { buildPresenceChecklist, type PresenceItem } from '@/lib/seo/local-presence'
+import type { SiteVisits } from '@/lib/analytics/queries'
+import type { ScorePoint } from '@/lib/score/history'
 
 type Pillar = 'seo' | 'geo' | 'aeo' | 'eeat'
 type ScoreRule = { rule_key: string; description: string; pillar: Pillar; fix: string; passed: boolean }
@@ -23,6 +26,13 @@ function grade(n: number): string {
   if (n >= 60) return 'Boa'
   if (n >= 40) return 'Pode melhorar'
   return 'Precisa de atenção'
+}
+
+// 'YYYY-MM-DD' -> 'DD/MM'. Sem new Date() de propósito: a string já é o dia UTC
+// gravado no banco, e converter pra Date aqui reintroduziria fuso.
+function shortDay(day: string): string {
+  const [, m, d] = day.split('-')
+  return m && d ? `${d}/${m}` : day
 }
 
 type PostLite = {
@@ -53,11 +63,13 @@ const MONTHS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','A
 const WEEKDAYS = ['D','S','T','Q','Q','S','S']
 
 export default function MetricsView({
-  siteId, domain, posts = [],
+  siteId, domain, posts = [], visits = null, scoreHistory = [],
   siteStatus = '', gpeModo = '', gpeLink = '', businessName = '', city = '',
   gbpPostDates = [], sitemapPages = 0, sitemapPosts = 0,
 }: {
   siteId: string
+  visits?: SiteVisits | null
+  scoreHistory?: ScorePoint[]
   domain: string
   posts?: PostLite[]
   siteStatus?: string
@@ -109,6 +121,13 @@ export default function MetricsView({
   // "O que melhorar" = regras falhando (texto de correção real). Limita a 4.
   const toImprove = (data?.rules ?? []).filter(r => !r.passed).slice(0, 4)
   const allGood = !!data && toImprove.length === 0
+
+  // ── Visitas: derivados do payload real ──────────────────────
+  const peakVisits = Math.max(0, ...(visits?.daily ?? []).map(d => d.visits))
+  // Sem período anterior não existe variação — mostra "—" em vez de inventar 100%.
+  const visitsDelta = visits && visits.previousTotal > 0
+    ? Math.round(((visits.total - visits.previousTotal) / visits.previousTotal) * 100)
+    : null
 
   // ── Blog: métricas de conteúdo (reais) ──────────────────────
   const published = posts.filter(p => p.status === 'published').length
@@ -177,6 +196,25 @@ export default function MetricsView({
   const presencePct = presenceTotal > 0 ? Math.round((presenceDone / presenceTotal) * 100) : 0
 
   // ── Sitemap / indexação ─────────────────────────────────────
+  // ── Evolução do score: só desenha com 2+ pontos ────────────
+  // Com 1 ponto não existe linha, existe um ponto solto. Mostrar "evolução"
+  // aí seria inventar tendência onde não há — o card avisa que começou hoje.
+  const history = scoreHistory ?? []
+  const hasHistory = history.length >= 2
+  const firstPoint = history[0]
+  const lastPoint = history[history.length - 1]
+  const scoreDelta = hasHistory && firstPoint && lastPoint ? lastPoint.overall - firstPoint.overall : null
+  // linha em viewBox 100x40; preserveAspectRatio="none" estica na largura do card
+  const scorePath = hasHistory
+    ? history
+        .map((p, i) => {
+          const x = (i / (history.length - 1)) * 100
+          const y = 40 - (p.overall / 100) * 40
+          return `${i === 0 ? 'M' : 'L'}${x.toFixed(2)},${y.toFixed(2)}`
+        })
+        .join(' ')
+    : ''
+
   const siteIsPublished = siteStatus === 'published'
   const sitemapUrl = domain ? `https://${domain}/sitemap.xml` : ''
   const sitemapTotal = sitemapPages + sitemapPosts
@@ -217,15 +255,105 @@ export default function MetricsView({
             })}
           </div>
 
-          <div className="cols">
-            {/* visitas — em breve (sem analytics no beta) */}
+          {/* evolução do score — histórico real (score_snapshots), 1 ponto por dia */}
+          <div className="glass card" style={{ marginTop: '1.2rem' }}>
+            <h3><i className="ph-duotone ph-trend-up" /> Evolução do score</h3>
+            {!hasHistory ? (
+              <p style={{ marginTop: '.5rem', fontSize: '.9rem', opacity: .8 }}>
+                O histórico começa hoje. A cada dia que você abrir o painel, o score do dia
+                fica guardado aqui, e a linha mostra se seu site melhorou.
+              </p>
+            ) : (
+              <>
+                <div className="stats" style={{ marginTop: '.4rem' }}>
+                  <div className="stat"><div className="n">{lastPoint!.overall}</div><div className="l">score hoje</div></div>
+                  <div className="stat"><div className="n">{firstPoint!.overall}</div><div className="l">em {shortDay(firstPoint!.day)}</div></div>
+                  <div className="stat">
+                    <div className="n">{scoreDelta === 0 ? '=' : `${scoreDelta! > 0 ? '+' : ''}${scoreDelta}`}</div>
+                    <div className="l">pontos no período</div>
+                  </div>
+                </div>
+
+                <svg
+                  aria-hidden
+                  viewBox="0 0 100 40"
+                  preserveAspectRatio="none"
+                  style={{ width: '100%', height: 72, marginTop: '1rem', overflow: 'visible' }}
+                >
+                  <line x1="0" y1="20" x2="100" y2="20" stroke="rgba(255,255,255,.12)" strokeWidth="1" vectorEffect="non-scaling-stroke" />
+                  <path
+                    d={scorePath}
+                    fill="none"
+                    stroke="#22c55e"
+                    strokeWidth="2"
+                    strokeLinejoin="round"
+                    strokeLinecap="round"
+                    vectorEffect="non-scaling-stroke"
+                  />
+                </svg>
+
+                <p style={{ marginTop: '.7rem', fontSize: '.82rem', opacity: .75 }}>
+                  {history.length} dias medidos, de {shortDay(firstPoint!.day)} a {shortDay(lastPoint!.day)}.
+                  A linha do meio é 50 pontos.
+                </p>
+              </>
+            )}
+          </div>
+
+          <div className="cols" style={{ marginTop: '1.2rem' }}>
+            {/* visitas — telemetria própria (site_view do site publicado) */}
             <div className="glass card">
               <h3><i className="ph-duotone ph-chart-bar" /> Visitas</h3>
-              <div className="soon">
-                <span className="bigic"><i className="ph-duotone ph-chart-line-up" /></span>
-                <span className="pill">Em breve</span>
-                <p>A análise de tráfego conecta ao seu site assim que a integração com o Google (Analytics e Search Console) for ativada.</p>
-              </div>
+              {!visits || visits.total === 0 ? (
+                <div className="soon">
+                  <span className="bigic"><i className="ph-duotone ph-chart-line-up" /></span>
+                  <span className="pill">Sem visitas ainda</span>
+                  <p>
+                    {siteStatus === 'published'
+                      ? 'Seu site está no ar e já está contando. As visitas aparecem aqui assim que alguém abrir a página.'
+                      : 'A contagem começa no momento em que você publica o site.'}
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <div className="stats" style={{ marginTop: '.4rem' }}>
+                    <div className="stat"><div className="n">{visits.total}</div><div className="l">visitas (30 dias)</div></div>
+                    <div className="stat"><div className="n">{visits.sessions}</div><div className="l">pessoas diferentes</div></div>
+                    <div className="stat">
+                      <div className="n">{visitsDelta === null ? '—' : `${visitsDelta > 0 ? '+' : ''}${visitsDelta}%`}</div>
+                      <div className="l">vs. 30 dias antes</div>
+                    </div>
+                  </div>
+
+                  {/* barrinhas do período — altura relativa ao dia de pico */}
+                  <div
+                    aria-hidden
+                    style={{
+                      display: 'flex', alignItems: 'flex-end', gap: 2,
+                      height: 56, marginTop: '1rem',
+                    }}
+                  >
+                    {visits.daily.map(d => (
+                      <div
+                        key={d.date}
+                        title={`${d.date}: ${d.visits}`}
+                        style={{
+                          flex: 1,
+                          height: `${peakVisits > 0 ? Math.max(3, (d.visits / peakVisits) * 100) : 3}%`,
+                          background: d.visits > 0 ? '#22c55e' : 'rgba(255,255,255,.12)',
+                          borderRadius: 2,
+                        }}
+                      />
+                    ))}
+                  </div>
+
+                  <p style={{ marginTop: '.7rem', fontSize: '.82rem', opacity: .75 }}>
+                    {visits.devices.mobile} pelo celular, {visits.devices.desktop} pelo computador
+                    {visits.devices.tablet > 0 ? `, ${visits.devices.tablet} por tablet` : ''}.
+                    Contagem própria do ANCOREO, sem cookie de rastreio de terceiros.
+                  </p>
+                </>
+              )}
             </div>
 
             {/* o que melhorar — real, das regras falhando */}

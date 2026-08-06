@@ -1,10 +1,10 @@
 ---
-description: As 8 regras de arquitetura SEO/GEO/AEO do HARPIA — mandato técnico que serve ao North Star. Sempre aplicar.
+description: As 8 regras de arquitetura SEO/GEO/AEO do ANCOREO — mandato técnico que serve ao North Star. Sempre aplicar.
 globs: ["**/*"]
 alwaysApply: true
 ---
 
-# Regras de arquitetura AEO/GEO/SEO — HARPIA
+# Regras de arquitetura AEO/GEO/SEO — ANCOREO
 
 > Foco imutável (North Star): o site do assinante aparece quando o cliente busca no Google e nas LLMs.
 > Detalhe completo: `docs/AEO-ARCHITECTURE-RULES.md`. Filtro de toda feature: "isso ajuda o site a aparecer na busca?"

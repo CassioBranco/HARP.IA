@@ -8,10 +8,11 @@ import { buildSiteContent } from '@/lib/templates/build-site-content'
 import { getPublishedPostsByDomain } from '@/lib/blog/posts'
 import SiteShell from '@/components/site/SiteShell'
 import BlogList from '@/components/blog/BlogList'
+import SiteAnalytics from '../SiteAnalytics'
 
 type Props = { params: Promise<{ domain: string }> }
 
-const RESERVED = ['localhost', 'harp-ia.vercel.app', 'vercel.app']
+const RESERVED = ['localhost', 'ancoreo.vercel.app', 'vercel.app']
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { domain } = await params
@@ -40,6 +41,7 @@ export default async function BlogIndexPage({ params }: Props) {
       fontPair={built.fontPair}
       nav={{ label: 'Blog', href: '/blog' }}
     >
+      <SiteAnalytics kind="blog" />
       <BlogList posts={posts} />
     </SiteShell>
   )

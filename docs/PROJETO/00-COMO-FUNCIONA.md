@@ -1,5 +1,8 @@
 # ANCOREO — Sistema de Gestão do Projeto (Scrum por Skills)
 
+> 👉 **Onde estamos AGORA + próximos passos: `PAINEL.md`** (leia esse primeiro).
+> Este arquivo aqui é só o **ritual** — como o projeto é tocado.
+>
 > **Por que isso existe:** garantir que nenhuma sessão de trabalho se perca ou se
 > contradiga. Toda decisão e todo progresso ficam aqui, versionados no git.
 > Esta pasta é a **fonte única da verdade** do desenvolvimento do ANCOREO.

@@ -6,12 +6,13 @@ import { buildSiteContent } from '@/lib/templates/build-site-content'
 import { getPublishedProductsByDomain } from '@/lib/ecommerce/products'
 import SiteShell from '@/components/site/SiteShell'
 import ProductGrid from '@/components/store/ProductGrid'
+import SiteAnalytics from '../SiteAnalytics'
 
 // Vitrine pública (catálogo). Usa o esqueleto de loja (StoreShell), que veste
 // a paleta/fonte/marca do template do cliente.
 type Props = { params: Promise<{ domain: string }> }
 
-const RESERVED = ['localhost', 'harp-ia.vercel.app', 'vercel.app']
+const RESERVED = ['localhost', 'ancoreo.vercel.app', 'vercel.app']
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { domain } = await params
@@ -40,6 +41,7 @@ export default async function StorefrontPage({ params }: Props) {
       fontPair={built.fontPair}
       nav={{ label: 'Loja', href: '/loja' }}
     >
+      <SiteAnalytics kind="loja" />
       <ProductGrid products={products} />
     </SiteShell>
   )

@@ -29,7 +29,7 @@ O front **NÃO tem tokens centralizados** — são **6 CSS com cores escritas na
 ## 2. Nome / Marca
 
 - **Nome comercial e final = ANCOREO** (âncora + SEO). O nome antigo do projeto foi aposentado; toda a copy/docs do código já estão em ANCOREO (rename 2026-06-24).
-- **Identificadores técnicos que AINDA usam o nome antigo** (não é a marca, é infra — trocar exige ação externa, fica pro gate S13 do DNS): repo `HARP.IA`, deploy `harp-ia.vercel.app`, subdomínio grátis `*.harpia.site`. (Skill interna e slugs de memória já renomeados pra `ancoreo-status` / `project_ancoreo_*` em 2026-06-26.)
+- **Identificadores técnicos que AINDA usam o nome antigo** (não é a marca, é infra — trocar exige ação externa, fica pro gate S13 do DNS): repo `HARP.IA` e subdomínio grátis `*.harpia.site`. O projeto na Vercel **já foi renomeado pra `ancoreo`** e a produção roda em `ancoreo.com.br`. (Skill interna e slugs de memória já renomeados pra `ancoreo-status` / `project_ancoreo_*` em 2026-06-26.)
 - Logo: **não existe ainda** — Cássio desenha depois.
 
 ---

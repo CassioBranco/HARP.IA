@@ -1,10 +1,10 @@
 ---
-description: Como aplicar os 4 search intents em páginas de site e artigos de blog do Produto HARPIA.
+description: Como aplicar os 4 search intents em páginas de site e artigos de blog do Produto ANCOREO.
 globs: ["lib/agents/**/*", "lib/prompts/**/*", "prompts/**/*", "app/**/page.tsx"]
 alwaysApply: false
 ---
 
-# Search Intent — Projeto HARPIA
+# Search Intent — Projeto ANCOREO
 
 Cada página de site e artigo de blog declara 1 intent dominante.
 O intent dirige: estrutura HTML, CTA, schema JSON-LD, keywords e tom.

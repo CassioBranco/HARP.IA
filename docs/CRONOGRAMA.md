@@ -4,8 +4,8 @@
 > preenchido a partir do git + banco + Vercel ao vivo.
 > **Detalhe operacional do dia a dia vive em `docs/PROJETO/ESTADO-MVP.md`** (fonte da verdade
 > mais granular). Este doc é a visão de roadmap; aquele é o "o que fazer agora".
-> **Atualizado: 2026-07-05.** Marca: **ANCOREO** (infra/repo ainda usam "harp-ia": repo HARP.IA,
-> projeto Vercel `ancoreo`, banco Supabase `HARP.IA`/`yejjeiveqgkgrtcettkl`).
+> **Atualizado: 2026-07-05.** Marca: **ANCOREO**. Projeto na Vercel já é `ancoreo`; o que ainda
+> carrega o nome antigo é externo: repo GitHub `HARP.IA` e banco Supabase `HARP.IA`/`yejjeiveqgkgrtcettkl`.
 
 ## ✅ O que significa "lançado" (leia primeiro) — MUDOU
 - **Deploy técnico:** ✅ em produção. `ancoreo.com.br` no ar com SSL desde **30/06**.

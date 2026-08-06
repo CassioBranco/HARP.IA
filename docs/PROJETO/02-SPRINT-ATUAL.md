@@ -24,9 +24,10 @@ editor 2 painéis em produção (F15 ✅). Reconciliação de docs feita em 18/0
 - Saída: relatório fato-a-fato (funciona / quebra / falta) — destrava o resto da fase.
 - **Cargo:** QA (Claude)
 
-### 0.2 + 0.3 — Aplicar 7 migrations pendentes + deploy da fila NV1–NV6 · 🚫 GATE
-- Migrations auditadas 2026-07-04 (partner_backlinks já corrigida). Lista: `ESTADO-MVP.md` §3.
-- **Depende:** OK explícito do Cássio (D14). Sugerido: logo após a auditoria 0.1.
+### 0.2 + 0.3 — Aplicar 7 migrations + deploy da fila NV1–NV6 · ✅ FEITO (05/07)
+- **Correção 23/07:** já está no ar. Banco de produção confirma as 7 migrations
+  aplicadas (`20260705031256`–`20260705031415`); commit `fe81441` deployado.
+  Este cartão estava marcado como GATE pendente por engano.
 
 ### 0.4 — Migration do prompt de sistema (mata "3 depoimentos fictícios") · 🚫 GATE
 - Alinha o prompt do banco à REGRA DE FATOS já aplicada no código.
@@ -52,6 +53,7 @@ editor 2 painéis em produção (F15 ✅). Reconciliação de docs feita em 18/0
 2. **Q2 (de ESTADO-MVP §7):** resolvida na prática pela Fase 0 = aplicar migrations + deployar as NV agora (com OK), antes de feature nova.
 
 ## 📌 Próxima ação do Scrum Master
-Rodar a **auditoria 0.1** e apresentar o relatório. Em paralelo, começar o
-wireframe 2.1. Pedir ao Cássio, num bloco só: OK pra 0.2/0.3/0.4 (migrations +
-deploy) + dados da empresa (0.5) + junction (0.6).
+Seguir a **Fase 2.1** (porte do wireframe pro editor — próximo: gerador de IA no
+dropdown do score). Em paralelo, rodar a **auditoria 0.1**. Pedir ao Cássio, num
+bloco só, o que ainda depende dele: 0.4 (migration do prompt) + dados da empresa
+(0.5) + chaves MP/Resend (Fase 1). Migrations/deploy 0.2/0.3 já estão feitos.

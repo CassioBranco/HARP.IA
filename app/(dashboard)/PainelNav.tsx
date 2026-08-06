@@ -7,6 +7,11 @@ import { usePathname } from 'next/navigation'
 const NAV = [
   { href: '/metrics',  label: 'Painel',         icon: 'ph-chart-line-up' },
   { href: '/sites',    label: 'Meus sites',    icon: 'ph-globe-hemisphere-west' },
+  // '/aeo' está fora do menu de propósito. A página existe e funciona, mas hoje
+  // ela mostra um "SCORE DE VISIBILIDADE IA" que é amostra sintética
+  // (lib/aeo/visibility.ts, isSample: true), não medição real. Enquanto for
+  // amostra, ela não fica na frente de cliente pagante. Volta pro menu quando
+  // a medição for real — a rota continua acessível por URL pra desenvolver.
   { href: '/editor',   label: 'Editor',         icon: 'ph-pencil-ruler' },
   { href: '/blog',     label: 'Blog',           icon: 'ph-article' },
   { href: '/agendamentos', label: 'Agendamentos', icon: 'ph-calendar-check' },

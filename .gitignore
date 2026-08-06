@@ -53,3 +53,12 @@ docs/_backups/
 # código legado / mockups — NÃO deployar (render antigo de blog sem sanitize)
 /app_backup/
 /_mockups/
+
+# graphify — grafo de conhecimento gerado (reconstruível, não versionar)
+/graphify-out/
+
+# log do build local (regerado a cada npm run build)
+.next-build.log
+
+# backups automáticos de config (o original é que é versionado)
+*.graphify-bak

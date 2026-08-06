@@ -12,18 +12,22 @@ uma fila de trabalho pronto AGUARDANDO deploy/migrations (gate).
 
 ---
 
-## FASE 0 — Sincronizar e estabilizar (AGORA → ~1 semana)
+## FASE 0 — Sincronizar e estabilizar (quase fechada)
 *Objetivo: zerar a dívida entre "codado" e "no ar". Nada novo entra antes disso.*
 
-| # | Item | Depende de |
-|---|---|---|
-| 0.1 | **Auditoria ponta-a-ponta** (cadastro → onboarding → gerar → editar → publicar → loja), só leitura, relatório fato-a-fato | Claude |
-| 0.2 | Aplicar as **7 migrations escritas** (blog_faq, partner_backlinks, booking, leads, social_links, internal_links_triangulation, blog_cover_scheduling) | 🔑 OK Cássio |
-| 0.3 | Deploy da fila noturna NV1–NV6 (parcerias, presença local, sanitizador, e-mail dormente) | 🔑 OK Cássio |
-| 0.4 | Migration do prompt de sistema ("testimonials: 3 fictícios" → factual) — mata a contradição anti-fabricação | 🔑 OK Cássio |
-| 0.5 | Legal: CNPJ/razão social em /termos e /privacidade + deploy do banner de consentimento (S03/S04, código pronto) | 🔑 Cássio (dados) |
-| 0.6 | Conferir/refazer a **junction da memória** (`Desktop` → `Documents\ancoreo\memoria`) | Cássio (2 min) |
-| 0.7 | Limpar dados de QA (tenant `qa-dentista@harpia.test`) — B11 | Claude |
+> **Correção 2026-07-23:** os itens 0.2 e 0.3 (aplicar 7 migrations + deploy NV1–NV6)
+> **JÁ ESTÃO FEITOS desde 05/07** — confirmado no banco de produção. Este doc os
+> listava como pendentes por engano. Sobra desta fase: 0.1, 0.4, 0.5, 0.7.
+
+| # | Item | Depende de | Status |
+|---|---|---|---|
+| 0.2 | Aplicar as **7 migrations escritas** (blog_faq, partner_backlinks, booking, leads, social_links, internal_links_triangulation, blog_cover_scheduling) | — | ✅ FEITO 05/07 (banco confirma) |
+| 0.3 | Deploy da fila noturna NV1–NV6 (parcerias, presença local, sanitizador, e-mail dormente) | — | ✅ FEITO (commit `fe81441` no ar) |
+| 0.1 | **Auditoria ponta-a-ponta** (cadastro → onboarding → gerar → editar → publicar → loja), só leitura, relatório fato-a-fato | Claude | ⬜ aberto |
+| 0.4 | Migration do prompt de sistema ("testimonials: 3 fictícios" → factual) — mata a contradição anti-fabricação | 🔑 OK Cássio | ⬜ aberto (não aplicada) |
+| 0.5 | Legal: CNPJ/razão social em /termos e /privacidade + deploy do banner de consentimento (S03/S04, código pronto) | 🔑 Cássio (dados) | ⬜ aberto |
+| 0.6 | Conferir/refazer a **junction da memória** (`Desktop` → `Documents\ancoreo\memoria`) | Cássio (2 min) | 🟡 provável feito (memória já em Documents) |
+| 0.7 | Limpar dados de QA (tenant `qa-dentista@harpia.test`) — B11 | Claude | ⬜ aberto |
 
 **Critério de saída:** tudo que está "pronto local" está em produção; auditoria
 diz com fato o que funciona e o que quebra.

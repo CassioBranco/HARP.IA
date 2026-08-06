@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server'
 import { createServerClient } from '@/lib/supabase/server'
+import { saveScoreSnapshot } from '@/lib/score/history'
 
 export const runtime = 'nodejs'
 
@@ -34,7 +35,7 @@ export async function GET(
 
   // Carrega dados necessários para calcular o score
   const [{ data: site }, { data: pages }, { data: sections }] = await Promise.all([
-    supabase.from('sites').select('id,domain,status').eq('id', siteId).single(),
+    supabase.from('sites').select('id,domain,status,tenant_id').eq('id', siteId).single(),
     supabase.from('pages').select('id,slug,title,meta_description').eq('site_id', siteId),
     supabase.from('sections').select('section_type,content,page_id').in(
       'page_id',
@@ -79,6 +80,15 @@ export async function GET(
   const geo  = calcPillarScore(evaluated, RULES, 'geo')
   const aeo  = calcPillarScore(evaluated, RULES, 'aeo')
   const eeat = calcPillarScore(evaluated, RULES, 'eeat')
+
+  // Congela o ponto de hoje no histórico. O site veio de uma query com RLS,
+  // então o tenant_id aqui é o do dono de verdade. Não bloqueia a resposta.
+  await saveScoreSnapshot({
+    siteId,
+    tenantId: (site.tenant_id as string | null) ?? '',
+    overall, seo, geo, aeo, eeat,
+    failing: evaluated.filter(r => !r.passed).map(r => r.rule_key),
+  })
 
   return Response.json({
     overall,

@@ -1,10 +1,10 @@
 ---
-description: Regras de Design Atômico, Storybook e sistema visual do Projeto HARPIA.
+description: Regras de Design Atômico, Storybook e sistema visual do Projeto ANCOREO.
 globs: ["components/**/*", "**/*.stories.tsx", "tailwind.config.ts", "design/**/*"]
 alwaysApply: false
 ---
 
-# Design Atômico — Projeto HARPIA
+# Design Atômico — Projeto ANCOREO
 
 ## Hierarquia de componentes
 
