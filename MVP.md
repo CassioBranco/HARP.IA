@@ -58,6 +58,9 @@ buraco de produto do MVP. Alguém chega até o site pronto e para ali.
 | 2.3 | Site publicado passa em Lighthouse ≥ 90 em performance e acessibilidade |
 | 2.4 | Sessão T2 passa |
 
+Arranjo de tela: `docs/modelos-referencia/` — `landing-servico.html` é o mais
+alinhado ao cliente típico do ANCOREO. [Índice do acervo](docs/modelos-referencia/README.md).
+
 ---
 
 ## Pilar 3 — Blog builder
@@ -74,6 +77,10 @@ rodou com dado real não é um pilar pronto, é uma hipótese.
 | 3.2 | Links internos automáticos apontam pra posts que existem (grafo validado) |
 | 3.3 | Post publicado aparece no sitemap e no llms.txt do tenant |
 | 3.4 | Sessão T3 passa |
+
+Arranjo de tela: `docs/modelos-referencia/blog-magicui.html` cobre a listagem e
+o artigo. Duas coisas de lá que hoje não temos e valem a pena: **contador por
+tag** nos filtros e **thumb 16:9 no card**. [Índice do acervo](docs/modelos-referencia/README.md).
 
 ---
 
