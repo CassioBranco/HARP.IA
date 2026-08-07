@@ -77,6 +77,7 @@ rodou com dado real não é um pilar pronto, é uma hipótese.
 | 3.2 | Links internos automáticos apontam pra posts que existem (grafo validado) |
 | 3.3 | Post publicado aparece no sitemap e no llms.txt do tenant |
 | 3.4 | Sessão T3 passa |
+| 3.5 | **FEITO 07/08/2026.** Artigo publicado nasce com um post do Google apontando pra ele (ver 5.8). O editor para de pular pra lista assim que publica e mostra o que aconteceu, senão o dono nunca fica sabendo que ganhou o post |
 
 Arranjo de tela: `docs/modelos-referencia/blog-magicui.html` cobre a listagem e
 o artigo. Duas coisas de lá que hoje não temos e valem a pena: **contador por
@@ -142,6 +143,7 @@ calendário dele vê.
 | 5.5 | **FEITO.** Cliente marca "publiquei" e o histórico registra (`/api/gbp/publicado` escreve `published_at`) |
 | 5.6 | **ESCRITO 07/08/2026, ESPERANDO SUA LEITURA (gate G1).** Texto do e-mail em `lib/email/gbp-lembrete.ts`, disparo em `app/api/cron/gbp-lembrete/route.ts` (checagem: `npx tsx scripts/check-gbp-lembrete.ts`, 27 asserções). Só avisa quem tem post atrasado ou marcado pra hoje; quem está em dia não recebe nada. Um e-mail por conta a cada 20h, trava gravada em `audit_logs`. A rota está fechada: sem `CRON_SECRET` responde 401, e não existe agendamento em `vercel.json` ainda. **Nada é enviado até você ler a cópia e aprovar** |
 | 5.7 | Sessão T5 passa |
+| 5.8 | **FEITO 07/08/2026.** Ponte com o blog, nas duas direções. **Ida (automática):** artigo publicado vira post no perfil. Não é resumo de propósito: entrega UM fato do artigo e para, e o botão leva pro artigo. Resumo bom mata o clique, e o clique é onde mora o SEO. **Volta (um clique, não automática):** post que rendeu conversa vira pauta de artigo. Gerar artigo sozinho a cada post custaria IA e encheria o painel de rascunho que ninguém pediu. **A regra que segura tudo:** a isca nunca CRIA vaga no calendário, só ocupa uma que existe. Mês cheio, ela toma a data da próxima "novidade" genérica e essa volta pra fila sem data (nada é apagado; artigo real vale mais que dica inventada). Nada pra ceder, ela fica sem data, e post sem data não dispara o lembrete de 5.6. Assim 4 artigos no mês continuam sendo 4 posts no mês, não 8. Regras em `lib/seo/blog-para-gpe.ts` (checagem: `npx tsx scripts/check-blog-para-gpe.ts`, 30 asserções), rota em `app/api/ai/gbp/do-artigo/route.ts`. O "prepare meu mês" deixou de recusar quando existe qualquer post marcado e passou a preencher só as terças vagas, senão uma isca sozinha travava o mês inteiro; e ele recebe os assuntos já cobertos pelo site pra não repetir |
 
 ---
 

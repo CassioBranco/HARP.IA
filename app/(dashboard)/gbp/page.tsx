@@ -61,7 +61,9 @@ export default async function GbpPage() {
     // primeiro: numa lista por created_at, o post de hoje some no meio do mês.
     const { data: rows } = await supabase
       .from('gbp_posts')
-      .select('id, post_type, content, cta_label, cta_url, status, published_at, scheduled_for, created_at')
+      // `extra` carrega a origem: post que nasceu de um artigo do blog
+      // mostra de qual, e não recebe o convite de virar artigo de novo.
+      .select('id, post_type, content, cta_label, cta_url, status, published_at, scheduled_for, created_at, extra')
       .eq('site_id', siteId)
       .order('scheduled_for', { ascending: true, nullsFirst: false })
       .order('created_at', { ascending: false })

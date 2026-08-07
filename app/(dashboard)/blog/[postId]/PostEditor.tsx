@@ -4,7 +4,7 @@
 // Wire real: title/slug/content/meta_description/status (colunas existentes).
 // Sem lastro no schema (desabilitados, sem fabricar): capa, categoria, keywords.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createBrowserClient } from '@/lib/supabase/client'
 import { extractKeywords, similarity, injectLinks, norm } from '@/lib/seo/triangulation'
@@ -33,6 +33,16 @@ function slugify(s: string): string {
     .slice(0, 60)
 }
 
+/** Como foi o post do Google que nasce do artigo publicado. */
+type EstadoIsca = 'gerando' | 'pronta' | 'ja-existia' | 'sem-data' | 'falhou'
+
+const RECADO_DA_ISCA: Record<Exclude<EstadoIsca, 'gerando'>, string> = {
+  'pronta':     'Escrevi um post pro seu Google Perfil de Empresa com um gancho deste artigo e já marquei a data. Ele leva quem ler até o artigo.',
+  'sem-data':   'Escrevi um post pro seu Google Perfil de Empresa com um gancho deste artigo. Suas próximas semanas já estão cheias, então ele ficou sem data, pronto pra usar quando quiser.',
+  'ja-existia': 'Este artigo já tinha um post no seu Google Perfil de Empresa. Não criei outro.',
+  'falhou':     'Não consegui montar o post do Google agora. O artigo está no ar do mesmo jeito, e dá pra criar o post pelo painel do Perfil.',
+}
+
 // Sugestões genéricas (não fabricam dados do negócio — guiam o tema).
 const IDEA_TEMPLATES = [
   { b: 'Responda uma dúvida comum dos seus clientes', s: 'Informacional · ótimo pra ser citado por IA' },
@@ -52,6 +62,7 @@ export default function PostEditor({
   initial: PostEditorData
 }) {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [data, setData] = useState<PostEditorData>(initial)
   const [postId, setPostId] = useState<string | null>(initial.id)
   const [dirty, setDirty] = useState(false)
@@ -59,6 +70,12 @@ export default function PostEditor({
   const [savedAt, setSavedAt] = useState<boolean>(!!initial.id)
   const [publishing, setPublishing] = useState(false)
   const [err, setErr] = useState<string | null>(null)
+
+  // Depois de publicar, a tela para de ser editor e vira aviso: o artigo
+  // está no ar e o perfil do Google já tem um post apontando pra ele.
+  // Antes daqui o publish mandava direto pra lista, e o dono nunca ficava
+  // sabendo que ganhou um post no Google.
+  const [noAr, setNoAr] = useState<EstadoIsca | null>(null)
 
   // modal IA
   const [aiOpen, setAiOpen] = useState(false)
@@ -152,6 +169,20 @@ export default function PostEditor({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, dirty])
 
+  // Pauta que veio do Google Perfil de Empresa (?pauta=...). O post do
+  // perfil some em uma semana; o artigo fica. Quando um assunto rende lá,
+  // o painel oferece trazer ele pra cá, e o assunto chega já digitado no
+  // campo da IA. Só em artigo novo: num artigo que já existe isso
+  // atropelaria o que o dono estava escrevendo.
+  useEffect(() => {
+    if (postId) return
+    const pauta = searchParams.get('pauta')?.trim()
+    if (!pauta) return
+    setAiTheme(pauta)
+    setAiOpen(true)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   async function publish() {
     if (!data.title.trim()) { setErr('Dê um título antes de publicar.'); return }
     setPublishing(true)
@@ -176,10 +207,33 @@ export default function PostEditor({
       }
       setData(d => ({ ...d, status: 'published' }))
       setPublishing(false)
-      router.push('/blog')
+      setNoAr('gerando')
+      void iscaDoGoogle(id)
     } catch {
       setErr('Falha de conexão ao publicar.')
       setPublishing(false)
+    }
+  }
+
+  // O artigo publicado vira um post do Google que aponta pra ele.
+  //
+  // Roda DEPOIS do publish e nunca dentro dele: publicar não pode ficar
+  // esperando a IA, e se esta parte falhar o artigo continua no ar do
+  // mesmo jeito. É por isso que o erro daqui não usa setErr, que é o
+  // canal de "não publicou".
+  async function iscaDoGoogle(id: string) {
+    try {
+      const res = await fetch('/api/ai/gbp/do-artigo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ blog_post_id: id }),
+      })
+      const json = await res.json()
+      if (!res.ok || !json.ok) { setNoAr('falhou'); return }
+      if (json.ja_existia) { setNoAr('ja-existia'); return }
+      setNoAr(json.vaga === 'sem-data' ? 'sem-data' : 'pronta')
+    } catch {
+      setNoAr('falhou')
     }
   }
 
@@ -351,6 +405,39 @@ export default function PostEditor({
           </button>
         </div>
       </div>
+
+      {/* Depois de publicar. Fica na tela em vez de mandar direto pra lista:
+          o dono precisa ver que o artigo subiu E que o perfil do Google
+          ganhou um post apontando pra ele. */}
+      {noAr && (
+        <div
+          className="glass"
+          style={{ padding: '1.1rem 1.2rem', marginBottom: '1.4rem', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '.9rem' }}
+        >
+          <i className="ph-fill ph-check-circle" style={{ fontSize: '1.6rem', color: 'var(--ok, #16a34a)' }} />
+          <div style={{ flex: '1 1 22rem', minWidth: 0 }}>
+            <strong>Artigo no ar</strong>
+            <div style={{ opacity: .85, fontSize: '.92rem', marginTop: '.25rem' }}>
+              {noAr === 'gerando'
+                ? 'Montando um post do seu Google Perfil de Empresa pra levar gente até ele…'
+                : RECADO_DA_ISCA[noAr]}
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: '.5rem', flexWrap: 'wrap' }}>
+            <a className="btn ghost" href={`https://${domain}/blog/${slug}`} target="_blank" rel="noreferrer">
+              <i className="ph-fill ph-arrow-square-out" /> Ver o artigo
+            </a>
+            {noAr !== 'gerando' && (
+              <button className="btn ghost" type="button" onClick={() => router.push('/gbp')}>
+                <i className="ph-fill ph-storefront" /> Ver no Google Perfil
+              </button>
+            )}
+            <button className="btn" type="button" onClick={() => router.push('/blog')}>
+              Voltar aos artigos
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="post-grid">
         {/* coluna do documento (artigo + FAQ estruturada) */}

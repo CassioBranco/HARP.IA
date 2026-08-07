@@ -20,6 +20,7 @@ import { getAnthropicClient, MODELS, cachedSystem, friendlyAIError } from '@/lib
 import { buildSystemPrompt } from '@/lib/prompts/loader'
 import { deepSanitize } from '@/lib/text/sanitize'
 import { POSTS_POR_MES, proximasDatas, tipoDaPosicao, type GbpPostType } from '@/lib/seo/gbp-calendar'
+import { assuntosJaCobertos } from '@/lib/seo/blog-para-gpe'
 
 export const runtime = 'nodejs'
 // Quatro posts numa tacada passa dos 60s do avulso.
@@ -54,16 +55,27 @@ export async function POST(req: NextRequest) {
 
   // Mês já montado não é remontado por engano: dois cliques no botão
   // deixariam oito posts na agenda e o dono sem saber qual é qual.
-  const hojeISO = new Date().toISOString().slice(0, 10)
-  const { count: jaAgendados } = await supabase
+  //
+  // Mas "já tem post" deixou de significar "não faça nada". Um artigo
+  // publicado no blog vira uma isca que ocupa uma terça (ver
+  // /api/ai/gbp/do-artigo), e quem publicou um artigo antes de montar
+  // o mês não pode ficar sem mês por causa disso. Então preenche só as
+  // terças vagas, e só recusa quando não sobrou nenhuma.
+  const { data: pendentes } = await supabase
     .from('gbp_posts')
-    .select('*', { count: 'exact', head: true })
+    .select('scheduled_for, extra')
     .eq('site_id', siteId)
     .is('published_at', null)
-    .gte('scheduled_for', hojeISO)
-  if ((jaAgendados ?? 0) > 0) {
+    .not('scheduled_for', 'is', null)
+
+  const ocupadas = new Set((pendentes ?? []).map((p) => p.scheduled_for as string))
+  const livres = proximasDatas(new Date(), POSTS_POR_MES)
+    .map((data, i) => ({ data, tipo: tipoDaPosicao(i) }))
+    .filter((s) => !ocupadas.has(s.data))
+
+  if (livres.length === 0) {
     return Response.json({
-      error: 'Você já tem posts agendados à frente. Publique ou apague os que estão na agenda antes de montar um mês novo.',
+      error: 'Suas próximas semanas já têm post marcado. Publique ou apague os que estão na agenda antes de montar um mês novo.',
     }, { status: 409 })
   }
 
@@ -84,8 +96,27 @@ export async function POST(req: NextRequest) {
   // data e tipo andam juntos por posição: o prompt descreve a agenda nessa
   // ordem e o insert grava nessa ordem, então separar em dois arrays só
   // criaria chance de desencontro.
-  const slots = proximasDatas(new Date(), POSTS_POR_MES)
-    .map((data, i) => ({ data, tipo: tipoDaPosicao(i) }))
+  const slots = livres
+
+  // O que o perfil já vai falar este mês, e o que o site acabou de
+  // publicar. Sem esta lista o modelo escreve quatro posts sem saber
+  // que o dono publicou um artigo sobre um deles ontem, e o perfil
+  // repete o mesmo assunto em semanas seguidas.
+  const { data: artigos } = await supabase
+    .from('blog_posts')
+    .select('title, published_at')
+    .eq('site_id', siteId)
+    .eq('status', 'published')
+    .order('published_at', { ascending: false })
+    .limit(6)
+
+  const cobertos = assuntosJaCobertos([
+    ...(pendentes ?? []).map((p) => {
+      const o = (p.extra as { origem?: { titulo?: unknown } } | null)?.origem
+      return typeof o?.titulo === 'string' ? o.titulo : null
+    }),
+    ...(artigos ?? []).map((a) => a.title as string | null),
+  ])
 
   const systemPrompt = await buildSystemPrompt('gbp', niche).catch(() => `
 Você escreve posts do Google Perfil de Empresa para negócios locais brasileiros.
@@ -100,7 +131,7 @@ CTA com verbo de posse. Máximo 1500 caracteres, ideal entre 150 e 300 palavras.
     return `${i + 1}. ${quando}: ${BRIEF[s.tipo]}`
   }).join('\n')
 
-  const userPrompt = `Escreva ${POSTS_POR_MES} posts para o Google Perfil de Empresa de "${businessName}", um por semana do próximo mês.
+  const userPrompt = `Escreva ${slots.length} ${slots.length === 1 ? 'post' : 'posts'} para o Google Perfil de Empresa de "${businessName}", um por semana do próximo mês.
 
 Nicho: ${niche} | Cidade: ${city} | Tom: ${tone}
 ${services ? `Serviços: ${services}` : ''}
@@ -108,6 +139,11 @@ ${profile?.differentials ? `Sobre o negócio: ${profile.differentials}` : ''}
 
 Agenda do mês (respeite a ordem e o tipo de cada um):
 ${agenda}
+${cobertos.length ? `
+Assuntos que este negócio JÁ está falando (no site ou em outro post do perfil).
+Não escreva sobre nenhum deles, escolha outros ângulos:
+${cobertos.map((t) => `- ${t}`).join('\n')}
+` : ''}
 
 Regras de cada post:
 - Máximo 1500 caracteres (ideal 150 a 300 palavras).
@@ -115,9 +151,9 @@ Regras de cada post:
 - Sem em-dash, sem gerundismo.
 - Um botão de ação coerente com o tipo.
 
-Regra do conjunto, a mais importante: os ${POSTS_POR_MES} posts vão sair no mesmo
+Regra do conjunto, a mais importante: estes posts vão sair no mesmo
 perfil em semanas seguidas. Cada um trata de um assunto DIFERENTE do negócio.
-Nada de quatro variações do mesmo texto com palavras trocadas.
+Nada de variações do mesmo texto com palavras trocadas.
 
 Retorne SÓ um JSON:
 {
@@ -125,7 +161,7 @@ Retorne SÓ um JSON:
     { "content": "texto pronto pra colar", "cta_label": "rótulo curto do botão", "cta_url_hint": "para onde o botão aponta" }
   ]
 }
-Exatamente ${POSTS_POR_MES} itens, na ordem da agenda. Nada além do JSON.`
+Exatamente ${slots.length} ${slots.length === 1 ? 'item' : 'itens'}, na ordem da agenda. Nada além do JSON.`
 
   const anthropic = getAnthropicClient()
   let message
@@ -180,5 +216,5 @@ Exatamente ${POSTS_POR_MES} itens, na ordem da agenda. Nada além do JSON.`
     return Response.json({ error: 'Posts escritos, mas falhou ao salvar.', detail: insErr.message }, { status: 500 })
   }
 
-  return Response.json({ ok: true, posts: saved ?? [], faltaram: POSTS_POR_MES - linhas.length })
+  return Response.json({ ok: true, posts: saved ?? [], faltaram: slots.length - linhas.length })
 }

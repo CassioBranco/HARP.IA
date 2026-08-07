@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo, useRef, useState } from 'react'
+import Link from 'next/link'
 import { gbpCadence } from '@/lib/seo/local-presence'
 import VincularPerfil from './VincularPerfil'
 import {
@@ -18,6 +19,32 @@ export type GbpPostRow = {
   published_at: string | null
   scheduled_for: string | null
   created_at: string
+  /** Metadados livres. Guarda a origem quando o post nasceu de um artigo. */
+  extra?: unknown
+}
+
+/** De qual artigo este post veio, se veio de algum. */
+function origemDoPost(extra: unknown): { titulo: string; url: string } | null {
+  if (!extra || typeof extra !== 'object') return null
+  const o = (extra as { origem?: { tipo?: unknown; titulo?: unknown; url?: unknown } }).origem
+  if (!o || o.tipo !== 'blog') return null
+  if (typeof o.titulo !== 'string' || typeof o.url !== 'string') return null
+  return { titulo: o.titulo, url: o.url }
+}
+
+/**
+ * O assunto que este post levaria pro blog.
+ *
+ * O caminho contrário (perfil → artigo) é de um clique, não automático.
+ * Gerar artigo sozinho a cada post custaria dinheiro de IA e encheria o
+ * painel de rascunho que ninguém pediu. Aqui o post só entrega o assunto;
+ * quem decide escrever é o dono.
+ */
+function pautaDoPost(content: string): string {
+  const fim = content.search(/[.!?](\s|$)/)
+  const primeira = fim > 0 ? content.slice(0, fim + 1) : content
+  const limpa = primeira.replace(/\s+/g, ' ').trim()
+  return limpa.length > 90 ? `${limpa.slice(0, 90).trim()}…` : limpa
 }
 
 const TYPES: { id: GbpPostRow['post_type']; label: string; icon: string; hint: string }[] = [
@@ -359,6 +386,7 @@ export default function GbpClient({
                 const copiado = copiedId === post.id
                 const ocupado = marcando === post.id
                 const urgente = grupo === 'atrasado' || grupo === 'hoje'
+                const origem = origemDoPost(post.extra)
                 return (
                   <div
                     key={post.id}
@@ -410,6 +438,17 @@ export default function GbpClient({
                     </div>
 
                     <p style={{ whiteSpace: 'pre-wrap', lineHeight: 1.55, margin: 0 }}>{post.content}</p>
+
+                    {/* Post que nasceu de um artigo diz de qual. Sem isto o
+                        dono vê um post curto no meio do mês e não entende
+                        por que ele não conta a história inteira. */}
+                    {origem && (
+                      <p style={{ margin: '.6rem 0 0', fontSize: '.8rem', color: 'var(--muted)' }}>
+                        <i className="ph-fill ph-article" /> Chama pro artigo{' '}
+                        <a href={origem.url} target="_blank" rel="noopener noreferrer"><b>{origem.titulo}</b></a>.
+                        O texto entrega só um gancho de propósito, pra quem ler ir até o site.
+                      </p>
+                    )}
 
                     {/* Ações: copiar → abrir o perfil → confirmar que publicou.
                         O terceiro passo é o que existe de métrica de GBP hoje. */}
@@ -472,6 +511,20 @@ export default function GbpClient({
                         </>
                       )}
                     </div>
+
+                    {/* Caminho inverso: perfil → blog. Um clique leva o
+                        assunto pro editor de artigo, e nada é escrito antes
+                        do dono mandar. Post que já veio de um artigo não
+                        recebe o convite, senão vira círculo. */}
+                    {!origem && (
+                      <p style={{ margin: '.6rem 0 0', fontSize: '.82rem', color: 'var(--muted)' }}>
+                        Rendeu conversa?{' '}
+                        <Link href={`/blog/new?pauta=${encodeURIComponent(pautaDoPost(post.content))}`}>
+                          <b>Vire este assunto em artigo</b>
+                        </Link>{' '}
+                        e o artigo passa a trabalhar o ano inteiro, não uma semana.
+                      </p>
+                    )}
 
                     {copiado && !publicado && (
                       <p className="hint" style={{ margin: '.55rem 0 0', fontSize: '.82rem' }}>

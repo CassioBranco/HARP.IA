@@ -148,6 +148,20 @@ const SONDAS = [
            && grepCount('gbp-lembrete', 'vercel.json') > 0,
   },
   {
+    pilar: 'GBP',
+    // A ponte só existe se os DOIS lados tiverem quem os chame. A rota
+    // /do-artigo sozinha é código morto: quem publica artigo tem que
+    // dispará-la. E o caminho de volta (post do perfil vira pauta de
+    // artigo) tem que ter um link real na tela, não só a rota aceitando
+    // ?pauta=. Cobrar os dois lados é o que impede o doc de jurar que
+    // "blog e Google conversam" quando só uma direção foi ligada.
+    nome: 'Ponte blog ↔ Perfil: artigo publicado vira post, post vira pauta',
+    ok: () => existsSync('app/api/ai/gbp/do-artigo/route.ts')
+           && grepCount('api/ai/gbp/do-artigo', 'app/(dashboard)') > 0
+           && grepCount('blog/new\\?pauta=', 'app/(dashboard)/gbp') > 0
+           && grepCount('searchParams.get\\(.pauta.\\)', 'app/(dashboard)/blog') > 0,
+  },
+  {
     pilar: 'Fora do MVP',
     nome: 'Loja: botão de compra ligado ao checkout',
     ok: () => grepCount('startCheckout', 'app components') > 0,
