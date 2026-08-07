@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<!--
+  MODELO DE REFERÊNCIA — Changelog / Linha do tempo (Magic UI changelog template)
+  Enviado pelo Cássio em 2026-08-07, como ZIP em "ANCOREO DESIGN CORE".
+  Original: magicuidesign-changelog-template-2ad04a0.zip (Next.js 15 + fumadocs-mdx + Tailwind).
+
+  Este é um WIREFRAME (estrutura + placeholders), não o visual final.
+  Reescrito em HTML puro: o original depende de fumadocs, MDX, shadcn e Tailwind.
+  O que interessa é o ARRANJO, não o código.
+
+  O QUE ESTE MODELO É, E O QUE ELE NÃO É:
+    É uma página única, sem rota de detalhe. Todo o conteúdo mora na home, em
+    ordem cronológica decrescente, com a data grudada à esquerda enquanto o
+    conteúdo daquela entrada rola à direita.
+    NÃO é um blog. Não tem listagem, não tem card, não tem clique para ler mais.
+    É o padrão "página de novidades de produto" (Linear, Vercel, Stripe).
+
+  Blocos que compõem este modelo:
+     1. header-strip   — faixa fina com h1 + toggle de tema         [JÁ TEMOS: cabeçalho simples]
+     2. timeline       — trilho vertical de 1px com bolinha por entrada [NOVO — é o modelo inteiro]
+     3. date-rail      — coluna esquerda fixa: data + selo de versão [NOVO]
+     4. entry-head     — título da entrada + pílulas de tag          [NOVO]
+     5. entry-media    — vídeo ou imagem no topo da entrada          [NOVO]
+     6. entry-body     — texto corrido, lista, bloco de código       [JÁ TEMOS ~ corpo sanitizado do BlogArticle]
+     7. entry-accordion— acordeão "Detalhes" dentro da entrada       [JÁ TEMOS: &lt;details&gt; nativo do FAQ]
+
+  ONDE ISSO ENTRA NO ANCOREO — duas leituras, e elas são bem diferentes:
+
+    LEITURA 1 (a boa): usar internamente, no PAINEL do assinante.
+      O ANCOREO publica site, blog, GBP e AEO por baixo do assinante, e hoje ele
+      não tem onde ver o que mudou. Esta linha do tempo é o formato certo para
+      "o que o ANCOREO fez pelo seu site" — data à esquerda, entrega à direita.
+      Vira prova de trabalho recorrente, que é o que segura assinatura mensal.
+      Fica em /painel, não no site do cliente.
+
+    LEITURA 2 (a limitada): virar módulo do site do cliente.
+      Quase nenhum cliente do ANCOREO (clínica, restaurante, prestador) tem
+      changelog, porque não tem produto que versiona. Forçar isso gera página
+      vazia, que é pior que página nenhuma.
+      A EXCEÇÃO que vale: reaproveitar o ARRANJO com outro conteúdo. O trilho
+      cronológico serve muito bem para "linha do tempo da empresa", "obras
+      entregues por mês", "cardápio da estação". O bloco é o mesmo; muda o dado.
+
+    Recomendação: entrar primeiro pela leitura 1. É onde o formato faz sentido
+    sem inventar demanda, e o mesmo componente fica pronto para a leitura 2 depois.
+
+  O QUE APROVEITAR MESMO SEM ADOTAR A PÁGINA INTEIRA:
+    - a coluna de data sticky (bloco 3) é um padrão reutilizável em qualquer
+      listagem cronológica, inclusive na de posts do painel;
+    - o selo de versão em quadrado de 40px é o elemento que dá cara de produto;
+    - o acordeão dentro da entrada (bloco 7) resolve entrada longa sem paginação,
+      e o ANCOREO já usa &lt;details&gt; nativo no FAQ do artigo, então é código conhecido.
+
+  NOTA SOBRE MÍDIA: o original abre a entrada mais recente com um &lt;video&gt; de
+  demonstração (public/demo.mp4). Vídeo autoplay em página de cliente pesa e
+  atrapalha Core Web Vitals. Se entrar, entra com poster, sem autoplay, e só na
+  primeira entrada.
+
+  CORES: cinza neutro de propósito. Na implementação tudo vira as vars
+  (--st-primary, --st-text, --st-muted, --st-surface) no site do cliente, ou os
+  tokens do painel se for a leitura 1.
+-->
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wireframe — Changelog (Magic UI)</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --fg: #0a0a0a;
+    --muted: #737373;
+    --border: #e5e5e5;
+    --surface: #fafafa;
+    --primary: #0a0a0a;
+    --radius: 8px;
+    --max: 1024px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: var(--bg); color: var(--fg); -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: var(--max); margin: 0 auto; width: 100%; }
+
+  .wf-label {
+    background: #1a1a1a; color: #fff; font-size: 12px; letter-spacing: .08em;
+    text-transform: uppercase; padding: 10px 24px; font-weight: 700;
+  }
+  .wf-note {
+    background: #fffbe6; border-left: 3px solid #e0b400; color: #5c4700;
+    font-size: 13px; padding: 10px 24px; line-height: 1.5; max-width: var(--max);
+    margin: 0 auto 24px;
+  }
+  .ph {
+    background: repeating-linear-gradient(45deg, #f0f0f0, #f0f0f0 8px, #e8e8e8 8px, #e8e8e8 16px);
+    color: #999; display: flex; align-items: center; justify-content: center;
+    font-size: 12px; letter-spacing: .05em; text-transform: uppercase; font-weight: 600;
+  }
+
+  /* ---------- 1. header-strip ---------- */
+  .header-strip { border-bottom: 1px solid var(--border); }
+  .header-strip .inner {
+    display: flex; align-items: center; justify-content: space-between; padding: 14px 24px;
+  }
+  .header-strip h1 { font-size: 1.75rem; font-weight: 600; letter-spacing: -.02em; }
+  .icon-btn {
+    width: 32px; height: 32px; border: 1px solid var(--border); border-radius: var(--radius);
+    display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--muted);
+  }
+
+  /* ---------- 2. timeline ---------- */
+  .timeline { padding: 40px 24px 0; }
+  .entry { display: flex; flex-direction: column; }
+
+  /* ---------- 3. date-rail ---------- */
+  .entry .rail { flex-shrink: 0; }
+  .entry .rail time { display: block; font-size: .85rem; font-weight: 500; color: var(--muted); margin-bottom: 12px; }
+  .version {
+    width: 40px; height: 40px; border: 1px solid var(--border); border-radius: var(--radius);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: .85rem; font-weight: 700; background: var(--bg); position: relative; z-index: 1;
+  }
+
+  .entry .content { flex: 1; position: relative; padding-bottom: 40px; }
+
+  /* ---------- 4. entry-head ---------- */
+  .entry h2 { font-size: 1.5rem; font-weight: 600; letter-spacing: -.02em; line-height: 1.25; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .chip {
+    height: 24px; padding: 0 10px; border: 1px solid var(--border); border-radius: 999px;
+    background: var(--surface); color: var(--muted);
+    display: inline-flex; align-items: center; font-size: .74rem; font-weight: 500;
+  }
+
+  /* ---------- 5. entry-media ---------- */
+  .entry-media { height: 300px; border-radius: var(--radius); margin: 22px 0; }
+
+  /* ---------- 6. entry-body ---------- */
+  .body { margin-top: 20px; }
+  .body p { color: #3f3f3f; line-height: 1.75; margin-bottom: 16px; }
+  .body ul { padding-left: 20px; display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
+  .body li { color: #3f3f3f; line-height: 1.6; }
+  .body code.block {
+    display: block; background: #f5f5f5; border: 1px solid var(--border); border-radius: 6px;
+    padding: 14px 16px; font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+    font-size: .82rem; color: #444; white-space: pre; overflow-x: auto; margin-bottom: 18px;
+  }
+
+  /* ---------- 7. entry-accordion ---------- */
+  details.acc { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  details.acc + details.acc { margin-top: -1px; border-radius: 0; }
+  details.acc summary {
+    cursor: pointer; padding: 13px 16px; font-size: .92rem; font-weight: 600;
+    list-style: none; display: flex; justify-content: space-between; align-items: center;
+  }
+  details.acc summary::-webkit-details-marker { display: none; }
+  details.acc summary::after { content: "+"; color: var(--muted); font-weight: 400; }
+  details.acc[open] summary::after { content: "−"; }
+  details.acc .acc-body { padding: 0 16px 16px; }
+
+  @media (min-width: 768px) {
+    .entry { flex-direction: row; }
+    .entry .rail { width: 190px; }
+    .entry .rail .sticky { position: sticky; top: 32px; padding-bottom: 40px; }
+    .entry .content { padding-left: 32px; }
+    /* o trilho vertical de 1px, com a bolinha da entrada */
+    .entry .content::before {
+      content: ""; position: absolute; left: 0; top: 8px; width: 1px; height: 100%;
+      background: var(--border);
+    }
+    .entry .content::after {
+      content: ""; position: absolute; left: -5px; top: 8px;
+      width: 11px; height: 11px; border-radius: 50%; background: var(--primary);
+    }
+    .entry:last-child .content::before { height: calc(100% - 40px); }
+  }
+</style>
+</head>
+<body>
+
+<div class="wf-label">Changelog — página única, sem rota de detalhe</div>
+
+<!-- 1. header-strip -->
+<header class="header-strip">
+  <div class="wrap inner">
+    <h1>Changelog</h1>
+    <div class="icon-btn">◐</div>
+  </div>
+</header>
+
+<!-- 2. timeline -->
+<div class="wrap timeline">
+
+  <!-- entrada 1: a mais recente, com mídia -->
+  <div class="entry">
+    <div class="rail">
+      <div class="sticky">
+        <time>30 de junho de 2026</time>
+        <div class="version">2.1</div>
+      </div>
+    </div>
+    <div class="content">
+      <!-- 4. entry-head -->
+      <h2>Título da entrega, escrito como benefício e não como tarefa</h2>
+      <div class="chips">
+        <span class="chip">Tag A</span>
+        <span class="chip">Tag B</span>
+        <span class="chip">Tag C</span>
+      </div>
+
+      <!-- 5. entry-media -->
+      <div class="ph entry-media">vídeo ou imagem da entrega (só na entrada mais recente)</div>
+
+      <!-- 6. entry-body -->
+      <div class="body">
+        <ul>
+          <li><strong>Item em negrito</strong> seguido da explicação em uma linha</li>
+          <li><strong>Outro item</strong> com o que mudou na prática</li>
+          <li><strong>Terceiro item</strong> com número, quando existir número</li>
+        </ul>
+
+        <code class="block">// bloco de código opcional
+const exemplo = { chave: "valor" }</code>
+
+        <!-- 7. entry-accordion -->
+        <details class="acc" open>
+          <summary>Detalhes</summary>
+          <div class="acc-body">
+            <ul>
+              <li>Sub-item da entrega</li>
+              <li>Outro sub-item</li>
+              <li>Mais um</li>
+            </ul>
+          </div>
+        </details>
+        <details class="acc">
+          <summary>Correções</summary>
+          <div class="acc-body">
+            <ul>
+              <li>Correção listada aqui</li>
+              <li>Outra correção</li>
+            </ul>
+          </div>
+        </details>
+      </div>
+    </div>
+  </div>
+
+  <!-- entrada 2: sem mídia, formato padrão -->
+  <div class="entry">
+    <div class="rail">
+      <div class="sticky">
+        <time>15 de junho de 2026</time>
+        <div class="version">2.0</div>
+      </div>
+    </div>
+    <div class="content">
+      <h2>Entrada sem mídia, que é o formato da maioria</h2>
+      <div class="chips">
+        <span class="chip">Tag A</span>
+        <span class="chip">Tag D</span>
+      </div>
+      <div class="body">
+        <p>Um parágrafo de contexto antes da lista. A entrada não precisa de imagem para funcionar; o que sustenta a página é a cadência das datas.</p>
+        <ul>
+          <li><strong>Item</strong> com a explicação</li>
+          <li><strong>Item</strong> com a explicação</li>
+        </ul>
+        <details class="acc">
+          <summary>Detalhes</summary>
+          <div class="acc-body">
+            <ul>
+              <li>Sub-item</li>
+              <li>Sub-item</li>
+            </ul>
+          </div>
+        </details>
+      </div>
+    </div>
+  </div>
+
+  <!-- entrada 3: curta -->
+  <div class="entry">
+    <div class="rail">
+      <div class="sticky">
+        <time>23 de maio de 2026</time>
+        <div class="version">1.9</div>
+      </div>
+    </div>
+    <div class="content">
+      <h2>Entrada curta, de três linhas</h2>
+      <div class="chips">
+        <span class="chip">Tag B</span>
+      </div>
+      <div class="body">
+        <ul>
+          <li><strong>Item</strong> com a explicação</li>
+          <li><strong>Item</strong> com a explicação</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="wf-note">
+  Bloco 3 (date-rail): no desktop a coluna da data é sticky, então a data
+  acompanha a leitura da entrada inteira. É esse detalhe que dá a sensação de
+  linha do tempo. No mobile o layout empilha e o trilho vertical some.
+  <br>
+  O selo de versão só aparece quando existe versão. Sem produto que versiona,
+  ele vira mês ("AGO") ou desaparece, e a página continua funcionando.
+</div>
+
+</body>
+</html>

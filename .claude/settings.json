@@ -1,5 +1,5 @@
 {
-  "model": "claude-sonnet-4-5",
+  "model": "claude-opus-5",
   "permissions": {
     "allow": [
       "Read",
@@ -46,9 +46,11 @@
   },
   "env": {
     "PROJECT_CODENAME": "ANCOREO",
-    "PROJECT_PHASE": "Fase C \u2014 Build (n\u00facleo pronto, pr\u00e9-beta; gate n\u00ba1 = DNS/S13)",
-    "AUTONOMY_LEVEL": "semi-autonomous",
-    "REQUIRE_HUMAN_APPROVAL": "commit,push,deploy,migration_apply"
+    "MVP_ESCOPO": "onboarding, site builder, blog builder, metricas SEO/GEO/AEO, Google Perfil de Empresa. E-commerce FORA.",
+    "MVP_LANCAMENTO": "2026-09-01",
+    "FONTE_DA_VERDADE": "ESTADO.md (gerado por scripts/estado.mjs) > MVP.md > RITUAL.md > CLAUDE.md",
+    "AUTONOMY_LEVEL": "autonomous",
+    "PORTOES_HUMANOS": "texto que vai ao cliente, qualidade do que a IA escreveu, numero novo na interface, fim de sprint, lancar"
   },
   "hooks": {
     "SessionStart": [

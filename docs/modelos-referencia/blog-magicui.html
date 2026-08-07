@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<!--
+  MODELO DE REFERÊNCIA — Blog (Magic UI blog template)
+  Enviado pelo Cássio em 2026-08-07, como ZIP em "ANCOREO DESIGN CORE".
+  Original: magicuidesign-blog-template-bc0cb81.zip (Next.js 15 + fumadocs-mdx + Tailwind).
+
+  Este é um WIREFRAME (estrutura + placeholders), não o visual final.
+  Foi reescrito em HTML puro de propósito: o original depende de fumadocs,
+  MDX, shadcn e Tailwind, e o ANCOREO não usa nada disso no site do cliente.
+  O que interessa aqui é o ARRANJO DOS ELEMENTOS, não o código.
+
+  DIFERENÇA-CHAVE dos modelos já salvos:
+    - noticias-blog.html é um PORTAL de notícias (denso, muitas seções, cara de jornal).
+    - este é o oposto: blog de PRODUTO, respirado, poucos elementos, grade de
+      cartões colados por linha de 1px. É o padrão "blog de SaaS" de 2025/2026.
+  Os dois cobrem os dois extremos. A maioria dos clientes do ANCOREO
+  (clínica, restaurante, prestador de serviço) cai muito mais neste do que no portal.
+
+  Cobre DUAS páginas, que estão separadas mais abaixo:
+    A) LISTAGEM   (/blog)
+    B) ARTIGO     (/blog/[slug])
+
+  Blocos que compõem este modelo (candidatos a "blocks" do wireframe dinâmico):
+     1. site-nav        — header fino, sticky, logo + toggle de tema   [JÁ TEMOS: navegação do SiteShell]
+     2. hero-band       — faixa alta com h1 + subtítulo, fundo com grade animada [NOVO — o "flickering grid" é decorativo, ver nota 1]
+     3. tag-filter      — pílulas de categoria com CONTADOR por tag    [NOVO — ÓTIMO, ver nota 2]
+     4. card-grid       — grade 3 col de cartões colados por borda 1px [NOVO — substitui a lista simples de hoje]
+     5. blog-card       — thumb 16:9 + título + resumo + data          [NOVO — hoje o card não tem imagem]
+     6. article-header  — faixa com voltar + tags + data + h1 gigante + linha fina [PARCIAL: temos h1, falta o resto]
+     7. article-hero-img— imagem de topo do artigo, 500px de altura    [NOVO]
+     8. prose           — corpo do artigo                              [JÁ TEMOS: BlogArticle]
+     9. toc-sidebar     — sumário fixo na coluna direita               [JÁ TEMOS em outro formato, ver nota 3]
+    10. author-card     — avatar + nome + cargo                        [NOVO — E-E-A-T, ver nota 4]
+    11. promo-box       — caixa promocional na sidebar                 [NOVO — é o slot de CTA/oferta do cliente]
+    12. read-more       — 3 posts relacionados por sobreposição de tag [NOVO — ÓTIMO p/ link interno]
+    13. mobile-toc      — botão flutuante que abre o sumário em drawer [NOVO]
+    14. footer          — rodapé de uma linha                          [JÁ TEMOS: footer do SiteShell]
+
+  ONDE ISSO ENTRA NO ANCOREO (recomendação):
+    Hoje o blog do cliente é BlogList.tsx (lista <ul> de título + meta description)
+    e BlogArticle.tsx (h1 + TOC em <details> + corpo + FAQ). Funciona, mas é cru.
+    Os blocos que valem a pena portar, em ordem de retorno:
+
+      1º  card-grid + blog-card (4 e 5)  — muda a cara da listagem inteira e
+          não inventa tipo de dado novo: título, meta_description e data já existem.
+          Só falta um campo de imagem de capa por post.
+      2º  read-more (12) — link interno automático, que é sinal de SEO direto.
+          A regra de relevância do original (sobreposição de tags, desempate por
+          data, corta em 3) é simples e boa. O ANCOREO já tem tags? Se não tiver,
+          cai para "3 mais recentes" sem perder quase nada.
+      3º  tag-filter (3) — só faz sentido com 8+ posts. Cliente com 3 artigos
+          fica com filtro vazio, que é pior que não ter.
+      4º  author-card (10) — E-E-A-T. Puxa do perfil do assinante, sem tela nova.
+      5º  article-hero-img (7) e article-header (6) — cosmético, mas é o que
+          separa "blog de site pequeno" de "blog de empresa".
+      6º  promo-box (11) — vira o slot de CTA do nicho (agendar, cardápio, orçamento).
+      7º  toc-sidebar (9) e mobile-toc (13) — só depois, ver nota 3.
+
+  NOTAS
+    1. O fundo do hero no original é um canvas animado (FlickeringGrid, 174 linhas
+       de JS). No site do cliente isso é peso morto: JS no cliente, custo de CPU e
+       zero ganho de SEO. Aqui está reproduzido em CSS estático. Se um dia entrar,
+       entra como enfeite opcional por template, nunca no caminho crítico.
+    2. O contador por tag é o detalhe que mais funciona: mostra volume de conteúdo
+       antes do clique. Barato de calcular, já que a contagem sai da própria query.
+    3. O sumário do ANCOREO hoje é <details> no topo do artigo, sem JS. O do
+       original é sidebar fixa com scrollspy (JS + IntersectionObserver). O que
+       temos é mais leve e funciona em qualquer template; o ganho da sidebar é de
+       leitura, não de SEO. Só trocar se o cliente tiver artigo muito longo.
+    4. Só publicar author-card quando o assinante tiver nome e cargo preenchidos.
+       Card de autor vazio ou com "Admin" é pior para E-E-A-T do que card nenhum.
+
+  CORES: este wireframe usa cinza neutro de propósito, para não sugerir paleta.
+  Na implementação tudo vira as vars do SiteShell (--st-primary, --st-text,
+  --st-muted, --st-surface, --st-font-h), que é como BlogList e BlogArticle já fazem.
+-->
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wireframe — Blog (Magic UI)</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --fg: #0a0a0a;
+    --muted: #737373;
+    --border: #e5e5e5;
+    --surface: #fafafa;
+    --primary: #0a0a0a;
+    --radius: 8px;
+    --max: 1280px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: var(--bg);
+    color: var(--fg);
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; text-decoration: none; }
+  .wrap { max-width: var(--max); margin: 0 auto; width: 100%; }
+
+  /* etiqueta de wireframe: some na implementação real */
+  .wf-label {
+    background: #1a1a1a; color: #fff; font-size: 12px; letter-spacing: .08em;
+    text-transform: uppercase; padding: 10px 24px; font-weight: 700;
+  }
+  .wf-note {
+    background: #fffbe6; border-left: 3px solid #e0b400; color: #5c4700;
+    font-size: 13px; padding: 10px 24px; line-height: 1.5;
+  }
+  .ph {
+    background: repeating-linear-gradient(45deg, #f0f0f0, #f0f0f0 8px, #e8e8e8 8px, #e8e8e8 16px);
+    color: #999; display: flex; align-items: center; justify-content: center;
+    font-size: 12px; letter-spacing: .05em; text-transform: uppercase; font-weight: 600;
+  }
+
+  /* ---------- 1. site-nav ---------- */
+  .site-nav {
+    position: sticky; top: 0; z-index: 20;
+    border-bottom: 1px solid var(--border);
+    background: rgba(255,255,255,.85); backdrop-filter: blur(8px);
+  }
+  .site-nav .inner { display: flex; height: 56px; align-items: center; justify-content: space-between; padding: 0 24px; }
+  .logo { width: 32px; height: 32px; border-radius: var(--radius); }
+  .icon-btn {
+    width: 32px; height: 32px; border: 1px solid var(--border); border-radius: var(--radius);
+    display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--muted);
+  }
+
+  /* ---------- 2. hero-band ---------- */
+  .hero-band {
+    position: relative; border-bottom: 1px solid var(--border);
+    min-height: 250px; display: flex; flex-direction: column; justify-content: center;
+    gap: 24px; padding: 24px; overflow: hidden;
+  }
+  /* grade pontilhada estática no lugar do canvas animado do original */
+  .hero-band::before {
+    content: ""; position: absolute; inset: 0 0 auto 0; height: 200px;
+    background-image: radial-gradient(#c9c9c9 1.5px, transparent 1.5px);
+    background-size: 10px 10px;
+    -webkit-mask-image: linear-gradient(to top, transparent 25%, black 95%);
+    mask-image: linear-gradient(to top, transparent 25%, black 95%);
+    opacity: .5; pointer-events: none;
+  }
+  .hero-band > * { position: relative; z-index: 1; }
+  .hero-band h1 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 500; letter-spacing: -.03em; line-height: 1.1; }
+  .hero-band p { color: var(--muted); font-size: 1.05rem; margin-top: 8px; }
+
+  /* ---------- 3. tag-filter ---------- */
+  .tags { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tag {
+    height: 32px; display: inline-flex; align-items: center; gap: 8px;
+    padding: 0 4px 0 12px; border: 1px solid var(--border); border-radius: var(--radius);
+    font-size: 14px; cursor: pointer;
+  }
+  .tag[aria-selected="true"] { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .tag .count {
+    min-width: 24px; height: 24px; padding: 0 6px; border-radius: 6px;
+    border: 1px solid var(--border); display: inline-flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600;
+  }
+  .tag[aria-selected="true"] .count { background: #fff; color: var(--primary); border-color: transparent; }
+
+  /* ---------- 4. card-grid + 5. blog-card ---------- */
+  /* a assinatura visual: sem gap, sem sombra, cartões separados só por 1px */
+  .card-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    border-left: 1px solid var(--border); border-right: 1px solid var(--border);
+  }
+  .blog-card { border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .blog-card:nth-child(3n) { border-right: 0; }
+  .blog-card .thumb { height: 190px; }
+  .blog-card .body { padding: 24px; display: flex; flex-direction: column; gap: 8px; }
+  .blog-card h3 { font-size: 1.2rem; font-weight: 600; letter-spacing: -.01em; }
+  .blog-card p { font-size: .88rem; color: var(--muted); line-height: 1.55; }
+  .blog-card time { font-size: .82rem; font-weight: 500; color: var(--muted); }
+
+  /* ---------- 6. article-header ---------- */
+  .article-header { border-bottom: 1px solid var(--border); position: relative; overflow: hidden; }
+  .article-header::before {
+    content: ""; position: absolute; inset: 0 0 auto 0; height: 200px;
+    background-image: radial-gradient(#c9c9c9 1.5px, transparent 1.5px);
+    background-size: 10px 10px;
+    -webkit-mask-image: linear-gradient(to top, transparent 25%, black 95%);
+    mask-image: linear-gradient(to top, transparent 25%, black 95%);
+    opacity: .5; pointer-events: none;
+  }
+  .article-header .inner { position: relative; z-index: 1; padding: 24px; display: flex; flex-direction: column; gap: 24px; }
+  .meta-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; font-size: .88rem; color: var(--muted); }
+  .back {
+    width: 26px; height: 26px; border: 1px solid var(--border); border-radius: 6px;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .chip {
+    height: 26px; padding: 0 12px; border: 1px solid var(--border); border-radius: 6px;
+    background: var(--surface); display: inline-flex; align-items: center; font-size: .82rem; font-weight: 500;
+  }
+  .article-header h1 { font-size: clamp(2.2rem, 6vw, 3.75rem); font-weight: 500; letter-spacing: -.035em; line-height: 1.05; }
+  .article-header .lead { color: var(--muted); font-size: 1.1rem; max-width: 60ch; line-height: 1.5; }
+
+  /* ---------- corpo do artigo: main + aside ---------- */
+  .article-body {
+    display: grid; grid-template-columns: 1fr 350px;
+    border-left: 1px solid var(--border); border-right: 1px solid var(--border);
+  }
+  .article-main { border-right: 1px solid var(--border); min-width: 0; }
+  .article-hero-img { height: 420px; }
+  .prose { padding: 40px; }
+  .prose h2 { font-size: 1.6rem; letter-spacing: -.02em; margin: 36px 0 14px; }
+  .prose h2:first-child { margin-top: 0; }
+  .prose p { color: #3f3f3f; line-height: 1.75; margin-bottom: 18px; }
+  .prose .fake-line { height: 12px; background: #efefef; border-radius: 3px; margin-bottom: 10px; }
+  .prose .fake-line.s { width: 62%; }
+
+  .article-aside { background: var(--surface); padding: 40px 24px; }
+  .sticky { position: sticky; top: 80px; display: flex; flex-direction: column; gap: 32px; }
+
+  /* ---------- 10. author-card ---------- */
+  .author { display: flex; gap: 10px; align-items: flex-start; }
+  .author .avatar { width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0; }
+  .author strong { display: block; font-size: .88rem; font-weight: 600; letter-spacing: -.01em; }
+  .author span { font-size: .78rem; color: var(--muted); }
+
+  /* ---------- 9. toc-sidebar ---------- */
+  .toc { border: 1px solid var(--border); border-radius: var(--radius); background: #fff; padding: 20px; }
+  .toc h4 { font-size: .78rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 12px; }
+  .toc ol { list-style: none; display: flex; flex-direction: column; gap: 9px; font-size: .88rem; }
+  .toc li.sub { padding-left: 14px; font-size: .82rem; }
+  .toc li.active { font-weight: 600; }
+  .toc li.active::before { content: ""; }
+
+  /* ---------- 11. promo-box ---------- */
+  .promo { border: 1px solid var(--border); border-radius: var(--radius); background: #fff; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+  .promo .art { height: 140px; border-radius: 6px; }
+  .promo h4 { font-size: 1.05rem; font-weight: 600; letter-spacing: -.02em; }
+  .promo p { font-size: .85rem; color: var(--muted); line-height: 1.5; }
+
+  /* ---------- 12. read-more ---------- */
+  .read-more { border-top: 1px solid var(--border); padding: 40px; }
+  .read-more > h2 { font-size: 1.5rem; font-weight: 500; margin-bottom: 30px; }
+  .rm-item { display: grid; grid-template-columns: 4fr 8fr; gap: 18px; align-items: center; margin-bottom: 30px; }
+  .rm-item .thumb { height: 110px; border-radius: var(--radius); }
+  .rm-item h3 { font-size: 1.02rem; font-weight: 600; margin-bottom: 6px; }
+  .rm-item p { font-size: .85rem; color: var(--muted); line-height: 1.5; margin-bottom: 6px; }
+  .rm-item time { font-size: .76rem; color: var(--muted); font-weight: 500; }
+
+  /* ---------- 13. mobile-toc ---------- */
+  .fab {
+    position: fixed; right: 24px; bottom: 24px; z-index: 50;
+    width: 46px; height: 46px; border-radius: 50%; background: var(--primary); color: #fff;
+    display: none; align-items: center; justify-content: center; font-size: 18px;
+    box-shadow: 0 6px 20px rgba(0,0,0,.25);
+  }
+
+  /* ---------- 14. footer ---------- */
+  .site-footer { border-top: 1px solid var(--border); }
+  .site-footer .inner { padding: 24px; font-size: .85rem; color: var(--muted); }
+
+  @media (max-width: 1024px) {
+    .card-grid { grid-template-columns: repeat(2, 1fr); }
+    .blog-card:nth-child(3n) { border-right: 1px solid var(--border); }
+    .blog-card:nth-child(2n) { border-right: 0; }
+    .article-body { grid-template-columns: 1fr; }
+    .article-main { border-right: 0; }
+    .article-aside { display: none; }   /* sidebar vira o drawer do FAB */
+    .fab { display: flex; }
+  }
+  @media (max-width: 640px) {
+    .card-grid { grid-template-columns: 1fr; }
+    .blog-card { border-right: 0 !important; }
+    .prose, .read-more { padding: 24px; }
+    .rm-item { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     A) PÁGINA DE LISTAGEM  —  /blog
+     ============================================================ -->
+<div class="wf-label">A) Listagem do blog — /blog</div>
+
+<!-- 1. site-nav -->
+<header class="site-nav">
+  <div class="wrap inner">
+    <div class="ph logo">L</div>
+    <div class="icon-btn">◐</div>
+  </div>
+</header>
+
+<!-- 2. hero-band + 3. tag-filter -->
+<section class="hero-band">
+  <div class="wrap">
+    <h1>Blog</h1>
+    <p>Título e subtítulo saem do perfil do site. Nada de frase genérica de agência.</p>
+  </div>
+  <div class="wrap">
+    <div class="tags">
+      <span class="tag" aria-selected="true">Todos <span class="count">12</span></span>
+      <span class="tag">Categoria A <span class="count">5</span></span>
+      <span class="tag">Categoria B <span class="count">4</span></span>
+      <span class="tag">Categoria C <span class="count">3</span></span>
+    </div>
+  </div>
+</section>
+
+<div class="wf-note">
+  Bloco 3 (tag-filter): só renderizar com 8 ou mais posts. Abaixo disso o filtro
+  fica quase vazio e transmite site abandonado.
+</div>
+
+<!-- 4. card-grid + 5. blog-card -->
+<div class="wrap">
+  <div class="card-grid">
+    <article class="blog-card">
+      <div class="ph thumb">capa do post · 16:9</div>
+      <div class="body">
+        <h3>Título do artigo em uma ou duas linhas</h3>
+        <p>Resumo curto. Aqui entra a meta_description que o post já tem hoje.</p>
+        <time>7 de agosto de 2026</time>
+      </div>
+    </article>
+    <article class="blog-card">
+      <div class="ph thumb">capa do post · 16:9</div>
+      <div class="body">
+        <h3>Título do artigo</h3>
+        <p>Resumo curto do conteúdo.</p>
+        <time>2 de agosto de 2026</time>
+      </div>
+    </article>
+    <article class="blog-card">
+      <div class="ph thumb">capa do post · 16:9</div>
+      <div class="body">
+        <h3>Título do artigo</h3>
+        <p>Resumo curto do conteúdo.</p>
+        <time>28 de julho de 2026</time>
+      </div>
+    </article>
+    <article class="blog-card">
+      <div class="ph thumb">capa do post · 16:9</div>
+      <div class="body">
+        <h3>Título do artigo</h3>
+        <p>Resumo curto do conteúdo.</p>
+        <time>21 de julho de 2026</time>
+      </div>
+    </article>
+    <article class="blog-card">
+      <div class="ph thumb">capa do post · 16:9</div>
+      <div class="body">
+        <h3>Título do artigo</h3>
+        <p>Resumo curto do conteúdo.</p>
+        <time>14 de julho de 2026</time>
+      </div>
+    </article>
+    <article class="blog-card">
+      <div class="ph thumb">capa do post · 16:9</div>
+      <div class="body">
+        <h3>Título do artigo</h3>
+        <p>Resumo curto do conteúdo.</p>
+        <time>9 de julho de 2026</time>
+      </div>
+    </article>
+  </div>
+</div>
+
+<div class="wf-note">
+  Blocos 4 e 5: a assinatura visual é a ausência de gap e de sombra. Os cartões
+  são separados só por linha de 1px, e a grade tem borda nas laterais. Card com
+  sombra e canto arredondado descaracteriza o modelo. O único campo que falta no
+  ANCOREO é a imagem de capa do post.
+</div>
+
+<footer class="site-footer">
+  <div class="wrap inner">© 2026 Nome do cliente. Rodapé de uma linha.</div>
+</footer>
+
+<!-- ============================================================
+     B) PÁGINA DO ARTIGO  —  /blog/[slug]
+     ============================================================ -->
+<div class="wf-label">B) Artigo — /blog/[slug]</div>
+
+<header class="site-nav">
+  <div class="wrap inner">
+    <div class="ph logo">L</div>
+    <div class="icon-btn">◐</div>
+  </div>
+</header>
+
+<!-- 6. article-header -->
+<section class="article-header">
+  <div class="wrap inner">
+    <div class="meta-row">
+      <span class="back">←</span>
+      <span class="chip">Categoria A</span>
+      <span class="chip">Categoria B</span>
+      <time>7 de agosto de 2026</time>
+    </div>
+    <h1>O título do artigo ocupa a largura toda e é o maior elemento da página</h1>
+    <p class="lead">Linha de apoio com a meta_description. Repete a promessa do título em outras palavras, sem repetir as mesmas palavras.</p>
+  </div>
+</section>
+
+<div class="wrap">
+  <div class="article-body">
+    <main class="article-main">
+      <!-- 7. article-hero-img -->
+      <div class="ph article-hero-img">imagem de topo do artigo · largura total</div>
+
+      <!-- 8. prose -->
+      <div class="prose">
+        <p>Primeiro parágrafo do corpo. No ANCOREO isso já vem de BlogArticle.tsx, com o HTML sanitizado e as âncoras de H2/H3 injetadas pelo buildToc.</p>
+        <div class="fake-line"></div>
+        <div class="fake-line"></div>
+        <div class="fake-line s"></div>
+        <h2>Um H2 do artigo</h2>
+        <div class="fake-line"></div>
+        <div class="fake-line"></div>
+        <div class="fake-line s"></div>
+        <h2>Outro H2</h2>
+        <div class="fake-line"></div>
+        <div class="fake-line s"></div>
+      </div>
+
+      <!-- 12. read-more -->
+      <section class="read-more">
+        <h2>Continue lendo</h2>
+        <a class="rm-item">
+          <div class="ph thumb">capa</div>
+          <div>
+            <h3>Post relacionado por sobreposição de tag</h3>
+            <p>Resumo em até três linhas. A ordem é: mais tags em comum primeiro, empate resolvido pela data mais recente.</p>
+            <time>2 de agosto de 2026</time>
+          </div>
+        </a>
+        <a class="rm-item">
+          <div class="ph thumb">capa</div>
+          <div>
+            <h3>Segundo relacionado</h3>
+            <p>Resumo do post.</p>
+            <time>28 de julho de 2026</time>
+          </div>
+        </a>
+        <a class="rm-item">
+          <div class="ph thumb">capa</div>
+          <div>
+            <h3>Terceiro relacionado</h3>
+            <p>Resumo do post.</p>
+            <time>21 de julho de 2026</time>
+          </div>
+        </a>
+      </section>
+    </main>
+
+    <aside class="article-aside">
+      <div class="sticky">
+        <!-- 10. author-card -->
+        <div class="author">
+          <div class="ph avatar"></div>
+          <div>
+            <strong>Nome do autor</strong>
+            <span>Cargo ou função na empresa</span>
+          </div>
+        </div>
+
+        <!-- 9. toc-sidebar -->
+        <nav class="toc">
+          <h4>Neste artigo</h4>
+          <ol>
+            <li class="active">Primeiro H2</li>
+            <li class="sub">H3 aninhado</li>
+            <li>Segundo H2</li>
+            <li>Terceiro H2</li>
+            <li class="sub">H3 aninhado</li>
+          </ol>
+        </nav>
+
+        <!-- 11. promo-box -->
+        <div class="promo">
+          <div class="ph art">imagem da oferta</div>
+          <div>
+            <h4>Slot de CTA do cliente</h4>
+            <p>Aqui entra a chamada do nicho: agendar consulta, ver o cardápio, pedir orçamento. É o único bloco comercial da página do artigo.</p>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<div class="wf-note">
+  Bloco 9 (toc-sidebar): o ANCOREO já resolve sumário com &lt;details&gt; no topo do
+  artigo, sem JS. O da sidebar precisa de IntersectionObserver para destacar a
+  seção ativa. O ganho é de leitura, não de SEO. Só trocar em artigo longo.
+  <br>
+  Bloco 11 (promo-box): no original é anúncio do próprio produto. No ANCOREO é o
+  CTA do assinante, e é o que transforma leitura em lead.
+</div>
+
+<!-- 13. mobile-toc -->
+<div class="fab">☰</div>
+
+<footer class="site-footer">
+  <div class="wrap inner">© 2026 Nome do cliente. Rodapé de uma linha.</div>
+</footer>
+
+</body>
+</html>

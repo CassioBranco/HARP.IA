@@ -1,9 +1,17 @@
 # CLAUDE.md — Projeto ANCOREO
-> Documento fundacional do projeto. Leia inteiro antes de qualquer ação.
+> Contexto de fundo do projeto: visão, stack, decisões de arquitetura, vocabulário.
 > **Nome oficial do projeto:** ANCOREO
-> Última atualização: 2026-07-18 (reconciliação geral — e-commerce no MVP, stack real, planos e roadmap movidos pra `docs/PROJETO/`)
+> Última atualização: 2026-08-07 (escopo do MVP travado em 5 pilares; `docs/PROJETO/` arquivado)
 >
-> ⚠️ **HIERARQUIA DA VERDADE (regra anti-contradição):** quando este arquivo divergir de `docs/PROJETO/`, **`docs/PROJETO/` manda** (é o board vivo). Ordem de leitura: `docs/PROJETO/ESTADO-MVP.md` → `03-DECISOES.md` → `04-ROADMAP.md` → este arquivo (contexto de fundo). Planos/preços: `docs/PROJETO/05-PLANOS-PRECOS.md`. Se você (IA) encontrar contradição entre documentos, aponte na hora — não escolha silenciosamente.
+> ⚠️ **HIERARQUIA DA VERDADE.** Ordem de leitura, nesta ordem:
+> 1. **`ESTADO.md`** — o que está pronto. **Arquivo gerado** por `node scripts/estado.mjs` a partir de git, banco de produção e sondas de grep no código. Ganha de qualquer outro documento, sempre.
+> 2. **`MVP.md`** — os 5 pilares do MVP, definição de pronto, portões humanos.
+> 3. **`RITUAL.md`** — como trabalhamos, sessões de teste.
+> 4. Este arquivo — contexto de fundo.
+>
+> **Regra que originou essa ordem:** em 07/08/2026 o antigo `docs/PROJETO/ESTADO-MVP.md` afirmava que a loja funcionava enquanto o botão de comprar estava `disabled` no código e três módulos não tinham um único importador. Documento em prosa envelhece sozinho.
+> **Verifique o código e o banco, nunca a prosa.** Se `ESTADO.md` estiver errado, o erro está no script ou no código — conserte lá, não no texto.
+> Referência durável (não descreve estado atual): `docs/referencia/`. Histórico: `docs/_arquivo/`.
 > Owner do produto: Anderson Dove (Anderson Marques) — Sorocaba/SP
 > Operador técnico (decisões operacionais + orquestração de agentes de dev): Cássio Branco
 > Modelo de execução: Cássio decide e orquestra agentes (Claude Code + Cursor); Dove decide pontos-chave de produto e visão.
