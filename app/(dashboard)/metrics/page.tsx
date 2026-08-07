@@ -86,15 +86,18 @@ export default async function MetricsPage() {
     city = (prof?.city as string) ?? ''
   } catch { /* coluna/tabela ausente — degrada pra vazio */ }
 
-  // Datas dos posts do Google (alimenta cadência + item "post nos últimos 14d").
-  let gbpPostDates: string[] = []
+  // Datas de PUBLICAÇÃO confirmada no perfil (alimenta cadência + item
+  // "post nos últimos 14d"). Rascunho gerado e não publicado não entra aqui:
+  // ele não existe pro Google, então não pode contar como presença.
+  let gbpPublishedDates: string[] = []
   try {
     const { data: gbpRows } = await supabase
       .from('gbp_posts')
-      .select('created_at')
+      .select('published_at')
       .eq('site_id', siteId)
-      .order('created_at', { ascending: false })
-    gbpPostDates = (gbpRows ?? []).map(r => r.created_at as string).filter(Boolean)
+      .not('published_at', 'is', null)
+      .order('published_at', { ascending: false })
+    gbpPublishedDates = (gbpRows ?? []).map(r => r.published_at as string).filter(Boolean)
   } catch { /* tabela ausente — sem posts */ }
 
   // Contagens do sitemap: MESMA lógica de app/sitemap.ts (só quando publicado).
@@ -141,7 +144,7 @@ export default async function MetricsPage() {
       gpeLink={gpeLink}
       businessName={businessName}
       city={city}
-      gbpPostDates={gbpPostDates}
+      gbpPublishedDates={gbpPublishedDates}
       sitemapPages={sitemapPages}
       sitemapPosts={sitemapPosts}
     />

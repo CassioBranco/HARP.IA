@@ -135,12 +135,12 @@ calendário dele vê.
 
 | Pronto quando (caminho B) | |
 |---|---|
-| 5.1 | Pedido de acesso à Business Profile API protocolado — **primeira coisa, hoje**, porque a fila corre em paralelo |
-| 5.2 | Onboarding valida o link do perfil de verdade (hoje aceita qualquer texto) |
-| 5.3 | Calendário: a IA prepara os posts do mês, não um avulso |
-| 5.4 | Um clique copia o texto formatado e abre o perfil na tela certa |
-| 5.5 | Cliente marca "publiquei" e o histórico registra — sem isso não há métrica de GBP |
-| 5.6 | Lembrete por e-mail quando o post da semana está esperando |
+| 5.1 | **FEITO 07/08/2026.** Pedido de acesso à Business Profile API protocolado. Caso `1-5531000041573`, análise de 7 a 10 dias úteis. Detalhes em [docs/PEDIDO-API-GOOGLE.md](docs/PEDIDO-API-GOOGLE.md) |
+| 5.2 | **FEITO 07/08/2026.** O servidor abre o encurtador (`g.co/kgs`, `maps.app.goo.gl`) e lê nome, `place_id` e `cid` do link; link morto dá 404 e é recusado na hora. O que o servidor **não** consegue provar é que o negócio existe: URL completa de negócio inventado responde 200 igual à de um real, e a busca interna do Maps casa nome inventado com negócio vizinho de verdade. Então a confirmação é visual: mostra o mapa do que foi colado e pergunta ao dono "é este o seu negócio?". A saída "continuar sem perfil" virou "não sei se tenho", que procura o perfil no mapa junto com ele (a maioria já tem um criado pelo Google e não sabe) e aceita o link ali mesmo. Quem terminou sem vincular agora vincula no painel (`/api/gbp/vincular`), fechando o beco onde o onboarding mandava pro painel e o painel mandava pro onboarding. `gbp_place_id` deixou de ser coluna morta e passou a ser gravado nos dois lados, pra ligar na API do Google sem pedir nada de novo ao cliente. Leitura do link em `lib/seo/gpe-link.ts` (checagem: `npx tsx scripts/check-gpe-link.ts`, 31 asserções) |
+| 5.3 | **FEITO 07/08/2026.** Calendário: um clique monta os 4 posts do mês, um por terça, cada um com a data de ir ao ar. O painel deixa de perguntar "quer gerar?" e passa a dizer "hoje é o dia deste aqui". Regras de data em `lib/seo/gbp-calendar.ts` (checagem: `npx tsx scripts/check-gbp-calendar.ts`). Nada publica sozinho |
+| 5.4 | **FEITO.** Um clique copia o texto formatado e abre o perfil na tela certa |
+| 5.5 | **FEITO.** Cliente marca "publiquei" e o histórico registra (`/api/gbp/publicado` escreve `published_at`) |
+| 5.6 | **ESCRITO 07/08/2026, ESPERANDO SUA LEITURA (gate G1).** Texto do e-mail em `lib/email/gbp-lembrete.ts`, disparo em `app/api/cron/gbp-lembrete/route.ts` (checagem: `npx tsx scripts/check-gbp-lembrete.ts`, 27 asserções). Só avisa quem tem post atrasado ou marcado pra hoje; quem está em dia não recebe nada. Um e-mail por conta a cada 20h, trava gravada em `audit_logs`. A rota está fechada: sem `CRON_SECRET` responde 401, e não existe agendamento em `vercel.json` ainda. **Nada é enviado até você ler a cópia e aprovar** |
 | 5.7 | Sessão T5 passa |
 
 ---

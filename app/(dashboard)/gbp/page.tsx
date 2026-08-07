@@ -23,6 +23,7 @@ export default async function GbpPage() {
   let domain = ''
   let gpeLink = ''
   let gpeModo = ''
+  let buscaAlternativa = ''
   if (tenantId) {
     const { data: site } = await supabase
       .from('sites')
@@ -37,20 +38,32 @@ export default async function GbpPage() {
     if (siteId) {
       const { data: prof } = await supabase
         .from('onboarding_profiles')
-        .select('gpe_link, gpe_modo')
+        .select('gpe_link, gpe_modo, business_name, city')
         .eq('site_id', siteId)
         .maybeSingle()
       gpeLink = (prof?.gpe_link as string) ?? ''
       gpeModo = (prof?.gpe_modo as string) ?? ''
+      // Quando o link colado não traz nome nem place_id (é o caso do
+      // encurtador que não abriu), o mapa de conferência ainda precisa
+      // mostrar alguma coisa. "Nome do negócio + cidade" é o melhor palpite
+      // que a gente já tem guardado, e é exatamente o que o dono digitaria.
+      buscaAlternativa = [prof?.business_name, prof?.city]
+        .filter((s) => typeof s === 'string' && s.trim())
+        .join(' ')
+        .trim()
     }
   }
 
   let posts: GbpPostRow[] = []
   if (siteId) {
+    // Ordena por data agendada, do mais próximo pro mais distante, e só
+    // depois pelos avulsos recentes. O que vence primeiro tem que aparecer
+    // primeiro: numa lista por created_at, o post de hoje some no meio do mês.
     const { data: rows } = await supabase
       .from('gbp_posts')
-      .select('id, post_type, content, cta_label, cta_url, status, created_at')
+      .select('id, post_type, content, cta_label, cta_url, status, published_at, scheduled_for, created_at')
       .eq('site_id', siteId)
+      .order('scheduled_for', { ascending: true, nullsFirst: false })
       .order('created_at', { ascending: false })
     posts = (rows ?? []) as GbpPostRow[]
   }
@@ -70,6 +83,7 @@ export default async function GbpPage() {
         siteId={siteId}
         gpeConnected={gpeModo === 'vincular' && !!gpeLink}
         gpeLink={gpeLink}
+        buscaAlternativa={buscaAlternativa}
         initialPosts={posts}
       />
     </>

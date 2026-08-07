@@ -33,6 +33,10 @@ conta como **não ligado**.
 
 - `NÃO LIGADO` — Existe integração com a API do Google (OAuth + publicação)
 - **ligado** — Rascunho de post do Google é gerado por IA
+- **ligado** — Cliente registra que publicou no perfil (published_at é escrito)
+- **ligado** — Calendário do mês: posts saem com data marcada
+- **ligado** — Link do Perfil é lido, guardado com place_id e vinculável no painel
+- `NÃO LIGADO` — Lembrete semanal do post sai sozinho (rota + agendamento)
 
 ### Fora do MVP
 
@@ -60,48 +64,49 @@ Zero linhas não significa quebrado: significa que ninguém exercitou aquele cam
 
 Branch: `master`
 
-- `249060a` feat(painel): metricas reais ponta a ponta + trava anti-depoimento inventado _(21 hours ago)_
+- `f524226` docs: indexa os 7 wireframes de referencia e liga aos pilares do MVP _(4 hours ago)_
+- `b6d5840` docs: escopo do MVP em 5 pilares + ESTADO.md gerado no lugar da prosa _(5 hours ago)_
+- `249060a` feat(painel): metricas reais ponta a ponta + trava anti-depoimento inventado _(26 hours ago)_
 - `eb15493` fix(editor): conserta grade do editor quebrada pela barra de score _(9 days ago)_
 - `4d0c1ae` docs: wireframe do builder (referência Lovable/Figma), protocolo de diagnóstico, roadmap e planos _(2 weeks ago)_
-- `957415c` feat(aeo): llms.txt por tenant + robots 2026 + rota dos arquivos GEO/AEO _(2 weeks ago)_
-- `e240948` fix(editor): blindagem contra seção hero com payload aninhado (barras cinzas) _(2 weeks ago)_
 
 **Trabalho não commitado:** 
 
 ```
-M .claude/hooks/session-start.sh
- M .claude/settings.json
- M CLAUDE.md
-R  docs/CRONOGRAMA.md -> docs/_arquivo/CRONOGRAMA.md
-R  HANDOFF-COWORK.md -> docs/_arquivo/HANDOFF-COWORK.md
-R  docs/HANDOFF-FRONTEND-CHANGES.md -> docs/_arquivo/HANDOFF-FRONTEND-CHANGES.md
-R  HANDOFF.md -> docs/_arquivo/HANDOFF.md
-R  LEIA-PRIMEIRO.md -> docs/_arquivo/LEIA-PRIMEIRO.md
-R  docs/PROJETO/00-COMO-FUNCIONA.md -> docs/_arquivo/PROJETO/00-COMO-FUNCIONA.md
-R  docs/PROJETO/01-BACKLOG.md -> docs/_arquivo/PROJETO/01-BACKLOG.md
-R  docs/PROJETO/02-SPRINT-ATUAL.md -> docs/_arquivo/PROJETO/02-SPRINT-ATUAL.md
-R  docs/PROJETO/04-ROADMAP.md -> docs/_arquivo/PROJETO/04-ROADMAP.md
-R  docs/PROJETO/BUGS-ONBOARDING.md -> docs/_arquivo/PROJETO/BUGS-ONBOARDING.md
-R  docs/PROJETO/CUSTOS-E-PLANOS.md -> docs/_arquivo/PROJETO/CUSTOS-E-PLANOS.md
-R  docs/PROJETO/ESTADO-MVP.md -> docs/_arquivo/PROJETO/ESTADO-MVP.md
-R  docs/PROJETO/LOG-EDITOR-WIREFRAME.md -> docs/_arquivo/PROJETO/LOG-EDITOR-WIREFRAME.md
-R  docs/PROJETO/PAINEL.md -> docs/_arquivo/PROJETO/PAINEL.md
-R  docs/PROJETO/PROTOCOLO-DIAGNOSTICO.md -> docs/_arquivo/PROJETO/PROTOCOLO-DIAGNOSTICO.md
-R  docs/trello-1-a-fazer.txt -> docs/_arquivo/trello-1-a-fazer.txt
-R  docs/trello-2-done.txt -> docs/_arquivo/trello-2-done.txt
-R  docs/PROJETO/03-DECISOES.md -> docs/referencia/DECISOES.md
-R  docs/PROJETO/05-PLANOS-PRECOS.md -> docs/referencia/PLANOS-PRECOS.md
- M package.json
-?? ESTADO.md
-?? MVP.md
-?? RITUAL.md
-?? docs/modelos-referencia/blog-magicui.html
-?? docs/modelos-referencia/changelog-magicui.html
-?? docs/testes/
-?? scripts/estado.mjs
+M ESTADO.md
+ M MVP.md
+ M app/(dashboard)/gbp/GbpClient.tsx
+ M app/(dashboard)/gbp/page.tsx
+ M app/(dashboard)/metrics/MetricsView.tsx
+ M app/(dashboard)/metrics/page.tsx
+ M app/api/ai/gbp/route.ts
+ M app/onboarding/onboarding.css
+ M app/onboarding/page.tsx
+ M lib/onboarding/types.ts
+ M lib/seo/local-presence.ts
+ M scripts/estado.mjs
+?? app/(dashboard)/gbp/VincularPerfil.tsx
+?? app/api/ai/gbp/mes/
+?? app/api/cron/
+?? app/api/gbp/
+?? app/api/onboarding/gpe-resolver/
+?? docs/PEDIDO-API-GOOGLE.md
+?? lib/email/gbp-lembrete.ts
+?? lib/seo/gbp-calendar.ts
+?? lib/seo/gpe-link.ts
+?? scripts/check-gbp-calendar.ts
+?? scripts/check-gbp-lembrete.ts
+?? scripts/check-gpe-link.ts
+?? supabase/migrations/20260807120000_gbp_published_at.sql
+?? supabase/migrations/20260807130000_gbp_scheduled_for.sql
 ```
 
-**Commits locais não enviados:** nenhum
+**Commits locais não enviados:** 
+
+```
+f524226 docs: indexa os 7 wireframes de referencia e liga aos pilares do MVP
+b6d5840 docs: escopo do MVP em 5 pilares + ESTADO.md gerado no lugar da prosa
+```
 
 ---
 

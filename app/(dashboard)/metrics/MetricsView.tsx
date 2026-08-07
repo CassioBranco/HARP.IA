@@ -65,7 +65,7 @@ const WEEKDAYS = ['D','S','T','Q','Q','S','S']
 export default function MetricsView({
   siteId, domain, posts = [], visits = null, scoreHistory = [],
   siteStatus = '', gpeModo = '', gpeLink = '', businessName = '', city = '',
-  gbpPostDates = [], sitemapPages = 0, sitemapPosts = 0,
+  gbpPublishedDates = [], sitemapPages = 0, sitemapPosts = 0,
 }: {
   siteId: string
   visits?: SiteVisits | null
@@ -77,7 +77,7 @@ export default function MetricsView({
   gpeLink?: string
   businessName?: string
   city?: string
-  gbpPostDates?: string[]
+  gbpPublishedDates?: string[]
   sitemapPages?: number
   sitemapPosts?: number
 }) {
@@ -167,7 +167,7 @@ export default function MetricsView({
     .map(p => p.published_at ?? p.created_at)
   const checklist = buildPresenceChecklist({
     siteStatus, siteDomain: domain, gpeModo, gpeLink, businessName, city,
-    gbpPostDates, blogPublishedDates,
+    gbpPublishedDates, blogPublishedDates,
   })
 
   const storageKey = `aco_presence_${siteId}`

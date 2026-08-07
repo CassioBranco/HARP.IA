@@ -34,7 +34,10 @@ export type PresenceInput = {
   gpeLink?: string | null               // onboarding_profiles.gpe_link
   businessName?: string | null          // onboarding_profiles.business_name
   city?: string | null                  // onboarding_profiles.city
-  gbpPostDates?: (string | null | undefined)[]   // datas de gbp_posts
+  // ATENÇÃO: published_at de gbp_posts, NUNCA created_at. created_at é a hora
+  // em que a IA escreveu o rascunho; usar isso aqui faz o painel dizer que o
+  // cliente postou no Google quando ele só apertou "gerar".
+  gbpPublishedDates?: (string | null | undefined)[]  // published_at de gbp_posts
   blogPublishedDates?: (string | null | undefined)[] // published_at dos artigos
 }
 
@@ -83,7 +86,7 @@ export function buildPresenceChecklist(input: PresenceInput = {}): PresenceCheck
   const gpeLinked = input.gpeModo === 'vincular' && !!(input.gpeLink ?? '').trim()
   const href = profileHref(input)
 
-  const gbpDays = mostRecentDaysAgo(input.gbpPostDates, now)
+  const gbpDays = mostRecentDaysAgo(input.gbpPublishedDates, now)
   const blogDays = mostRecentDaysAgo(input.blogPublishedDates, now)
 
   const items: PresenceItem[] = []
@@ -117,10 +120,10 @@ export function buildPresenceChecklist(input: PresenceInput = {}): PresenceCheck
     kind: 'auto',
     status: gbpDays !== null && gbpDays <= 14 ? 'ok' : 'todo',
     hint: gbpDays === null
-      ? 'Você ainda não gerou nenhum post pro Google. Perfis que postam aparecem mais.'
+      ? 'Você ainda não marcou nenhum post como publicado no Google. Perfis que postam aparecem mais.'
       : gbpDays <= 14
-        ? `Seu último post foi há ${gbpDays} dia${gbpDays === 1 ? '' : 's'}. No ritmo certo.`
-        : `Seu último post foi há ${gbpDays} dias. Gere um novo pra manter o perfil vivo.`,
+        ? `Seu último post no perfil foi há ${gbpDays} dia${gbpDays === 1 ? '' : 's'}. No ritmo certo.`
+        : `Seu último post no perfil foi há ${gbpDays} dias. Publique um novo pra manter o perfil vivo.`,
     actionHref: '/gbp',
     actionLabel: 'Ir pros posts do Google',
   })
@@ -201,10 +204,14 @@ export type GbpCadence = {
  * Avalia há quanto tempo o dono não posta no Google.
  * never = nunca postou · ok ≤7d · due 8–14d · overdue >14d.
  * Tom "vizinho experiente" — direto, sem corporativês.
+ *
+ * Recebe SÓ datas de publicação confirmada (gbp_posts.published_at). Rascunho
+ * gerado não conta: até 07/08/2026 esta função recebia created_at e dizia
+ * "Você postou no Google hoje" para quem só tinha clicado em "Gerar post".
  */
-export function gbpCadence(postDates: (string | null | undefined)[] = []): GbpCadence {
+export function gbpCadence(publishedDates: (string | null | undefined)[] = []): GbpCadence {
   const now = Date.now()
-  const daysSince = mostRecentDaysAgo(postDates, now)
+  const daysSince = mostRecentDaysAgo(publishedDates, now)
 
   if (daysSince === null) {
     return {

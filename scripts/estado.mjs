@@ -39,9 +39,15 @@ if (existsSync('.env.local')) {
 // Distinguir os dois é obrigatório: numa sonda invertida ("NÃO deve existir"),
 // um grep quebrado silenciosamente vira um "está tudo certo" falso — foi
 // exatamente assim que a primeira versão deste script mentiu sobre o AEO.
+// --untracked é obrigatório e não é detalhe: sem ele o git grep ignora arquivo
+// que ainda não foi commitado, e uma rota escrita agora aparece como
+// inexistente — enquanto as sondas de existsSync, que olham o disco, dizem que
+// existe. Duas noções de realidade no mesmo documento. O ESTADO descreve a
+// árvore de trabalho, que é o que roda em `npm run dev`. Arquivo em .gitignore
+// continua de fora, que é o certo.
 const grepCount = (pattern, paths) => {
   try {
-    const out = execFileSync('git', ['grep', '-l', '-E', pattern, '--', ...paths.split(' ')], {
+    const out = execFileSync('git', ['grep', '-l', '--untracked', '-E', pattern, '--', ...paths.split(' ')], {
       encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],
     })
     return out.split('\n').filter(Boolean).length
@@ -100,6 +106,46 @@ const SONDAS = [
     pilar: 'GBP',
     nome: 'Rascunho de post do Google é gerado por IA',
     ok: () => existsSync('app/api/ai/gbp/route.ts'),
+  },
+  {
+    pilar: 'GBP',
+    // Sem alguém ESCREVENDO published_at não existe cadência honesta nem
+    // métrica de GBP. A coluna e o CHECK existiam desde 18/06 e nenhuma linha
+    // gravava; por isso a sonda cobra o escritor, não a existência do campo.
+    nome: 'Cliente registra que publicou no perfil (published_at é escrito)',
+    ok: () => grepCount('published_at', 'app/api/gbp') > 0
+           && grepCount('/api/gbp/publicado', 'app') > 0,
+  },
+  {
+    pilar: 'GBP',
+    // A coluna scheduled_for sozinha não prova nada: só vale se algo GRAVA
+    // data (a rota do mês) e se a tela LÊ essa data pra montar a agenda.
+    // Cobrar os dois lados é o que impede o doc de jurar que existe
+    // calendário quando existe apenas uma coluna vazia.
+    nome: 'Calendário do mês: posts saem com data marcada',
+    ok: () => existsSync('app/api/ai/gbp/mes/route.ts')
+           && grepCount('scheduled_for', 'app/api/ai/gbp/mes') > 0
+           && grepCount('resumoDaAgenda|grupoDoPost', 'app/(dashboard)/gbp') > 0,
+  },
+  {
+    pilar: 'GBP',
+    // O link só serve pra alguma coisa se (a) alguém LÊ o que ele carrega,
+    // (b) o place_id for GRAVADO — foi coluna morta por dois meses — e
+    // (c) der pra vincular DEPOIS, no painel. Sem o terceiro, o onboarding
+    // manda pro painel e o painel manda pro onboarding, e ninguém vincula.
+    nome: 'Link do Perfil é lido, guardado com place_id e vinculável no painel',
+    ok: () => existsSync('lib/seo/gpe-link.ts')
+           && grepCount('gbp_place_id', 'app/onboarding app/api/gbp') > 0
+           && existsSync('app/api/gbp/vincular/route.ts'),
+  },
+  {
+    pilar: 'GBP',
+    // Rota de lembrete escrita não é lembrete enviado. Sem entrada de cron
+    // em vercel.json ninguém chama a rota, e o doc não pode dizer que o
+    // cliente é avisado. A sonda só acende quando o agendamento existe.
+    nome: 'Lembrete semanal do post sai sozinho (rota + agendamento)',
+    ok: () => existsSync('app/api/cron/gbp-lembrete/route.ts')
+           && grepCount('gbp-lembrete', 'vercel.json') > 0,
   },
   {
     pilar: 'Fora do MVP',

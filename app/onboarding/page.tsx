@@ -13,6 +13,7 @@ import { createBrowserClient } from '@/lib/supabase/client'
 import { AiHelp } from '@/components/draft/AiHelp'
 import { saveOnboardingProfile } from '@/lib/onboarding/actions'
 import { track } from '@/lib/analytics/client'
+import { lerLinkGpe, problemaDoLink, urlDeMapaEmbed, urlDeBuscaNoGoogle } from '@/lib/seo/gpe-link'
 import type {
   Objetivo,
   LojaModo,
@@ -84,6 +85,15 @@ export default function OnboardingPage() {
   const [gpeModo, setGpeModo] = useState<GpeModo>('vincular')
   const [gpeLink, setGpeLink] = useState('')
   const [gpeErr, setGpeErr] = useState(false)
+  // Confirmação do perfil (item 5.2). O servidor não tem como provar que o
+  // perfil é do cliente sem a API do Google, então quem confirma é o dono:
+  // mostramos o mapa do que ele colou e ele diz se é o negócio dele.
+  const [gpeMsg, setGpeMsg] = useState('')          // erro vindo do resolver
+  const [gpeChecando, setGpeChecando] = useState(false)
+  const [gpeMapa, setGpeMapa] = useState('')        // URL do iframe de conferência
+  const [gpeNome, setGpeNome] = useState('')        // nome lido do link
+  const [gpeId, setGpeId] = useState('')            // place_id/cid → gbp_place_id
+  const [gpeConfirmado, setGpeConfirmado] = useState(false)
   const [answers, setAnswers] = useState<string[]>(() => KQUESTIONS.map(() => ''))
   const [dominioModo, setDominioModo] = useState<DominioModo>('proprio')
   const [dominioProprio, setDominioProprio] = useState('') // domínio que o cliente já tem
@@ -158,9 +168,16 @@ export default function OnboardingPage() {
           : null,
       city: city || null,
       state: uf || null,
-      // Link válido (em vincular ou criar) = perfil confirmado → salva como vinculado.
-      gpe_modo: ((gpeModo === 'vincular' || gpeModo === 'criar') && gpeLink.trim() && !gpeErr) ? 'vincular' : gpeModo,
-      gpe_link: ((gpeModo === 'vincular' || gpeModo === 'criar') && gpeLink.trim() && !gpeErr) ? gpeLink.trim() : null,
+      // Link válido = perfil vinculado, tenha ele chegado por qual das três
+      // portas for. Quem entrou por "não sei se tenho" e achou o perfil no
+      // mapa vale tanto quanto quem já chegou com o link na mão.
+      gpe_modo: (gpeLink.trim() && !gpeErr) ? 'vincular' : gpeModo,
+      gpe_link: (gpeLink.trim() && !gpeErr) ? gpeLink.trim() : null,
+      // Identificador do lugar (place_id ou cid) lido do próprio link. A
+      // coluna existe desde o schema inicial e nada escrevia nela; guardar
+      // agora é o que vai permitir ligar na API do Google, quando o acesso
+      // sair, sem ter que pedir nada de novo ao cliente.
+      gbp_place_id: gpeId || null,
       conhecimento: KQUESTIONS.map((q, i) => ({
         pergunta: q[0],
         resposta: answers[i] ?? '',
@@ -175,7 +192,7 @@ export default function OnboardingPage() {
     }
   }, [
     objetivo, lojaModo, businessName, about, cat, niche, segPick, otherActive, registro,
-    porte, radiusKm, areaText, city, uf, gpeModo, gpeLink, gpeErr, answers, dominioModo, dominioProprio,
+    porte, radiusKm, areaText, city, uf, gpeModo, gpeLink, gpeErr, gpeId, answers, dominioModo, dominioProprio,
   ])
 
   // ── autosave debounced via server action ──────────────────
@@ -209,7 +226,7 @@ export default function OnboardingPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     objetivo, businessName, about, cat, niche, segPick, otherActive, registro,
-    porte, radiusKm, areaText, city, uf, gpeModo, gpeLink, gpeErr, answers, dominioModo, dominioProprio,
+    porte, radiusKm, areaText, city, uf, gpeModo, gpeLink, gpeErr, gpeId, answers, dominioModo, dominioProprio,
   ])
 
   // pré-seleciona categoria + nicho pelo palpite, até o cliente escolher na mão
@@ -250,9 +267,13 @@ export default function OnboardingPage() {
         if (gpeModo === 'vincular' || gpeModo === 'criar') {
           if (!gpeLink.trim())
             return gpeModo === 'criar'
-              ? 'Crie o perfil no Google e cole o link aqui pra confirmar — ou escolha “Continuar sem perfil”.'
-              : 'Cole o link do seu Perfil de Empresa, ou escolha “Criar agora” / “Continuar sem perfil”.'
-          if (gpeErr) return 'Esse link não parece ser do Google. Confira e cole de novo.'
+              ? 'Crie o perfil no Google e cole o link aqui pra confirmar — ou escolha “Não sei se tenho”.'
+              : 'Cole o link do seu Perfil de Empresa, ou escolha “Criar agora” / “Não sei se tenho”.'
+        }
+        // Link ruim trava em qualquer modo: guardar um link quebrado é pior
+        // que não guardar nada, porque some da lista de pendências.
+        if (gpeLink.trim() && gpeErr) {
+          return gpeMsg || 'Esse link não parece ser do Google. Confira e cole de novo.'
         }
       }
       if (s === 6) {
@@ -265,7 +286,7 @@ export default function OnboardingPage() {
       }
       return null
     },
-    [businessName, about, niche, registro, regDoc, porte, city, areaText, gpeModo, gpeLink, gpeErr, dominioModo, dominioProprio]
+    [businessName, about, niche, registro, regDoc, porte, city, areaText, gpeModo, gpeLink, gpeErr, gpeMsg, dominioModo, dominioProprio]
   )
 
   // ── navegação ─────────────────────────────────────────────
@@ -392,10 +413,144 @@ export default function OnboardingPage() {
   }
 
   // ── tela 5: google ────────────────────────────────────────
+  // Digitar só limpa o que já foi confirmado. A conferência de verdade
+  // acontece no botão, porque envolve abrir o link no servidor.
   function gValidate(v: string) {
     setGpeLink(v)
-    const ok = v === '' || /maps\.|goo\.gl|google\.com\/maps|g\.co/.test(v)
-    setGpeErr(!ok && v.length > 4)
+    const leitura = lerLinkGpe(v)
+    setGpeErr(!!problemaDoLink(leitura))
+    setGpeMsg(problemaDoLink(leitura) ?? '')
+    setGpeMapa('')
+    setGpeNome('')
+    setGpeId('')
+    setGpeConfirmado(false)
+  }
+
+  /**
+   * Confere o link: abre encurtador no servidor (link morto dá 404) e
+   * monta o mapa pro dono bater o olho. Não afirma que o perfil é dele;
+   * só mostra o que o link aponta e deixa ele confirmar.
+   */
+  async function gConferir() {
+    const bruto = gpeLink.trim()
+    if (!bruto) return
+    setGpeChecando(true)
+    setGpeMsg('')
+    try {
+      const r = await fetch('/api/onboarding/gpe-resolver', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ link: bruto }),
+      })
+      const j = await r.json() as {
+        ok?: boolean; erro?: string
+        leitura?: ReturnType<typeof lerLinkGpe>
+        identificador?: string | null
+      }
+      if (!j.ok || !j.leitura) {
+        setGpeErr(true)
+        setGpeMsg(j.erro ?? 'Não consegui abrir esse link. Confira e cole de novo.')
+        return
+      }
+      const mapa = urlDeMapaEmbed(j.leitura, `${businessName} ${city}`.trim())
+      setGpeErr(false)
+      setGpeNome(j.leitura.nome ?? '')
+      setGpeId(j.identificador ?? '')
+      setGpeMapa(mapa ?? '')
+      if (!mapa) {
+        // Sem nada pra mostrar no mapa, insistir em "confirme visualmente"
+        // seria pedir que ele confirmasse uma tela vazia.
+        setGpeConfirmado(true)
+      }
+    } catch {
+      // Falha de rede não pode travar o cadastro: aceita o link e segue.
+      setGpeErr(false)
+      setGpeConfirmado(true)
+      setGpeMsg('Não deu pra conferir agora, mas guardamos seu link.')
+    } finally {
+      setGpeChecando(false)
+    }
+  }
+
+  /**
+   * Campo de link + conferência. É o mesmo bloco nas três opções da tela:
+   * quem já tem, quem acabou de criar e quem não sabia que tinha. Cair no
+   * mesmo lugar é de propósito — o link é sempre a mesma coisa.
+   */
+  function blocoDoLink(placeholder: string) {
+    return (
+      <>
+        <div className="gpe-row">
+          <input
+            className="field"
+            value={gpeLink}
+            onChange={(e) => gValidate(e.target.value)}
+            placeholder={placeholder}
+            autoComplete="off"
+          />
+          <button
+            className="btn sm"
+            onClick={gConferir}
+            disabled={!gpeLink.trim() || gpeErr || gpeChecando}
+          >
+            {gpeChecando ? 'Conferindo…' : 'Conferir'}
+          </button>
+        </div>
+
+        {gpeMsg && !gpeConfirmado && (
+          <div className="err">
+            <i className="ph-fill ph-warning-circle" /> {gpeMsg}
+          </div>
+        )}
+
+        {/* O dono é a única pessoa nesta conversa que sabe se o perfil é
+            dele. O servidor mostra o que o link aponta; quem responde é ele. */}
+        {gpeMapa && !gpeConfirmado && (
+          <div className="gpe-conf">
+            <iframe
+              src={gpeMapa}
+              title="Mapa do perfil que você colou"
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            />
+            <p className="gpe-ask">
+              {gpeNome ? (
+                <>
+                  É este o seu negócio, <b>{gpeNome}</b>?
+                </>
+              ) : (
+                <>É este o seu negócio?</>
+              )}
+            </p>
+            <div className="gpe-acts">
+              <button className="btn sm" onClick={() => setGpeConfirmado(true)}>
+                Sim, é este
+              </button>
+              <button
+                className="btn sm ghost"
+                onClick={() => {
+                  setGpeMapa('')
+                  setGpeNome('')
+                  setGpeId('')
+                  setGpeMsg('Sem problema. Abra o perfil certo no Google, toque em Compartilhar e cole o link aqui.')
+                }}
+              >
+                Não é esse
+              </button>
+            </div>
+          </div>
+        )}
+
+        {gpeConfirmado && (
+          <div className="gpe-ok">
+            <i className="ph-fill ph-check-circle" />
+            <span>
+              Perfil guardado{gpeNome ? <>: <b>{gpeNome}</b></> : ''}. {gpeMsg || 'A gente puxa avaliações, horário e mapa a partir dele.'}
+            </span>
+          </div>
+        )}
+      </>
+    )
   }
 
   // ── tela 6: conhecimento / autoridade ─────────────────────
@@ -425,7 +580,7 @@ export default function OnboardingPage() {
     const aboutLen = about.trim().length
     // Só conta como "vinculado de verdade" quando há um link válido — clicar em
     // "vou criar" sem colar o link NÃO conta como perfil pronto.
-    const gpeLinked = (gpeModo === 'vincular' || gpeModo === 'criar') && gpeLink.trim().length > 0 && !gpeErr
+    const gpeLinked = gpeLink.trim().length > 0 && !gpeErr
     const items = [
       {
         key: 'gpe',
@@ -955,14 +1110,14 @@ export default function OnboardingPage() {
                     onClick={() => setGpeModo('sem')}
                   >
                     <span className="ic n">
-                      <i className="ph-duotone ph-clock-countdown" />
+                      <i className="ph-duotone ph-magnifying-glass" />
                     </span>
                     <span className="otxt">
-                      <b>Continuar sem perfil</b>
-                      <span>Você adiciona depois quando quiser</span>
+                      <b>Não sei se tenho</b>
+                      <span>A maioria já tem um perfil criado pelo Google e não sabe</span>
                     </span>
                     <span className="seo lo">
-                      <i className="ph-fill ph-warning" /> SEO mínimo
+                      <i className="ph-fill ph-question" /> vamos ver
                     </span>
                   </button>
                 </div>
@@ -970,19 +1125,7 @@ export default function OnboardingPage() {
                 <div className="gctx">
                   {gpeModo === 'vincular' && (
                     <>
-                      <input
-                        className="field"
-                        value={gpeLink}
-                        onChange={(e) => gValidate(e.target.value)}
-                        placeholder="https://g.co/kgs/… ou link do seu perfil"
-                        autoComplete="off"
-                      />
-                      {gpeErr && (
-                        <div className="err">
-                          <i className="ph-fill ph-warning-circle" /> Esse link não parece ser do
-                          Google. Confira e cole de novo.
-                        </div>
-                      )}
+                      {blocoDoLink('https://g.co/kgs/… ou link do seu perfil')}
                     </>
                   )}
                   {gpeModo === 'criar' && (
@@ -1002,36 +1145,43 @@ export default function OnboardingPage() {
                           Abrir o Google
                         </a>
                       </div>
-                      <input
-                        className="field"
-                        value={gpeLink}
-                        onChange={(e) => gValidate(e.target.value)}
-                        placeholder="Cole aqui o link do perfil que você criou"
-                        autoComplete="off"
-                        style={{ marginTop: '.6rem' }}
-                      />
-                      {gpeErr && (
-                        <div className="err">
-                          <i className="ph-fill ph-warning-circle" /> Esse link não parece ser do
-                          Google. Confira e cole de novo.
-                        </div>
-                      )}
-                      <p className="ed-cap" style={{ marginTop: '.4rem', opacity: .85 }}>
-                        Ainda não criou? Você pode escolher “Continuar sem perfil” e fazer isso depois no painel.
-                      </p>
+                      <div style={{ marginTop: '.6rem' }}>
+                        {blocoDoLink('Cole aqui o link do perfil que você criou')}
+                      </div>
                     </>
                   )}
                   {gpeModo === 'sem' && (
-                    <div className="gwarn">
-                      <i className="ph-fill ph-warning" />
-                      <span>
-                        <b>SEO mínimo:</b> sem o Perfil de Empresa, seu negócio não aparece no mapa
-                        nem nas buscas locais do Google (&quot;perto de mim&quot;), a visibilidade
-                        que mais traz cliente da sua região.{' '}
-                        <b>Você pode vincular ou criar o perfil depois</b>, direto no painel, quando
-                        quiser.
-                      </span>
-                    </div>
+                    <>
+                      {/*
+                        Este era o botão de saída "continuar sem perfil", e 11 de 13
+                        pessoas saíam por ele. Quase sempre por não saber que já têm
+                        perfil: o Google cria sozinho quando alguém avalia o negócio.
+                        Então aqui a gente procura junto, em vez de encerrar o assunto.
+                      */}
+                      <div className="gnote">
+                        <i className="ph-fill ph-map-trifold" />
+                        <span>
+                          <b>Vamos procurar no mapa.</b> Se aparecer seu negócio, o perfil já existe
+                          e é só copiar o link ali e colar aqui embaixo.
+                        </span>
+                        <a
+                          className="btn sm"
+                          href={urlDeBuscaNoGoogle(businessName || 'meu negócio', city)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Procurar meu negócio
+                        </a>
+                      </div>
+                      <div style={{ marginTop: '.6rem' }}>
+                        {blocoDoLink('Achou? Cole o link do perfil aqui')}
+                      </div>
+                      <p className="ed-cap" style={{ marginTop: '.5rem' }}>
+                        Não achou nada? Siga assim mesmo: dá pra criar ou vincular depois, no painel.
+                        Só saiba que sem o perfil seu negócio não aparece no mapa nem nas buscas
+                        &quot;perto de mim&quot;, que é onde mora o cliente da sua região.
+                      </p>
+                    </>
                   )}
                 </div>
 
@@ -1146,7 +1296,7 @@ export default function OnboardingPage() {
           <section className={`screen${screen === 6 ? ' active' : ''}`}>
             <div className="panel">
               <div className="card">
-                {gpeModo !== 'vincular' && (
+                {!seo.gpeLinked && (
                   <div className="gpe-alert" role="alert">
                     <i className="ph-fill ph-warning" />
                     <span>

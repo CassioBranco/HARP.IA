@@ -70,6 +70,10 @@ export interface OnboardingProfileInput {
   // Tela 5 — Google Perfil de Empresa
   gpe_modo?: GpeModo | null
   gpe_link?: string | null
+  // place_id (ChIJ…) ou cid lido do próprio link. É o que vai permitir ligar
+  // na Business Profile API sem pedir nada de novo ao cliente, quando o
+  // acesso sair. Sem ele, o link é só um texto que ninguém consulta.
+  gbp_place_id?: string | null
   // Tela 6 — Conhecimento (E-E-A-T)
   conhecimento?: ConhecimentoItem[] | null
   // Tela 7 — Domínio + identidade visual

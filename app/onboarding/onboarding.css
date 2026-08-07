@@ -126,6 +126,18 @@
 .ob-page .gwarn{display:flex;gap:.6rem;align-items:flex-start;font-size:.85rem;line-height:1.5;color:#92610a;background:rgba(245,163,10,.1);border:1px solid rgba(245,163,10,.35);border-radius:10px;padding:.85rem 1rem}
 .dark .ob-page .gwarn{color:#fcd581}
 .ob-page .gwarn i{color:#d97706;flex-shrink:0;margin-top:.1rem}
+/* link do perfil + conferência visual (o dono olha o mapa e diz se é dele) */
+.ob-page .gpe-row{display:flex;gap:.5rem;align-items:stretch}
+.ob-page .gpe-row .field{flex:1;min-width:0}
+.ob-page .gpe-row .btn{flex-shrink:0}
+.ob-page .gpe-row .btn:disabled{opacity:.45;cursor:not-allowed;filter:none}
+.ob-page .gpe-conf{margin-top:.7rem;border:1px solid var(--line);border-radius:11px;overflow:hidden;background:hsl(var(--muted) / .4)}
+.ob-page .gpe-conf iframe{display:block;width:100%;height:200px;border:0}
+.ob-page .gpe-ask{margin:0;padding:.8rem 1rem .2rem;font-size:.92rem;color:var(--ink)}
+.ob-page .gpe-acts{display:flex;gap:.5rem;flex-wrap:wrap;padding:.7rem 1rem .9rem}
+.ob-page .gpe-ok{display:flex;gap:.55rem;align-items:flex-start;margin-top:.7rem;font-size:.86rem;line-height:1.5;color:#15803d;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.32);border-radius:10px;padding:.75rem .9rem}
+.dark .ob-page .gpe-ok{color:#86efac}
+.ob-page .gpe-ok i{flex-shrink:0;margin-top:.1rem;font-size:1.05rem}
 .ob-page .ed-cap{font-size:.8rem;color:var(--soft)}
 .ob-page .diag-line{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;font-size:.8rem;color:var(--soft);margin:1.2rem 0 0;padding-top:1rem;border-top:1px dashed var(--line)}
 .ob-page .diag-line>i{color:var(--red)}

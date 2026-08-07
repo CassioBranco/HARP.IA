@@ -123,7 +123,10 @@ Nada além do JSON.`
       extra: clean.cta_url_hint ? { cta_url_hint: clean.cta_url_hint } : null,
       status: 'draft',
     })
-    .select('id, post_type, content, cta_label, cta_url, created_at')
+    // status e published_at vão no retorno de propósito: sem eles o post recém
+    // gerado chega no cliente sem saber que é rascunho, e a tela não sabe se
+    // mostra "Já publiquei" ou o selo de publicado.
+    .select('id, post_type, content, cta_label, cta_url, status, published_at, scheduled_for, created_at')
     .single()
 
   if (insErr) {
