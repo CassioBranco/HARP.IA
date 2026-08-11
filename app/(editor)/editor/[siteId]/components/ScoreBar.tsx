@@ -3,14 +3,20 @@
 // ============================================================
 // ScoreBar — barra âncora do editor (topo, sempre visível).
 // Porta o elemento central do wireframe Lovable/Figma pro editor
-// real: score agregado + 3 sub-scores SEO · GEO · AEO, calculados
-// AO VIVO do conteúdo do site (lib/seo/site-score). O botão abre
-// "o que falta" — a lista de checks pendentes por dimensão.
+// real: score agregado + 4 sub-scores SEO · GEO · AEO · Autoridade,
+// calculados AO VIVO do conteúdo do site (lib/seo/site-score). O
+// botão abre "o que falta" — a lista de checks pendentes por dimensão.
+//
+// RÉGUA ÚNICA: o cálculo mora em lib/seo/site-score e é o MESMO que
+// a rota /api/score/[siteId] usa no painel de métricas. Aqui só se
+// carrega os sinais do banco e se desenha. Nenhuma regra nova entra
+// neste arquivo — o número tem que bater nas duas telas.
 //
 // Slice 2: cada item pendente vira ACIONÁVEL. Item que só o dono
 // sabe (telefone/contato) abre um campo pra digitar e grava direto
 // em hero.cta_phone (mesmo caminho de escrita do editor: client
-// Supabase + RLS por tenant). Os demais mostram "como resolver".
+// Supabase + RLS por tenant). Os demais mostram o "como resolver"
+// que vem junto com o próprio check (check.fix).
 // Recarrega quando `refreshKey` muda (cada save do painel / preview).
 // ============================================================
 
@@ -31,27 +37,6 @@ const RING = 2 * Math.PI * 26 // circunferência do círculo (r=26)
 // telefone BR com ou sem DDD/9. Mantido em sincronia de propósito.
 const PHONE_RE = /\(?\d{2}\)?\s*9?\d{4}[-\s]?\d{4}/
 
-// "Como resolver" por check que NÃO tem correção automática aqui — a
-// ação certa mora em outro painel (SEO, Serviços, FAQ, Blog). Texto
-// curto e sem passo-a-passo de UI, só aponta o caminho.
-const FIX_HINT: Record<string, string> = {
-  titulo: 'Preencha o título da página na aba SEO do editor.',
-  'titulo-60': 'Encurte o título para até 60 caracteres na aba SEO.',
-  meta: 'Escreva o resumo (meta) entre 80 e 160 caracteres na aba SEO.',
-  palavras: 'Adicione mais conteúdo às seções: o site precisa de 300+ palavras no total.',
-  h2: 'Preencha ao menos uma seção com título (ex: Sobre ou Serviços).',
-  'link-interno': 'Publique um artigo no blog e vincule-o à home.',
-  entidade: 'Preencha o título do topo (hero) com o nome do negócio.',
-  descricao: 'Preencha a seção "Sobre": quem é o negócio e o que faz.',
-  oferta: 'Adicione ao menos 1 serviço ou produto na seção de serviços.',
-  estrutura: 'Deixe pelo menos 3 seções de conteúdo preenchidas.',
-  substancia: 'Escreva mais: 300+ palavras no total dão substância pra IA citar.',
-  faq: 'Adicione perguntas e respostas na seção de FAQ.',
-  'faq-3': 'Chegue a pelo menos 3 perguntas na FAQ.',
-  'faq-objetiva': 'Deixe cada resposta da FAQ com até 60 palavras.',
-  'oferta-itens': 'Liste pelo menos 3 itens de serviço ou produto.',
-}
-
 function scoreColor(n: number): string {
   if (n >= 80) return '#22c55e' // bom
   if (n >= 50) return '#f59e0b' // regular
@@ -68,6 +53,13 @@ export default function ScoreBar({ siteId, refreshKey }: Props) {
   const [meta, setMeta] = useState('')
   const [sections, setSections] = useState<PageSection[]>([])
   const [hasLinkTargets, setHasLinkTargets] = useState(false)
+  // Sinais que não moram no conteúdo da página, mas contam no score:
+  // grafo de links, site no ar, cidade e credenciais do perfil.
+  const [internalLinks, setInternalLinks] = useState(0)
+  const [published, setPublished] = useState(false)
+  const [city, setCity] = useState('')
+  const [credential, setCredential] = useState('')
+  const [yearsExperience, setYearsExperience] = useState(0)
   const [loaded, setLoaded] = useState(false)
   const [open, setOpen] = useState<DimensionKey | null>(null)
 
@@ -99,12 +91,34 @@ export default function ScoreBar({ siteId, refreshKey }: Props) {
       setSections((secs ?? []) as PageSection[])
     }
 
-    const { count } = await supabase
-      .from('blog_posts')
-      .select('*', { count: 'exact', head: true })
-      .eq('site_id', siteId)
-      .eq('status', 'published')
+    const [{ count }, { count: links }, { data: site }, { data: perfil }] = await Promise.all([
+      supabase
+        .from('blog_posts')
+        .select('*', { count: 'exact', head: true })
+        .eq('site_id', siteId)
+        .eq('status', 'published'),
+      supabase
+        .from('internal_links')
+        .select('id', { count: 'exact', head: true })
+        .eq('site_id', siteId),
+      supabase.from('sites').select('status').eq('id', siteId).maybeSingle(),
+      supabase
+        .from('onboarding_profiles')
+        .select('city, credentials, registro_profissional, years_experience')
+        .eq('site_id', siteId)
+        .maybeSingle(),
+    ])
+
     setHasLinkTargets((count ?? 0) > 0)
+    setInternalLinks(links ?? 0)
+    setPublished(site?.status === 'published')
+    setCity((perfil?.city as string | null) ?? '')
+    // Registro de conselho já vem composto ("CRO 123456"); sem ele, a lista livre.
+    setCredential(
+      (perfil?.registro_profissional as string | null) ??
+        ((perfil?.credentials as string[] | null) ?? []).join(', '),
+    )
+    setYearsExperience((perfil?.years_experience as number | null) ?? 0)
     setLoaded(true)
   }, [siteId])
 
@@ -119,10 +133,15 @@ export default function ScoreBar({ siteId, refreshKey }: Props) {
     }
   }, [fixOpen, sections])
 
+  // ATENÇÃO: todo sinal usado aqui precisa estar nas dependências abaixo,
+  // senão o número congela e mente pro dono do site.
   const scores: SiteScores | null = useMemo(() => {
     if (!loaded || sections.length === 0) return null
-    return buildSiteScores({ title, metaDescription: meta, sections, hasLinkTargets })
-  }, [loaded, title, meta, sections, hasLinkTargets])
+    return buildSiteScores({
+      title, metaDescription: meta, sections, hasLinkTargets,
+      internalLinks, published, city, credential, yearsExperience,
+    })
+  }, [loaded, title, meta, sections, hasLinkTargets, internalLinks, published, city, credential, yearsExperience])
 
   // Grava o telefone no hero.cta_phone (preserva os demais campos do hero).
   async function saveHeroPhone() {
@@ -180,7 +199,7 @@ export default function ScoreBar({ siteId, refreshKey }: Props) {
         Otimização<br />IA &amp; Busca
       </div>
 
-      {/* 3 sub-scores */}
+      {/* 4 sub-scores */}
       <div className="ed-score-dims">
         {scores.dimensions.map(d => {
           const pending = d.checks.filter(c => !c.ok).length
@@ -278,7 +297,7 @@ export default function ScoreBar({ siteId, refreshKey }: Props) {
                         </>
                       ) : (
                         <p className="ed-score-fix-note">
-                          {FIX_HINT[c.id] ?? 'Complete este item no painel de edição.'}
+                          {c.fix ?? 'Complete este item no painel de edição.'}
                         </p>
                       )}
                     </div>

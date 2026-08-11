@@ -39,14 +39,19 @@ export default async function DashboardLayout({
         if (u?.tenant_id) {
           const { data: prof } = await supabase
             .from('onboarding_profiles')
-            .select('business_name, gpe_modo')
+            .select('business_name, gpe_modo, gpe_link')
             .eq('tenant_id', u.tenant_id)
             .order('created_at', { ascending: false })
             .limit(1)
             .maybeSingle()
           bizName = prof?.business_name ?? ''
-          // só avisa se o cliente já passou pelo onboarding e o Google não está vinculado
-          if (prof && prof.gpe_modo && prof.gpe_modo !== 'vincular') gpeConnected = false
+          // Vinculado de verdade = escolheu vincular E existe o link do perfil.
+          // Só o modo não prova nada: "vincular" é a opção pré-selecionada da
+          // tela, então quem passou batido saía daqui marcado como conectado e
+          // nunca via o aviso — justamente quem mais precisa dele.
+          if (prof && !(prof.gpe_modo === 'vincular' && String(prof.gpe_link ?? '').trim())) {
+            gpeConnected = false
+          }
         }
       }
     } catch {

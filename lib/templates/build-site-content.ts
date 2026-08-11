@@ -61,7 +61,7 @@ export async function buildSiteContent(
       .maybeSingle(),
     supabase
       .from('onboarding_profiles')
-      .select('business_name, city, state, credentials, years_experience, services, tone, logo_url, favicon_url, social_links, gpe_modo, gpe_link, gbp_place_id')
+      .select('business_name, city, state, credentials, registro_profissional, years_experience, services, tone, logo_url, favicon_url, social_links, gpe_modo, gpe_link, gbp_place_id')
       .eq('site_id', site.id)
       .maybeSingle(),
     supabase
@@ -137,7 +137,10 @@ export async function buildSiteContent(
     ctaLabel:        hero?.cta_label ?? 'Falar conosco',
     ctaPhone:        contactPhone,
     about:           about?.body ?? '',
-    credential:      about?.credential ?? (profile?.credentials ?? []).join(', '),
+    // Registro de conselho entra como rede: se a IA não trouxe credencial na
+    // seção, o número que o dono digitou no onboarding ainda aparece. Ele já
+    // chega composto ("CRO 123456"), então é exibível como está.
+    credential:      about?.credential ?? profile?.registro_profissional ?? (profile?.credentials ?? []).join(', '),
     services:        rawServices.map(s => ({ name: s.name, description: s.description, icon: s.icon ?? '⭐', ...(s.image ? { image: s.image } : {}) })),
     testimonials:    (testi?.items ?? [])
                        .filter(t => (t.name ?? '').trim())

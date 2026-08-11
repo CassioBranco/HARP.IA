@@ -8,7 +8,6 @@
 
 const MODEL = 'text-embedding-3-small'
 const ENDPOINT = 'https://api.openai.com/v1/embeddings'
-export const EMBEDDING_DIMS = 1536
 
 export function hasEmbeddingsEnv(): boolean {
   return Boolean(process.env.OPENAI_API_KEY)

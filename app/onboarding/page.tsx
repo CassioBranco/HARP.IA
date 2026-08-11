@@ -66,6 +66,9 @@ export default function OnboardingPage() {
   const [lojaModo, setLojaModo] = useState<LojaModo>('catalogo') // sub-modo quando objetivo='loja'
   const [businessName, setBusinessName] = useState('')
   const [about, setAbout] = useState('')
+  const [servicos, setServicos] = useState('')   // um por linha → services[]
+  const [publico, setPublico] = useState('')     // → target_audience
+  const [dores, setDores] = useState('')         // → pain_points
   const [cat, setCat] = useState('saude')
   const [niche, setNiche] = useState('')
   const [segTouched, setSegTouched] = useState(false)
@@ -122,6 +125,19 @@ export default function OnboardingPage() {
     [segPick, niche]
   )
 
+  // "Número do CRO" → "CRO". O número sozinho não diz nada num site; com a
+  // sigla do conselho ele vira credencial verificável, que é o que conta como
+  // sinal de autoridade. Guardar já composto evita a IA ter que adivinhar o
+  // conselho da profissão (e errar, inventando um fato).
+  const siglaConselho = useMemo(() => {
+    // Da taxonomia a sigla já vem limpa ("CRO", "CRFa"); do mapa fixo vem
+    // dentro de uma frase ("Número do CRO"), então pega a última palavra e
+    // só aceita se parecer sigla (começa em maiúscula).
+    if (segPick?.regulado && segPick.doc_label) return segPick.doc_label
+    const ultima = regDoc?.trim().split(/\s+/).pop() ?? ''
+    return /^[A-Z]/.test(ultima) ? ultima : ''
+  }, [segPick, regDoc])
+
   // ── auth gate (mesmo padrão do app) ───────────────────────
   useEffect(() => {
     setMounted(true)
@@ -157,7 +173,14 @@ export default function OnboardingPage() {
       profissao: niche || null,
       niche: segPick ? segPick.profissao_key : (niche ? nicheToSlug(niche) : null),
       segmento_custom: !segPick && niche ? niche : null,
-      registro_profissional: regDoc ? registro || null : null,
+      registro_profissional: regDoc && registro.trim()
+        ? (siglaConselho ? `${siglaConselho} ${registro.trim()}` : registro.trim())
+        : null,
+      // Um serviço por linha. A descrição fica vazia de propósito: o nome é
+      // fato do dono, o texto de venda é trabalho da IA na geração.
+      services: servicos.trim()
+        ? servicos.split('\n').map((s) => s.trim()).filter(Boolean).map((name) => ({ name, description: '' }))
+        : null,
       porte,
       area_tipo: area,
       // MEI/micro (porte local) atendem num raio máximo de 30 km.
@@ -171,7 +194,14 @@ export default function OnboardingPage() {
       // Link válido = perfil vinculado, tenha ele chegado por qual das três
       // portas for. Quem entrou por "não sei se tenho" e achou o perfil no
       // mapa vale tanto quanto quem já chegou com o link na mão.
-      gpe_modo: (gpeLink.trim() && !gpeErr) ? 'vincular' : gpeModo,
+      // "vincular" só vai pro banco com o link junto. Sem link é uma alegação
+      // sem prova: como "vincular" é a opção pré-selecionada da tela, o perfil
+      // saía gravado como vinculado antes de o cliente colar coisa nenhuma, e
+      // o painel inteiro passava a acreditar nisso. Sem link, grava nulo.
+      gpe_modo:
+        (gpeLink.trim() && !gpeErr) ? 'vincular'
+          : gpeModo === 'vincular' ? null
+            : gpeModo,
       gpe_link: (gpeLink.trim() && !gpeErr) ? gpeLink.trim() : null,
       // Identificador do lugar (place_id ou cid) lido do próprio link. A
       // coluna existe desde o schema inicial e nada escrevia nela; guardar
@@ -182,6 +212,8 @@ export default function OnboardingPage() {
         pergunta: q[0],
         resposta: answers[i] ?? '',
       })).filter((x) => x.resposta.trim()),
+      target_audience: publico.trim() || null,
+      pain_points: dores.trim() || null,
       dominio_modo: dominioModo,
       dominio:
         dominioModo === 'tenho'
@@ -191,8 +223,9 @@ export default function OnboardingPage() {
             : `${slug}.ancoreo.com.br`,
     }
   }, [
-    objetivo, lojaModo, businessName, about, cat, niche, segPick, otherActive, registro,
-    porte, radiusKm, areaText, city, uf, gpeModo, gpeLink, gpeErr, gpeId, answers, dominioModo, dominioProprio,
+    objetivo, lojaModo, businessName, about, servicos, cat, niche, segPick, otherActive, registro, regDoc, siglaConselho,
+    porte, radiusKm, areaText, city, uf, gpeModo, gpeLink, gpeErr, gpeId, answers, publico, dores,
+    dominioModo, dominioProprio,
   ])
 
   // ── autosave debounced via server action ──────────────────
@@ -224,9 +257,13 @@ export default function OnboardingPage() {
     scheduleSave()
     setScreenError('') // editar qualquer campo limpa o erro de validação
     // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Campo que não estiver nesta lista simplesmente não dispara o autosave:
+    // o cliente digita, vê o texto na tela e o dado nunca chega no banco.
+    // Ao adicionar campo novo no buildInput, adicione aqui também.
   }, [
-    objetivo, businessName, about, cat, niche, segPick, otherActive, registro,
-    porte, radiusKm, areaText, city, uf, gpeModo, gpeLink, gpeErr, gpeId, answers, dominioModo, dominioProprio,
+    objetivo, businessName, about, servicos, cat, niche, segPick, otherActive, registro,
+    porte, radiusKm, areaText, city, uf, gpeModo, gpeLink, gpeErr, gpeId, answers, publico, dores,
+    dominioModo, dominioProprio,
   ])
 
   // pré-seleciona categoria + nicho pelo palpite, até o cliente escolher na mão
@@ -564,7 +601,10 @@ export default function OnboardingPage() {
   const authority = useMemo(() => {
     let words = 0
     let answered = 0
-    answers.forEach((a) => {
+    // Público e dores contam junto: pra medir autoridade eles valem tanto
+    // quanto as perguntas de conhecimento, e sem eles o site não sabe
+    // responder busca nenhuma.
+    ;[...answers, publico, dores].forEach((a) => {
       const w = a.trim().split(/\s+/).filter(Boolean).length
       words += w
       if (w >= 12) answered++
@@ -573,7 +613,7 @@ export default function OnboardingPage() {
     const label = p < 35 ? 'Fraco' : p < 70 ? 'Bom' : 'Forte'
     const color = p < 35 ? '#f5a30a' : p < 70 ? '#8fc0ff' : '#22c55e'
     return { p, label, color }
-  }, [answers])
+  }, [answers, publico, dores])
 
   // ── score real de SEO (pesos por impacto em busca local/GEO) ──
   const seo = useMemo(() => {
@@ -863,6 +903,20 @@ export default function OnboardingPage() {
                   value={about}
                   onChange={(e) => setAbout(e.target.value)}
                   placeholder="Ex.: Clínica geral e pediatria, consulta sem pressa e exames no mesmo dia."
+                />
+
+                <div className="lbl">
+                  <i className="ph-duotone ph-list-checks" /> Quais serviços você oferece?
+                </div>
+                <p className="hint" style={{ margin: '0 0 .5rem' }}>
+                  Um por linha. A IA só pode escrever sobre o que você listar aqui, então nada de
+                  serviço inventado no seu site.
+                </p>
+                <textarea
+                  className="field"
+                  value={servicos}
+                  onChange={(e) => setServicos(e.target.value)}
+                  placeholder={'Limpeza e profilaxia\nClareamento dental\nImplante\nAparelho ortodôntico'}
                 />
 
                 <div className="lbl">
@@ -1226,6 +1280,27 @@ export default function OnboardingPage() {
                       </p>
                     </div>
                     <div className="kq">
+                      <div className={`kq-item${publico.trim().length >= 25 ? ' done' : ''}`}>
+                        <div className="kq-q">
+                          <i className="ph-fill ph-users-three" /> Pra quem você atende?
+                        </div>
+                        <textarea
+                          value={publico}
+                          onChange={(e) => setPublico(e.target.value)}
+                          placeholder="Ex.: Famílias do centro de Sorocaba, muita gente que tem medo de dentista e sumiu por anos."
+                        />
+                      </div>
+                      <div className={`kq-item${dores.trim().length >= 25 ? ' done' : ''}`}>
+                        <div className="kq-q">
+                          <i className="ph-fill ph-first-aid" /> Que problema o cliente chega tentando
+                          resolver?
+                        </div>
+                        <textarea
+                          value={dores}
+                          onChange={(e) => setDores(e.target.value)}
+                          placeholder="Ex.: Dor de dente que começou no fim de semana e ninguém atende de urgência."
+                        />
+                      </div>
                       {KQUESTIONS.map((q, i) => {
                         const done =
                           (answers[i] ?? '').trim().split(/\s+/).filter(Boolean).length >= 12

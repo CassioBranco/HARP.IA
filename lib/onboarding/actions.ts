@@ -147,94 +147,10 @@ export async function saveOnboardingProfile(
   return { ok: true, id: inserted.id as string, completeness }
 }
 
-export interface StartGenerationResult {
-  ok: boolean
-  site_id?: string
-  error?: string
-}
-
-/**
- * Tela 7 — "Gerar meu site". Cria o site (a partir do objetivo/segmento +
- * paleta do perfil), vincula o perfil e devolve o site_id. O front então
- * abre o stream SSE em POST /api/generate/site com esse site_id.
- * Guardrail: completude ≥ 70%.
- */
-export async function createSiteFromProfile(): Promise<StartGenerationResult> {
-  const supabase = await createServerClient()
-
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return { ok: false, error: 'unauthenticated' }
-
-  const { data: userData } = await supabase
-    .from('users')
-    .select('tenant_id, tenants(sites_allowed)')
-    .eq('id', user.id)
-    .single()
-  let tenantId: string
-  try {
-    tenantId = await resolveTenantId(user.id, user.email ?? 'Minha conta', userData?.tenant_id)
-  } catch (e) {
-    return { ok: false, error: `provision_failed: ${e instanceof Error ? e.message : String(e)}` }
-  }
-
-  // Perfil mais recente do usuário
-  const { data: profile } = await supabase
-    .from('onboarding_profiles')
-    .select('id, site_id, profissao, niche, setor, completeness_score, paleta')
-    .eq('tenant_id', tenantId)
-    .order('created_at', { ascending: false })
-    .limit(1)
-    .maybeSingle()
-
-  if (!profile) return { ok: false, error: 'profile_not_found' }
-  if ((profile.completeness_score ?? 0) < 70) {
-    return { ok: false, error: 'incomplete' }
-  }
-
-  // Já tem site vinculado → reaproveita (idempotente, não conta no limite)
-  if (profile.site_id) return { ok: true, site_id: profile.site_id as string }
-
-  // Regra de negócio: 1 site por assinatura (+ add-ons em sites_allowed).
-  // Pré-checagem pra dar mensagem amigável; o trigger no banco é a trava real.
-  const allowed = (userData?.tenants as unknown as { sites_allowed?: number } | null)?.sites_allowed ?? 1
-  const { count: siteCount } = await supabase
-    .from('sites')
-    .select('*', { count: 'exact', head: true })
-    .eq('tenant_id', tenantId)
-  if ((siteCount ?? 0) >= allowed) {
-    return { ok: false, error: 'site_limit' }
-  }
-
-  const presetKey = resolvePreset(profile)
-
-  const { data: site, error: siteErr } = await supabase
-    .from('sites')
-    .insert({
-      tenant_id: tenantId,
-      preset: presetKey,
-      niche: presetKey,
-      palette_index: 0,
-      template: 'clean',
-      status: 'draft',
-    })
-    .select('id')
-    .single()
-
-  if (siteErr || !site) {
-    // Trigger do banco bloqueou por limite de assinatura
-    if (siteErr?.message?.includes('site_limit_reached')) {
-      return { ok: false, error: 'site_limit' }
-    }
-    return { ok: false, error: siteErr?.message ?? 'site_create_failed' }
-  }
-
-  await supabase
-    .from('onboarding_profiles')
-    .update({ site_id: site.id })
-    .eq('id', profile.id)
-
-  return { ok: true, site_id: site.id as string }
-}
+// Existia aqui um createSiteFromProfile: criava o site direto do perfil, sem
+// passar pela escolha de modelo. Foi substituído por createSiteWithModel e
+// ficou sem nenhum chamador, já divergindo nas regras (template fixo 'clean',
+// paleta 0). Código morto que parece vivo engana quem vier depois.
 
 export interface CreateSiteWithModelInput {
   layout: string                 // slug do modelo (clean, bold, ...). Vira sites.template

@@ -15,10 +15,14 @@ type ScoreData = {
   rules: ScoreRule[]; calculated_at: string | null
 }
 
-const RINGS: { id: Exclude<Pillar, 'eeat'>; label: string; color: string; hint: (n: number) => string }[] = [
+// Os 4 pilares que a régua única calcula (lib/seo/site-score). Autoridade
+// estava sendo gravada no histórico e nunca aparecia — é o pilar que diz
+// quem assina o site, e sem ele o dono não sabia que estava perdendo ponto.
+const RINGS: { id: Pillar; label: string; color: string; hint: (n: number) => string }[] = [
   { id: 'seo', label: 'SEO', color: '#22c55e', hint: n => `Busca tradicional no Google. ${grade(n)}.` },
   { id: 'geo', label: 'GEO', color: '#f5a30a', hint: n => `Citação pelas IAs. ${grade(n)}.` },
   { id: 'aeo', label: 'AEO', color: '#3b82f6', hint: n => `Resposta direta e por voz. ${grade(n)}.` },
+  { id: 'eeat', label: 'Autoridade', color: '#a855f7', hint: n => `Quem assina e por que confiar. ${grade(n)}.` },
 ]
 
 function grade(n: number): string {
@@ -239,7 +243,7 @@ export default function MetricsView({
 
       {data && !loading && (
         <>
-          {/* anéis SEO / GEO / AEO — reais */}
+          {/* anéis SEO / GEO / AEO / Autoridade — mesma régua do editor */}
           <div className="seo3">
             {RINGS.map(r => {
               const n = data[r.id]
@@ -363,7 +367,7 @@ export default function MetricsView({
                 {allGood ? (
                   <div className="ti ok">
                     <span className="ic"><i className="ph-fill ph-check" /></span>
-                    <div><b>Tudo certo por aqui</b><p>Seu site passa em todas as regras de SEO, GEO e AEO avaliadas.</p></div>
+                    <div><b>Tudo certo por aqui</b><p>Seu site passa em todas as regras de SEO, GEO, AEO e Autoridade avaliadas.</p></div>
                   </div>
                 ) : (
                   toImprove.map(rule => (

@@ -18,6 +18,12 @@
 //    não mexe em nada. O módulo de e-mail inteiro é assim.
 //
 // Nada aqui publica no Google. Continua sendo o dono que cola.
+//
+// O cron do vercel.json bate aqui TODO DIA às 12h UTC (9h de Brasília),
+// e não uma vez por semana. A data marcada de um post pode cair em
+// qualquer dia; quem decide se sai e-mail é a regra acima, não o
+// calendário do cron. Rodar diário é o que faz o aviso "é hoje" chegar
+// no dia certo. Quem segura a repetição é a janela de 20 horas.
 // ============================================================
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'

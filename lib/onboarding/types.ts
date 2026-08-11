@@ -38,6 +38,15 @@ export interface ConhecimentoItem {
   resposta: string
 }
 
+// Serviço listado pelo dono. Ele dá o nome; a descrição quem escreve é a IA
+// na geração (por isso nasce vazia). O nome é fato do negócio e não pode ser
+// inventado — é a diferença entre o site falar dos serviços que existem e
+// falar dos serviços que o modelo achou plausível pro segmento.
+export interface ServicoItem {
+  name: string
+  description: string
+}
+
 // Paleta extraída da logo / escolhida
 export interface Paleta {
   primary?: string
@@ -60,6 +69,7 @@ export interface OnboardingProfileInput {
   registro_profissional?: string | null // condicional: profissão regulada
   niche?: string | null              // slug legado (compat /templates + geração)
   differentials?: string | null      // texto livre "o que você faz" (voz do cliente)
+  services?: ServicoItem[] | null    // lista de serviços, um por linha (fato, não invenção)
   // Tela 4 — Porte + Área
   porte?: Porte | null
   area_tipo?: AreaTipo | null
@@ -76,6 +86,11 @@ export interface OnboardingProfileInput {
   gbp_place_id?: string | null
   // Tela 6 — Conhecimento (E-E-A-T)
   conhecimento?: ConhecimentoItem[] | null
+  target_audience?: string | null    // pra quem ele atende (voz do cliente)
+  // O que a pessoa digita no Google não é o nome da profissão, é o problema
+  // que ela está tentando resolver. Sem isso o site só sabe se descrever, e
+  // não sabe responder busca nenhuma. Vira matéria-prima de FAQ e títulos.
+  pain_points?: string | null
   // Tela 7 — Domínio + identidade visual
   dominio_modo?: DominioModo | null
   dominio?: string | null

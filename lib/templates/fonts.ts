@@ -53,8 +53,6 @@ export const FONT_PAIRS: FontPair[] = [
   },
 ]
 
-export const DEFAULT_FONT_PAIR = 'classico'
-
 export function getFontPair(id: string | null | undefined): FontPair | null {
   if (!id) return null
   return FONT_PAIRS.find(f => f.id === id) ?? null

@@ -93,14 +93,5 @@ export function getPalette(preset: string, index: number): PaletteColors {
   }
 }
 
-export function paletteToCSS(p: PaletteColors): string {
-  return `
-    --site-primary: ${p.primary};
-    --site-secondary: ${p.secondary};
-    --site-accent: ${p.accent};
-    --site-bg: ${p.bg};
-    --site-surface: ${p.surface};
-    --site-text: ${p.text};
-    --site-muted: ${p.muted};
-  `
-}
+// Havia aqui um paletteToCSS que ninguém chamava: quem escreve as variáveis
+// de cor no site publicado é o próprio renderizador do template.

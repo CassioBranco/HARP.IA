@@ -8,8 +8,10 @@
 
 import { extractKeywords, norm } from './triangulation'
 
-/** weight opcional: sem ele todo check vale 1 (páginas seguem iguais). */
-export type SeoCheck = { id: string; ok: boolean; label: string; weight?: number }
+/** weight opcional: sem ele todo check vale 1 (páginas seguem iguais).
+ *  fix opcional: frase de "como resolver" que viaja junto com o check, pra
+ *  editor e painel mostrarem a MESMA orientação sem manter dois dicionários. */
+export type SeoCheck = { id: string; ok: boolean; label: string; weight?: number; fix?: string }
 export type SeoScore = { score: number; label: 'Bom' | 'Regular' | 'Fraco' }
 export type FaqItem = { question: string; answer: string }
 

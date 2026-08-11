@@ -293,7 +293,10 @@
 @media(max-width:980px){.painel-shell .post-grid{grid-template-columns:1fr}.painel-shell .post-side{position:static;max-height:none;overflow:visible}}
 
 /* ===== Métricas ===== */
-.painel-shell .seo3{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem}
+/* 4 anéis: SEO · GEO · AEO · Autoridade. Em 2 colunas antes de espremer. */
+.painel-shell .seo3{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem}
+@media(max-width:1040px){.painel-shell .seo3{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.painel-shell .seo3{grid-template-columns:1fr}}
 .painel-shell .seo-card{padding:1.35rem;text-align:center}
 .painel-shell .ring{width:100px;height:100px;margin:0 auto .9rem;border-radius:50%;display:grid;place-items:center;position:relative}
 .painel-shell .ring .rin{width:78px;height:78px;border-radius:50%;background:var(--surf);display:grid;place-items:center;line-height:1;flex-direction:column}

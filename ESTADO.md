@@ -49,10 +49,10 @@ conta como **não ligado**.
 | tabela | linhas |
 |---|---:|
 | tenants | 14 |
-| onboarding_profiles | 14 |
+| onboarding_profiles | 12 |
 | sites | 9 |
 | blog_posts | 0 |
-| score_snapshots | 0 |
+| score_snapshots | 1 |
 | gbp_posts | 0 |
 | leads | 0 |
 | products | 0 |
@@ -65,27 +65,36 @@ Zero linhas não significa quebrado: significa que ninguém exercitou aquele cam
 
 Branch: `master`
 
+- `0bdeb9f` test: empresa de teste sob demanda (seed idempotente + --limpar) _(2 hours ago)_
 - `cff8fe2` Ponte blog <-> Google Perfil: artigo publicado vira isca, sem estourar a cadencia _(4 days ago)_
 - `323c312` feat(gbp): pilar do Google Perfil ponta a ponta (5.2 a 5.6) _(4 days ago)_
 - `f524226` docs: indexa os 7 wireframes de referencia e liga aos pilares do MVP _(4 days ago)_
 - `b6d5840` docs: escopo do MVP em 5 pilares + ESTADO.md gerado no lugar da prosa _(4 days ago)_
-- `249060a` feat(painel): metricas reais ponta a ponta + trava anti-depoimento inventado _(5 days ago)_
 
 **Trabalho não commitado:** 
 
 ```
-M ESTADO.md
-?? scripts/seed-empresa-teste.mjs
+M app/(dashboard)/layout.tsx
+ M app/(dashboard)/metrics/MetricsView.tsx
+ M app/(dashboard)/painel.css
+ M app/(editor)/editor/[siteId]/components/ScoreBar.tsx
+ M app/api/score/[siteId]/route.ts
+ M app/onboarding/page.tsx
+ M lib/embeddings/openai.ts
+ M lib/env.ts
+ M lib/onboarding/actions.ts
+D  lib/onboarding/gpe.ts
+ M lib/onboarding/types.ts
+ M lib/prompts/loader.ts
+ M lib/seo/score.ts
+ M lib/seo/site-score.ts
+ M lib/templates/build-site-content.ts
+ M lib/templates/fonts.ts
+ M lib/templates/layouts.ts
+ M lib/templates/palettes.ts
 ```
 
-**Commits locais não enviados:** 
-
-```
-cff8fe2 Ponte blog <-> Google Perfil: artigo publicado vira isca, sem estourar a cadencia
-323c312 feat(gbp): pilar do Google Perfil ponta a ponta (5.2 a 5.6)
-f524226 docs: indexa os 7 wireframes de referencia e liga aos pilares do MVP
-b6d5840 docs: escopo do MVP em 5 pilares + ESTADO.md gerado no lugar da prosa
-```
+**Commits locais não enviados:** nenhum
 
 ---
 
