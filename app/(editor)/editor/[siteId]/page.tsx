@@ -34,6 +34,14 @@ const GEN_STEPS = [
   'Quase lá, dando os retoques…',
 ]
 
+// Largura em que o preview de Desktop é renderizado de verdade, antes de ser
+// reduzido pra caber no palco. 1280 é a largura de tela mais comum no Brasil.
+const LARGURA_DESKTOP = 1280
+// Bloco inteiro do preview de celular: 720 de tela + 7 de borda de cada lado
+// + a legenda "390 × 720 px" embaixo. É a altura que precisa caber no palco.
+const ALTURA_PHONE = 768
+const PADDING_PALCO = 21 // 1.3rem do .ed-canvas
+
 export default function EditorPage() {
   const { siteId } = useParams<{ siteId: string }>()
   const [viewMode, setViewMode] = useState<ViewMode>('desktop')
@@ -48,6 +56,41 @@ export default function EditorPage() {
   const autoGenChecked = useRef(false)
   // Mensagens que vão trocando enquanto gera (a geração nao da progresso granular).
   const [genStep, setGenStep] = useState(0)
+
+  // ── Zoom do preview ───────────────────────────────────────
+  // O palco tem ~600px de largura, e um site de verdade se monta em 1280.
+  // Sem escalar, o iframe abria em 590px e o site caía no layout de celular
+  // dentro do modo Desktop: o dono editava uma coisa e publicava outra.
+  // A saída é a mesma de qualquer editor de site: renderizar na largura real
+  // e encolher a imagem com transform:scale. O que ele vê passa a ser o site,
+  // só que menor.
+  const canvasRef = useRef<HTMLDivElement | null>(null)
+  const viewportRef = useRef<HTMLDivElement | null>(null)
+  const [zoom, setZoom] = useState(1)
+  const [phoneZoom, setPhoneZoom] = useState(1)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const medir = () => {
+      const vp = viewportRef.current
+      if (vp && vp.clientWidth > 0) {
+        setZoom(Math.min(1, vp.clientWidth / LARGURA_DESKTOP))
+      }
+      // O celular de 720px de altura não cabia no palco e criava rolagem por
+      // fora do aparelho. Encolhe até caber.
+      const livre = canvas.clientHeight - 2 * PADDING_PALCO
+      setPhoneZoom(Math.min(1, Math.max(0.5, livre / ALTURA_PHONE)))
+    }
+    medir()
+    const ro = new ResizeObserver(medir)
+    ro.observe(canvas)
+    if (viewportRef.current) ro.observe(viewportRef.current)
+    return () => ro.disconnect()
+    // `site` entra na lista de propósito: enquanto ele é null a tela mostra o
+    // carregando e o palco nem existe no DOM. Sem isso a medição rodava uma
+    // vez no vazio e o zoom ficava travado em 100%.
+  }, [viewMode, site])
 
   useEffect(() => {
     if (gen.state !== 'running') { setGenStep(0); return }
@@ -241,7 +284,7 @@ export default function EditorPage() {
             </div>
           </div>
 
-          <div className="ed-canvas" style={{ position: 'relative' }}>
+          <div className="ed-canvas" ref={canvasRef} style={{ position: 'relative' }}>
             {/* Toast das operações estruturais (mover/duplicar/remover/adicionar)
                 com "Desfazer" de 5s — ver decisão de undo no useEditBridge. */}
             {editToast && (
@@ -318,11 +361,35 @@ export default function EditorPage() {
                   <span className="dot" style={{ background: '#fbbf24' }} />
                   <span className="dot" style={{ background: '#34d399' }} />
                   <span className="u">{url}</span>
+                  {/* Diz que o site está reduzido, não quebrado. */}
+                  <span
+                    title={`Vendo o site em tamanho real de ${LARGURA_DESKTOP}px, reduzido pra caber na tela`}
+                    style={{ fontSize: '.62rem', fontWeight: 600, color: 'var(--muted)', whiteSpace: 'nowrap' }}
+                  >
+                    {Math.round(zoom * 100)}%
+                  </span>
                 </div>
-                <iframe ref={iframeRef} key={`desktop-${previewKey}`} src={previewSrc} title="Preview desktop" />
+                <div className="ed-viewport" ref={viewportRef}>
+                  <iframe
+                    ref={iframeRef}
+                    key={`desktop-${previewKey}`}
+                    src={previewSrc}
+                    title="Preview desktop"
+                    // A altura sai em % da área visível: depois de encolhida
+                    // pelo scale ela fecha exatamente com o espaço disponível,
+                    // sem sobra e sem corte, mesmo se a janela mudar.
+                    style={{ width: LARGURA_DESKTOP, height: `${(100 / zoom).toFixed(3)}%`, transform: `scale(${zoom})` }}
+                  />
+                </div>
               </div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '.5rem' }}>
+              // A altura do embrulho já é a altura encolhida: sem isso o palco
+              // continuaria reservando os 720px do aparelho e rolaria à toa.
+              <div style={{ height: Math.round(ALTURA_PHONE * phoneZoom) }}>
+                <div style={{
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '.5rem',
+                  transform: `scale(${phoneZoom})`, transformOrigin: 'top center',
+                }}>
                 <div className="ed-phone">
                   <span className="notch" />
                   <div className="scr">
@@ -330,6 +397,7 @@ export default function EditorPage() {
                   </div>
                 </div>
                 <p style={{ fontSize: '.7rem', color: 'var(--muted2)' }}>390 × 720 px</p>
+                </div>
               </div>
             )}
           </div>
