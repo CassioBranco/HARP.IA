@@ -2,7 +2,7 @@
 
 > **ARQUIVO GERADO. Não edite à mão.** Rode `node scripts/estado.mjs`.
 > Cada linha abaixo foi verificada contra o código e o banco, não contra outro documento.
-> Última geração: **2026-08-07**
+> Última geração: **2026-08-11**
 
 ## Sondas por pilar do MVP
 
@@ -48,16 +48,16 @@ conta como **não ligado**.
 
 | tabela | linhas |
 |---|---:|
-| tenants | 13 |
-| onboarding_profiles | 13 |
-| sites | 8 |
+| tenants | 14 |
+| onboarding_profiles | 14 |
+| sites | 9 |
 | blog_posts | 0 |
 | score_snapshots | 0 |
 | gbp_posts | 0 |
 | leads | 0 |
 | products | 0 |
 | orders | 0 |
-| sites (publicados) | 1 |
+| sites (publicados) | 2 |
 
 Zero linhas não significa quebrado: significa que ninguém exercitou aquele caminho ainda. Cruze com as sondas acima antes de concluir.
 
@@ -65,28 +65,23 @@ Zero linhas não significa quebrado: significa que ninguém exercitou aquele cam
 
 Branch: `master`
 
-- `323c312` feat(gbp): pilar do Google Perfil ponta a ponta (5.2 a 5.6) _(27 minutes ago)_
-- `f524226` docs: indexa os 7 wireframes de referencia e liga aos pilares do MVP _(4 hours ago)_
-- `b6d5840` docs: escopo do MVP em 5 pilares + ESTADO.md gerado no lugar da prosa _(5 hours ago)_
-- `249060a` feat(painel): metricas reais ponta a ponta + trava anti-depoimento inventado _(26 hours ago)_
-- `eb15493` fix(editor): conserta grade do editor quebrada pela barra de score _(9 days ago)_
+- `cff8fe2` Ponte blog <-> Google Perfil: artigo publicado vira isca, sem estourar a cadencia _(4 days ago)_
+- `323c312` feat(gbp): pilar do Google Perfil ponta a ponta (5.2 a 5.6) _(4 days ago)_
+- `f524226` docs: indexa os 7 wireframes de referencia e liga aos pilares do MVP _(4 days ago)_
+- `b6d5840` docs: escopo do MVP em 5 pilares + ESTADO.md gerado no lugar da prosa _(4 days ago)_
+- `249060a` feat(painel): metricas reais ponta a ponta + trava anti-depoimento inventado _(5 days ago)_
 
 **Trabalho não commitado:** 
 
 ```
-M app/(dashboard)/blog/[postId]/PostEditor.tsx
- M app/(dashboard)/gbp/GbpClient.tsx
- M app/(dashboard)/gbp/page.tsx
- M app/api/ai/gbp/mes/route.ts
- M scripts/estado.mjs
-?? app/api/ai/gbp/do-artigo/
-?? lib/seo/blog-para-gpe.ts
-?? scripts/check-blog-para-gpe.ts
+M ESTADO.md
+?? scripts/seed-empresa-teste.mjs
 ```
 
 **Commits locais não enviados:** 
 
 ```
+cff8fe2 Ponte blog <-> Google Perfil: artigo publicado vira isca, sem estourar a cadencia
 323c312 feat(gbp): pilar do Google Perfil ponta a ponta (5.2 a 5.6)
 f524226 docs: indexa os 7 wireframes de referencia e liga aos pilares do MVP
 b6d5840 docs: escopo do MVP em 5 pilares + ESTADO.md gerado no lugar da prosa
