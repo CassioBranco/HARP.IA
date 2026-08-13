@@ -4,6 +4,7 @@
 > Última atualização: 2026-08-07 (escopo do MVP travado em 5 pilares; `docs/PROJETO/` arquivado)
 >
 > ⚠️ **HIERARQUIA DA VERDADE.** Ordem de leitura, nesta ordem:
+> 0. **`PAINEL.md`** — em que passo estamos, em uma tela. **Arquivo gerado** por `node scripts/planilha.mjs` (que regenera o ESTADO.md antes). É o que eu MOSTRO ao Cássio no começo de toda sessão, antes de começar trabalho novo. Versão para Excel: `PAINEL.csv`.
 > 1. **`ESTADO.md`** — o que está pronto. **Arquivo gerado** por `node scripts/estado.mjs` a partir de git, banco de produção e sondas de grep no código. Ganha de qualquer outro documento, sempre.
 > 2. **`DIARIO.md`** — o que mudou e quando. **Arquivo gerado** por `node scripts/diario.mjs` a partir do git. Responde "o que andou desde a última vez", que o ESTADO.md (uma foto do agora) não responde.
 > 3. **`MVP.md`** — os 5 pilares do MVP, definição de pronto, portões humanos.

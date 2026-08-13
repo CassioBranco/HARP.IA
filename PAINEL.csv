@@ -1,0 +1,30 @@
+﻿Nº;Pilar;O que é;Situação;Como sabemos;Quando
+1;Onboarding;Fluxo de onboarding existe e grava perfil;PRONTO;verificado no código;feito
+2;Site builder;Geração de site por IA está ligada ao onboarding;PRONTO;verificado no código;feito
+3;Site builder;Publicação de site tem rota e chamador;PRONTO;verificado no código;feito
+4;Blog builder;Editor de post chama a rota de publicação de blog;PRONTO;verificado no código;feito
+5;Métricas;Painel lê score real da API (não hardcoded);PRONTO;verificado no código;feito
+6;Métricas;Score é persistido em histórico (score_snapshots);PRONTO;verificado no código;feito
+7;Métricas;AEO usa medição real (hoje: amostra sintética);FALTA;verificado no código;S2 · 16 a 23/08
+8;GBP;Existe integração com a API do Google (OAuth + publicação);FALTA;verificado no código;esperando o Google liberar
+9;GBP;Rascunho de post do Google é gerado por IA;PRONTO;verificado no código;feito
+10;GBP;Cliente registra que publicou no perfil (published_at é escrito);PRONTO;verificado no código;feito
+11;GBP;Calendário do mês: posts saem com data marcada;PRONTO;verificado no código;feito
+12;GBP;Link do Perfil é lido, guardado com place_id e vinculável no painel;PRONTO;verificado no código;feito
+13;GBP;Lembrete semanal do post sai sozinho (rota + agendamento);PRONTO;verificado no código;feito
+14;GBP;Ponte blog ↔ Perfil: artigo publicado vira post, post vira pauta;PRONTO;verificado no código;feito
+15;Fora do MVP;Loja: botão de compra ligado ao checkout;FALTA;verificado no código;depois do lançamento
+16;Fora do MVP;Loja: painel de produtos existe;FALTA;verificado no código;depois do lançamento
+17;Google Perfil;Você criar a senha do robô semanal no Vercel (CRON_SECRET);ESPERANDO VOCÊ;plano;agora
+18;Google Perfil;Você confirmar se a chave de e-mail (RESEND) já está no Vercel;ESPERANDO VOCÊ;plano;agora
+19;Google Perfil;Sessão de teste T5: publicar um post no seu Perfil de verdade, 20 min;ESPERANDO VOCÊ;plano;agora
+20;Métricas;Contar visitas de robô de IA no site do cliente (medição real, custo zero);FALTA;plano;S2 · 16 a 23/08
+21;Métricas;Posição real das palavras-chave, puxada do Search Console;FALTA;plano;S2 · 16 a 23/08
+22;Site builder;Tela de domínio próprio no painel (hoje o cliente não tem onde apontar o DNS);FALTA;plano;S2 · 16 a 23/08
+23;Site builder;Bloco de resposta direta abaixo do título: o trecho que a IA copia ao citar;FALTA;plano;S2 · 16 a 23/08
+24;Site builder;"Content-Signal: separar ""pode me citar"" de ""pode me usar pra treinar""";FALTA;plano;S3 · 24 a 31/08
+25;Site builder;Site lento não publica (trava acima de 2,5 segundos);FALTA;plano;S3 · 24 a 31/08
+26;Site builder;Avisar quando uma página fica a mais de 3 cliques da home;FALTA;plano;S3 · 24 a 31/08
+27;Onboarding;Descobrir por que 8 sites são gerados e só 1 é publicado;FALTA;plano;S3 · 24 a 31/08
+28;Blog builder;Publicar 5 posts de verdade e conferir os links entre eles;FALTA;plano;S3 · 24 a 31/08
+29;Fora do MVP;Cobrança da assinatura (o beta é grátis, então não corre);FORA DO MVP;plano;depois do lançamento

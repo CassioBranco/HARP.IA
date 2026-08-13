@@ -9,20 +9,26 @@ Este arquivo é o combinado pra ninguém mais pagar.
 
 ---
 
-## Os quatro arquivos
+## Os cinco arquivos
 
-Só quatro. O resto é anexo.
+Só cinco. O resto é anexo.
 
-| arquivo | quem escreve | responde |
-|---|---|---|
-| **ESTADO.md** | `node scripts/estado.mjs` | onde estamos, de verdade |
-| **DIARIO.md** | `node scripts/diario.mjs` | o que mudou, e quando |
-| **MVP.md** | nós dois, quando o escopo muda | onde queremos chegar |
-| **RITUAL.md** | quase nunca | como andamos |
+| arquivo | quem escreve | responde | pra quem |
+|---|---|---|---|
+| **PAINEL.md** + `PAINEL.csv` | `node scripts/planilha.mjs` | em que passo estamos | Cássio, de relance |
+| **ESTADO.md** | `node scripts/estado.mjs` | onde estamos, de verdade | Claude, no detalhe |
+| **DIARIO.md** | `node scripts/diario.mjs` | o que mudou, e quando | os dois |
+| **MVP.md** | nós dois, quando o escopo muda | onde queremos chegar | os dois |
+| **RITUAL.md** | quase nunca | como andamos | os dois |
 
-**Dois deles não se editam à mão.** ESTADO.md é gerado de git, do banco de
+**Três deles não se editam à mão.** ESTADO.md é gerado de git, do banco de
 produção e de sondas que rodam grep no código. Uma sonda só diz "ligado" se
 achar quem chama a função — módulo escrito e sem chamador conta como não ligado.
+
+O PAINEL nasce dessas mesmas sondas e junta a fila do que falta. Ele carrega uma
+coluna **como sabemos**, e ela é o ponto inteiro do arquivo: _verificado no
+código_ é fato, _plano_ é combinado. Planilha que embaralha as duas coisas vira
+lista de desejos com cara de relatório.
 
 Foi assim que descobrimos, em 07/08, que a loja estava documentada como pronta
 com o botão de comprar `disabled` no código.
@@ -38,13 +44,19 @@ ESTADO.md estiver errado, o erro está no script ou no código — conserta lá.
 
 ## Início de sessão
 
-O hook `.claude/hooks/session-start.sh` roda sozinho e me joga o ESTADO.md na
-cara. Não preciso perguntar "onde paramos".
+O hook `.claude/hooks/session-start.sh` roda sozinho e me joga o PAINEL.md e o
+ESTADO.md na cara. Não preciso perguntar "onde paramos".
+
+**Antes de começar qualquer trabalho novo, eu te mostro o painel** — a
+porcentagem, os dias que faltam pro lançamento, o que está esperando você e qual
+é o próximo item. Curto, quatro linhas. Só depois disso a gente decide o que
+fazer. Combinado em 13/08, e está escrito no hook pra não depender da minha
+memória.
 
 Se algum dia ele falhar, o comando é:
 
 ```bash
-node scripts/estado.mjs && cat ESTADO.md
+node scripts/planilha.mjs && cat PAINEL.md
 ```
 
 Quando a pergunta for outra — "o que andou desde a última vez que olhei?" — o
