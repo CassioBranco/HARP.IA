@@ -98,6 +98,7 @@ const FILA = [
   { pilar: 'Site builder', oQue: 'Avisar quando uma página fica a mais de 3 cliques da home', situacao: 'FALTA', quando: SPRINTS.S3 },
 
   { pilar: 'Onboarding', oQue: 'Descobrir por que 8 sites são gerados e só 1 é publicado', situacao: 'FALTA', quando: SPRINTS.S3 },
+  { pilar: 'Onboarding', oQue: 'Opção Enterprise: sai do fluxo normal e cai no e-mail institucional', situacao: 'FALTA', quando: SPRINTS.S2 },
   { pilar: 'Blog builder', oQue: 'Publicar 5 posts de verdade e conferir os links entre eles', situacao: 'FALTA', quando: SPRINTS.S3 },
 
   { pilar: 'Fora do MVP', oQue: 'Cobrança da assinatura (o beta é grátis, então não corre)', situacao: 'FORA DO MVP', quando: SPRINTS.pos },

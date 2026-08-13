@@ -4,7 +4,7 @@
 > Para abrir no Excel: **PAINEL.csv**, na mesma pasta.
 > Última geração: **2026-08-13**
 
-`█████████░░░░░░░░░░░` **46%** — 12 de 26 itens do MVP prontos
+`█████████░░░░░░░░░░░` **44%** — 12 de 27 itens do MVP prontos
 **19 dias** para o lançamento (01/09)
 **3 itens dependem de você** para destravar
 
@@ -12,12 +12,13 @@ A coluna **como sabemos** é o que separa esta planilha de uma lista de desejos.
 _Verificado no código_ quer dizer que um teste automático achou a coisa
 funcionando de verdade. _Plano_ quer dizer que combinamos fazer, e só.
 
-## Onboarding — 1/2
+## Onboarding — 1/3
 
 | nº | o que é | situação | como sabemos | quando |
 |---:|---|---|---|---|
 | 1 | Fluxo de onboarding existe e grava perfil | PRONTO | verificado no código | feito |
 | 27 | Descobrir por que 8 sites são gerados e só 1 é publicado | falta | plano | S3 · 24 a 31/08 |
+| 28 | Opção Enterprise: sai do fluxo normal e cai no e-mail institucional | falta | plano | S2 · 16 a 23/08 |
 
 ## Site builder — 2/7
 
@@ -36,7 +37,7 @@ funcionando de verdade. _Plano_ quer dizer que combinamos fazer, e só.
 | nº | o que é | situação | como sabemos | quando |
 |---:|---|---|---|---|
 | 4 | Editor de post chama a rota de publicação de blog | PRONTO | verificado no código | feito |
-| 28 | Publicar 5 posts de verdade e conferir os links entre eles | falta | plano | S3 · 24 a 31/08 |
+| 29 | Publicar 5 posts de verdade e conferir os links entre eles | falta | plano | S3 · 24 a 31/08 |
 
 ## Métricas de SEO, GEO e AEO — 2/5
 
@@ -69,7 +70,7 @@ funcionando de verdade. _Plano_ quer dizer que combinamos fazer, e só.
 |---:|---|---|---|---|
 | 15 | Loja: botão de compra ligado ao checkout | falta | verificado no código | depois do lançamento |
 | 16 | Loja: painel de produtos existe | falta | verificado no código | depois do lançamento |
-| 29 | Cobrança da assinatura (o beta é grátis, então não corre) | fora do MVP | plano | depois do lançamento |
+| 30 | Cobrança da assinatura (o beta é grátis, então não corre) | fora do MVP | plano | depois do lançamento |
 
 ---
 

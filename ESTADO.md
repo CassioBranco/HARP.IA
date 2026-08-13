@@ -65,20 +65,19 @@ Zero linhas não significa quebrado: significa que ninguém exercitou aquele cam
 
 Branch: `master`
 
-- `24dab6a` docs: ESTADO e DIARIO regerados apos o commit do diario _(6 minutes ago)_
-- `5ed97b8` docs: DIARIO.md gerado do git, pra responder "o que mudou desde que eu olhei" _(26 minutes ago)_
+- `b52c9c8` docs: PAINEL, a planilha de acompanhamento, com a coluna que separa fato de plano _(41 minutes ago)_
+- `24dab6a` docs: ESTADO e DIARIO regerados apos o commit do diario _(48 minutes ago)_
+- `5ed97b8` docs: DIARIO.md gerado do git, pra responder "o que mudou desde que eu olhei" _(68 minutes ago)_
 - `4e930c0` editor: preview de Desktop deixa de renderizar em largura de celular _(2 days ago)_
 - `cf7f3fb` Nota unica de SEO, Google Perfil so com prova e limpeza de codigo morto _(2 days ago)_
-- `0bdeb9f` test: empresa de teste sob demanda (seed idempotente + --limpar) _(2 days ago)_
 
 **Trabalho não commitado:** 
 
 ```
-M .claude/hooks/session-start.sh
- M ESTADO.md
-?? PAINEL.csv
-?? PAINEL.md
-?? scripts/planilha.mjs
+M ESTADO.md
+ M PAINEL.csv
+ M PAINEL.md
+ M scripts/planilha.mjs
 ```
 
 **Commits locais não enviados:** nenhum
