@@ -10,11 +10,11 @@ Onde estamos hoje: [ESTADO.md](ESTADO.md) · Onde queremos chegar: [MVP.md](MVP.
 
 | | |
 |---|---|
-| Alterações registradas | **128** |
+| Alterações registradas | **129** |
 | Primeira | 2026-06-04 |
-| Última | 2026-08-11 |
-| Dias com trabalho | 28 |
-| Ainda não enviadas pro ar | nenhuma |
+| Última | 2026-08-13 |
+| Dias com trabalho | 29 |
+| Ainda não enviadas pro ar | **1** |
 
 Uma linha aqui não quer dizer que a coisa funciona para o cliente. Quer dizer
 que o código mudou. Se funciona ou não, quem responde é o ESTADO.md, que testa
@@ -24,6 +24,7 @@ o código em vez de acreditar nele.
 
 | data | | mudança |
 |---|---|---|
+| 2026-08-13 | documento | DIARIO.md gerado do git, pra responder "o que mudou desde que eu olhei" _(no computador, ainda não no ar)_ |
 | 2026-08-11 | — | editor: preview de Desktop deixa de renderizar em largura de celular |
 | 2026-08-11 | — | Nota unica de SEO, Google Perfil so com prova e limpeza de codigo morto |
 | 2026-08-11 | teste | empresa de teste sob demanda (seed idempotente + --limpar) |
@@ -35,6 +36,10 @@ o código em vez de acreditar nele.
 
 <details>
 <summary>Por que cada uma dessas mudanças foi feita</summary>
+
+**2026-08-13 — DIARIO.md gerado do git, pra responder "o que mudou desde que eu olhei"**
+
+O ESTADO.md e uma foto do agora: responde "onde estamos" e nao responde "o que andou nas ultimas duas semanas". Sem essa segunda resposta, quem volta ao projeto depois de uma temporada em outro cliente reconstroi a historia de cabeca, que e exatamente o pedagio que o RITUAL.md existe pra eliminar.
 
 **2026-08-11 — editor: preview de Desktop deixa de renderizar em largura de celular**
 
@@ -109,10 +114,6 @@ Substitui o editor da beta pela versão de 2 painéis testada na branch editor-2
 **2026-07-10 — editor de 2 painéis (conteúdo + design) sobre o core da beta**
 
 Refaz o layout de 4 colunas (rail | conteúdo | preview | design) que a reescrita anterior tentou, mas SEM o skeleton/cache que travou o SectionEditor. Painel esquerdo = Conteúdo (Textos/Imagens/Marca); painel direito = Design & Ajustes (Modelo/Cores/Fontes/SEO/Agenda/Leads). Abas quebram linha em vez de espremer.
-
-**2026-07-10 — corrige F15 (revertido) + registra hotfix do editor 820909b**
-
-F15 sai de FEITO (reescrita do editor revertida). Nota de deploy atualizada com o hotfix e a licao: tsc/build nao pegam o bug de runtime do editor.
 
 </details>
 
