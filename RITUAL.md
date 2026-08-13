@@ -9,19 +9,20 @@ Este arquivo é o combinado pra ninguém mais pagar.
 
 ---
 
-## Os três arquivos
+## Os quatro arquivos
 
-Só três. O resto é histórico.
+Só quatro. O resto é anexo.
 
 | arquivo | quem escreve | responde |
 |---|---|---|
 | **ESTADO.md** | `node scripts/estado.mjs` | onde estamos, de verdade |
+| **DIARIO.md** | `node scripts/diario.mjs` | o que mudou, e quando |
 | **MVP.md** | nós dois, quando o escopo muda | onde queremos chegar |
 | **RITUAL.md** | quase nunca | como andamos |
 
-**ESTADO.md não se edita à mão.** Ele é gerado de git, do banco de produção e de
-sondas que rodam grep no código. Uma sonda só diz "ligado" se achar quem chama a
-função — módulo escrito e sem chamador conta como não ligado.
+**Dois deles não se editam à mão.** ESTADO.md é gerado de git, do banco de
+produção e de sondas que rodam grep no código. Uma sonda só diz "ligado" se
+achar quem chama a função — módulo escrito e sem chamador conta como não ligado.
 
 Foi assim que descobrimos, em 07/08, que a loja estava documentada como pronta
 com o botão de comprar `disabled` no código.
@@ -46,6 +47,13 @@ Se algum dia ele falhar, o comando é:
 node scripts/estado.mjs && cat ESTADO.md
 ```
 
+Quando a pergunta for outra — "o que andou desde a última vez que olhei?" — o
+arquivo é o DIARIO.md, e ele também se regenera com um comando:
+
+```bash
+node scripts/diario.mjs && cat DIARIO.md
+```
+
 Nas primeiras palavras de toda sessão eu digo: em que sprint estamos, quantas
 sondas estão vermelhas, e qual é o próximo item do MVP. Se eu começar a
 trabalhar sem isso, me corrija.
@@ -56,7 +64,7 @@ trabalhar sem isso, me corrija.
 
 | dia | o quê |
 |---|---|
-| **segunda** | gero ESTADO.md, escolho os itens do sprint, te mostro em 5 linhas |
+| **segunda** | gero ESTADO.md e DIARIO.md, escolho os itens do sprint, te mostro em 5 linhas |
 | **terça a quinta** | eu construo o back; você constrói o front |
 | **sexta** | **sessão de teste** (abaixo). Sprint sem sessão passada não fechou. |
 

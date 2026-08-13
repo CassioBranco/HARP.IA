@@ -5,9 +5,10 @@
 >
 > ⚠️ **HIERARQUIA DA VERDADE.** Ordem de leitura, nesta ordem:
 > 1. **`ESTADO.md`** — o que está pronto. **Arquivo gerado** por `node scripts/estado.mjs` a partir de git, banco de produção e sondas de grep no código. Ganha de qualquer outro documento, sempre.
-> 2. **`MVP.md`** — os 5 pilares do MVP, definição de pronto, portões humanos.
-> 3. **`RITUAL.md`** — como trabalhamos, sessões de teste.
-> 4. Este arquivo — contexto de fundo.
+> 2. **`DIARIO.md`** — o que mudou e quando. **Arquivo gerado** por `node scripts/diario.mjs` a partir do git. Responde "o que andou desde a última vez", que o ESTADO.md (uma foto do agora) não responde.
+> 3. **`MVP.md`** — os 5 pilares do MVP, definição de pronto, portões humanos.
+> 4. **`RITUAL.md`** — como trabalhamos, sessões de teste.
+> 5. Este arquivo — contexto de fundo.
 >
 > **Regra que originou essa ordem:** em 07/08/2026 o antigo `docs/PROJETO/ESTADO-MVP.md` afirmava que a loja funcionava enquanto o botão de comprar estava `disabled` no código e três módulos não tinham um único importador. Documento em prosa envelhece sozinho.
 > **Verifique o código e o banco, nunca a prosa.** Se `ESTADO.md` estiver errado, o erro está no script ou no código — conserte lá, não no texto.

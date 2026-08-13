@@ -2,7 +2,7 @@
 
 > **ARQUIVO GERADO. Não edite à mão.** Rode `node scripts/estado.mjs`.
 > Cada linha abaixo foi verificada contra o código e o banco, não contra outro documento.
-> Última geração: **2026-08-11**
+> Última geração: **2026-08-13**
 
 ## Sondas por pilar do MVP
 
@@ -36,7 +36,7 @@ conta como **não ligado**.
 - **ligado** — Cliente registra que publicou no perfil (published_at é escrito)
 - **ligado** — Calendário do mês: posts saem com data marcada
 - **ligado** — Link do Perfil é lido, guardado com place_id e vinculável no painel
-- `NÃO LIGADO` — Lembrete semanal do post sai sozinho (rota + agendamento)
+- **ligado** — Lembrete semanal do post sai sozinho (rota + agendamento)
 - **ligado** — Ponte blog ↔ Perfil: artigo publicado vira post, post vira pauta
 
 ### Fora do MVP
@@ -49,7 +49,7 @@ conta como **não ligado**.
 | tabela | linhas |
 |---|---:|
 | tenants | 14 |
-| onboarding_profiles | 12 |
+| onboarding_profiles | 13 |
 | sites | 9 |
 | blog_posts | 0 |
 | score_snapshots | 1 |
@@ -65,37 +65,26 @@ Zero linhas não significa quebrado: significa que ninguém exercitou aquele cam
 
 Branch: `master`
 
-- `0bdeb9f` test: empresa de teste sob demanda (seed idempotente + --limpar) _(2 hours ago)_
-- `cff8fe2` Ponte blog <-> Google Perfil: artigo publicado vira isca, sem estourar a cadencia _(4 days ago)_
-- `323c312` feat(gbp): pilar do Google Perfil ponta a ponta (5.2 a 5.6) _(4 days ago)_
-- `f524226` docs: indexa os 7 wireframes de referencia e liga aos pilares do MVP _(4 days ago)_
-- `b6d5840` docs: escopo do MVP em 5 pilares + ESTADO.md gerado no lugar da prosa _(4 days ago)_
+- `4e930c0` editor: preview de Desktop deixa de renderizar em largura de celular _(2 days ago)_
+- `cf7f3fb` Nota unica de SEO, Google Perfil so com prova e limpeza de codigo morto _(2 days ago)_
+- `0bdeb9f` test: empresa de teste sob demanda (seed idempotente + --limpar) _(2 days ago)_
+- `cff8fe2` Ponte blog <-> Google Perfil: artigo publicado vira isca, sem estourar a cadencia _(6 days ago)_
+- `323c312` feat(gbp): pilar do Google Perfil ponta a ponta (5.2 a 5.6) _(6 days ago)_
 
 **Trabalho não commitado:** 
 
 ```
-M app/(dashboard)/layout.tsx
- M app/(dashboard)/metrics/MetricsView.tsx
- M app/(dashboard)/painel.css
- M app/(editor)/editor/[siteId]/components/ScoreBar.tsx
- M app/api/score/[siteId]/route.ts
- M app/onboarding/page.tsx
- M lib/embeddings/openai.ts
- M lib/env.ts
- M lib/onboarding/actions.ts
-D  lib/onboarding/gpe.ts
- M lib/onboarding/types.ts
- M lib/prompts/loader.ts
- M lib/seo/score.ts
- M lib/seo/site-score.ts
- M lib/templates/build-site-content.ts
- M lib/templates/fonts.ts
- M lib/templates/layouts.ts
- M lib/templates/palettes.ts
+M CLAUDE.md
+ M ESTADO.md
+ M RITUAL.md
+ M scripts/estado.mjs
+?? DIARIO.md
+?? docs/referencia/analise-conversion-lp-seo-geo-aeo.md
+?? scripts/diario.mjs
 ```
 
 **Commits locais não enviados:** nenhum
 
 ---
 
-Próximos passos e definição de pronto: [MVP.md](MVP.md) · Como trabalhamos: [RITUAL.md](RITUAL.md)
+O que mudou e quando: [DIARIO.md](DIARIO.md) · Próximos passos e definição de pronto: [MVP.md](MVP.md) · Como trabalhamos: [RITUAL.md](RITUAL.md)

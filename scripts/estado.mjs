@@ -261,7 +261,7 @@ ${commits || '_sem commits_'}
 
 ---
 
-Próximos passos e definição de pronto: [MVP.md](MVP.md) · Como trabalhamos: [RITUAL.md](RITUAL.md)
+O que mudou e quando: [DIARIO.md](DIARIO.md) · Próximos passos e definição de pronto: [MVP.md](MVP.md) · Como trabalhamos: [RITUAL.md](RITUAL.md)
 `
 
 writeFileSync('ESTADO.md', md)
